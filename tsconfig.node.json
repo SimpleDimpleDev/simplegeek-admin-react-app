@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+		"paths": {
+      "@routes/*": ["src/routes/*"],
+      "@hooks/*": ["src/hooks/*"],
+			"@components/*": ["src/components/*"],
+			"@utils/*": ["src/utils/*"],
+			"@schemas/*": ["src/schemas/*"],
+			"@appTypes/*": ["src/types/*"],
+			"@api/*": ["src/api/*"],
+			"@assets/*": ["src/assets/*"],
+			"@state/*": ["src/state/*"],
+			"@config/*": ["src/config/*"]
+		},
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["vite.config.ts"]
+}
