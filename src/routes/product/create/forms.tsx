@@ -4,6 +4,7 @@ import {
 	Button,
 	Checkbox,
 	Chip,
+	CircularProgress,
 	FormControl,
 	FormControlLabel,
 	FormHelperText,
@@ -28,7 +29,6 @@ import Dropzone from "react-dropzone";
 import { ImageEditProps } from "@appTypes/Admin";
 import { ImageEditPropsSchema } from "@schemas/Admin";
 import { ImageEditor } from "@components/ImageEditor";
-import { LoadingSpinner } from "@components/LoadingSpinner";
 import type { ProductCreate } from "@appTypes/Product";
 import { ProductCreateSchema } from "@schemas/Product";
 import { getImageUrl } from "@utils/image";
@@ -344,28 +344,26 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({ onSubmit }
 										variant="outlined"
 										error={!!error}
 									>
-										<LoadingSpinner isLoading={categoryListIsLoading}>
-											{!categoryList ? (
-												<Typography variant="body2">Нет данных</Typography>
-											) : (
-												categoryList.items.map((category) => (
-													<MenuItem key={category.id} value={category.id}>
-														<div className="d-f fd-r ai-c gap-1">
-															<div
-																className="d-f fd-c ai-c"
-																style={{ width: 40, height: 40 }}
-															>
-																<img
-																	className="contain"
-																	src={getImageUrl(category.image, "small")}
-																/>
-															</div>
-															{category.title}
+										{!categoryList || categoryListIsLoading ? (
+											<CircularProgress />
+										) : (
+											categoryList.items.map((category) => (
+												<MenuItem key={category.id} value={category.id}>
+													<div className="d-f fd-r ai-c gap-1">
+														<div
+															className="d-f fd-c ai-c"
+															style={{ width: 40, height: 40 }}
+														>
+															<img
+																className="contain"
+																src={getImageUrl(category.image, "small")}
+															/>
 														</div>
-													</MenuItem>
-												))
-											)}
-										</LoadingSpinner>
+														{category.title}
+													</div>
+												</MenuItem>
+											))
+										)}
 									</Select>
 									{errors && <FormHelperText>{error?.message}</FormHelperText>}
 								</FormControl>
