@@ -166,9 +166,6 @@ export const adminApi = createApi({
 					url: "/admin/product",
 					method: "POST",
 					body: formData,
-					headers: {
-						"Content-Type": "multipart/form-data",
-					},
 				};
 			},
 			transformResponse: (response) => validateData(CreateResponseSchema, response),
