@@ -6,7 +6,7 @@ import { PublicationAdminSchema, PublicationCreateSchema } from "@schemas/Public
 import { FAQItemSchema } from "@schemas/FAQ";
 import { IdSchema } from "@schemas/Primitives";
 import { OrderAdminSchema } from "@schemas/Order";
-import { UserAdminSchema } from "@schemas/User";
+import { UserAdminTableSchema } from "@schemas/User";
 import { z } from "zod";
 
 export const CreateResponseSchema = z.object({
@@ -42,7 +42,7 @@ export const OrderGetAdminResponseSchema = OrderAdminSchema;
 export const OrderListGetAdminResponseSchema = z.object({
 	items: OrderAdminSchema.array(),
 });
-export const UserGetAdminResponseSchema = UserAdminSchema;
+export const UserGetAdminResponseSchema = UserAdminTableSchema;
 export const UserListGetAdminResponseSchema = z.object({
-	items: UserAdminSchema.array(),
+	items: UserAdminTableSchema.array(),
 });

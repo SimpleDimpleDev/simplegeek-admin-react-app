@@ -1,25 +1,31 @@
 import { Button, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
+import { useMemo, useState } from "react";
 
-import { Add } from "@mui/icons-material";
 import AdminTable from "@routes/table";
-import { UserAdmin } from "@appTypes/User";
+import { LoadingSpinner } from "@components/LoadingSpinner";
+import { UserAdminTable } from "@appTypes/User";
+import { useGetUserListQuery } from "@api/admin/service";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 
-const columns: GridColDef[] = [
-	{
-		field: "email",
-		headerName: "Email",
-	},
+const columns: GridColDef<UserAdminTable>[] = [
+	{ field: "email", headerName: "Email" },
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
+	{ field: "verified", headerName: "Подтвержден", type: "boolean" },
+	{ field: "vkId", headerName: "Вконтакте", type: "boolean", valueGetter: (_value, row) => (row.vkId ? true : false) },
 ];
 
 export default function UserTable() {
 	const navigate = useNavigate();
-	const users = [] as UserAdmin[];
-	const [selectedUserIds, setSelectedUserIds] = useState<GridRowSelectionModel>([]);
+	const { data: userList, isLoading: userListIsLoading } = useGetUserListQuery();
+	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
+
+	const selectedUser = useMemo(() => {
+		if (selectedItemIds.length !== 1) return null;
+		const selectedItemId = selectedItemIds[0];
+		return userList?.items.find((user) => user.id === selectedItemId) || null;
+	}, [selectedItemIds, userList]);
 
 	return (
 		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
@@ -27,39 +33,42 @@ export default function UserTable() {
 				<div>
 					<Typography variant="h5">Пользователи</Typography>
 					<Typography variant="body2" color="typography.secondary">
-						Количество: {users.length}
+						Количество: {userList?.items.length}
 					</Typography>
 				</div>
-				<Button variant="contained" onClick={() => navigate("/product/create")}>
-					<Add />
-					Добавить товар
-				</Button>
 			</div>
-
-			<AdminTable
-				columns={columns}
-				data={users}
-				onRowSelect={setSelectedUserIds}
-				selectedRows={selectedUserIds}
-				headerButtons={
-					<>
-						<Button
-							variant="contained"
-							disabled={!selectedUserIds.length || selectedUserIds.length > 1}
-							onClick={() => navigate(`/user/inspect/${selectedUserIds[0]}`)}
-						>
-							Подробнее
-						</Button>
-						<Button
-							variant="contained"
-							disabled={!selectedUserIds.length || selectedUserIds.length > 1}
-							onClick={() => navigate(`/user/edit/${selectedUserIds[0]}`)}
-						>
-							Редактировать
-						</Button>
-					</>
-				}
-			/>
+			<LoadingSpinner isLoading={userListIsLoading}>
+				{!userList ? (
+					<div className="w-100 h-100v d-f ai-c jc-c">
+						<Typography variant="h5">Что-то пошло не так</Typography>
+					</div>
+				) : (
+					<AdminTable
+						columns={columns}
+						data={userList.items}
+						onRowSelect={setSelectedItemIds}
+						selectedRows={selectedItemIds}
+						leftHeaderButtons={
+							<>
+								<Button
+									variant="contained"
+									disabled={!selectedUser}
+									onClick={() => navigate(`/user/inspect/${selectedUser?.id}`)}
+								>
+									Подробнее
+								</Button>
+								<Button
+									variant="contained"
+									disabled={!selectedUser}
+									onClick={() => navigate(`/user/edit/${selectedUser?.id}`)}
+								>
+									Редактировать
+								</Button>
+							</>
+						}
+					/>
+				)}
+			</LoadingSpinner>
 		</div>
 	);
 }

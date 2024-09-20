@@ -200,7 +200,7 @@ interface Props {
 	onRowSelect: (ids: GridRowSelectionModel) => void;
 	selectedRows: GridRowSelectionModel;
 	leftHeaderButtons?: ReactNode;
-	headerButtons: ReactNode;
+	headerButtons?: ReactNode;
 	getRowId?: GridRowIdGetter;
 }
 

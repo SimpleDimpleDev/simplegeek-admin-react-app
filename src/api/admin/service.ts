@@ -13,6 +13,7 @@ import {
 	PublicationCreateAdminRequestSchema,
 	PublicationGetAdminResponseSchema,
 	PublicationListGetAdminResponseSchema,
+	UserGetAdminResponseSchema,
 	UserListGetAdminResponseSchema,
 } from "./schemas";
 import { ZodError, ZodSchema, z } from "zod";
@@ -230,7 +231,16 @@ export const adminApi = createApi({
 			transformResponse: (response) => validateData(OrderListGetAdminResponseSchema, response),
 			providesTags: ["Order"],
 		}),
-		getUserList: builder.query({
+		getUser: builder.query<z.infer<typeof UserGetAdminResponseSchema>, { userId: string }>({
+			query: ({ userId }) => ({
+				url: `/admin/user`,
+				params: { id: userId },
+				method: "GET",
+			}),
+			transformResponse: (response) => validateData(UserGetAdminResponseSchema, response),
+			providesTags: (_result, _error, { userId }) => [{ type: "User", id: userId }],
+		}),
+		getUserList: builder.query<z.infer<typeof UserListGetAdminResponseSchema>, void>({
 			query: () => ({
 				url: "/admin/user-list",
 				method: "GET",
@@ -238,6 +248,7 @@ export const adminApi = createApi({
 			transformResponse: (response) => validateData(UserListGetAdminResponseSchema, response),
 			providesTags: ["User"],
 		}),
+
 	}),
 });
 
@@ -252,6 +263,7 @@ export const {
 	useGetPublicationListQuery,
 	useGetOrderQuery,
 	useGetOrderListQuery,
+	useGetUserQuery,
 	useGetUserListQuery,
 	useCreateFAQItemMutation,
 	useUpdateFAQItemMutation,

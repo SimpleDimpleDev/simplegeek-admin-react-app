@@ -9,7 +9,7 @@ import { ISOToDateSchema, IdSchema } from "./Primitives";
 import { PreorderOrderAdminSchema, PreorderOrderShopSchema } from "./Preorder";
 
 import { AdminGetBaseSchema } from "./Admin";
-import { UserAdminSchema } from "./User";
+import { UserAdminTableSchema } from "./User";
 import { z } from "zod";
 
 export const OrderStatusSchema = z.enum(["CANCELLED", "UNPAID", "ACCEPTED", "ASSEMBLY", "DELIVERY", "FINISHED"]);
@@ -18,7 +18,7 @@ export const OrderCreateSchema = z.object({
 	creditIds: IdSchema.array(),
 	delivery: DeliverySchema.nullable(),
 });
-
+	
 export const OrderItemShopSchema = z.object({
 	id: IdSchema,
 	title: z.string(),
@@ -48,7 +48,7 @@ export const OrderShopSchema = z.object({
 });
 
 export const OrderAdminSchema = AdminGetBaseSchema.extend({
-	user: UserAdminSchema,
+	user: UserAdminTableSchema,
 	status: OrderStatusSchema,
 	delivery: DeliveryOrderSchema.nullable(),
 	preorder: PreorderOrderAdminSchema.nullable(),
