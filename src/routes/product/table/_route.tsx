@@ -41,7 +41,7 @@ export default function ProductTable() {
 		const selectedItemId = selectedItemIds[0];
 		return productList?.items.find((product) => product.id === selectedItemId) || null;
 	}, [selectedItemIds, productList]);
-
+	
 	return (
 		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
 			<div className="d-f fd-r jc-sb p-2">
