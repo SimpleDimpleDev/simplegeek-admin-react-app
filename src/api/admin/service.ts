@@ -55,7 +55,7 @@ export const adminApi = createApi({
 				return {
 					url: "/admin/category",
 					method: "POST",
-					data: formData,
+					body: formData,
 					headers: {
 						"Content-Type": "multipart/form-data",
 					},
@@ -78,7 +78,7 @@ export const adminApi = createApi({
 			query: (item) => ({
 				url: "/admin/faq",
 				method: "POST",
-				data: item,
+				body: item,
 			}),
 			invalidatesTags: ["FAQItem"],
 		}),
@@ -94,7 +94,7 @@ export const adminApi = createApi({
 			query: (item) => ({
 				url: "/admin/faq",
 				method: "PUT",
-				data: item,
+				body: item,
 			}),
 			invalidatesTags: ["FAQItem"],
 		}),
@@ -102,7 +102,7 @@ export const adminApi = createApi({
 			query: (ids: string[]) => ({
 				url: "/admin/faq",
 				method: "DELETE",
-				data: { ids },
+				body: { ids },
 			}),
 			invalidatesTags: ["FAQItem"],
 		}),
@@ -115,7 +115,7 @@ export const adminApi = createApi({
 			query: (filterGroup: z.infer<typeof FilterGroupCreateAdminRequestSchema>) => ({
 				url: "/admin/filter-group",
 				method: "POST",
-				data: filterGroup,
+				body: filterGroup,
 			}),
 			transformResponse: (response) => validateData(CreateResponseSchema, response),
 			invalidatesTags: ["FilterGroup"],
@@ -136,7 +136,7 @@ export const adminApi = createApi({
 			query: (filterGroup) => ({
 				url: "/admin/filter-group",
 				method: "PUT",
-				data: filterGroup,
+				body: filterGroup,
 			}),
 			invalidatesTags: ["FilterGroup"],
 		}),
@@ -144,7 +144,7 @@ export const adminApi = createApi({
 			query: (ids: string[]) => ({
 				url: "/admin/filter-group",
 				method: "DELETE",
-				data: { ids },
+				body: { ids },
 			}),
 			invalidatesTags: ["FilterGroup"],
 		}),
@@ -165,7 +165,7 @@ export const adminApi = createApi({
 				return {
 					url: "/admin/product",
 					method: "POST",
-					data: formData,
+					body: formData,
 					headers: {
 						"Content-Type": "multipart/form-data",
 					},
@@ -197,7 +197,7 @@ export const adminApi = createApi({
 			query: (data: z.infer<typeof PublicationCreateAdminRequestSchema>) => ({
 				url: "/admin/publication",
 				method: "POST",
-				data: data,
+				body: data,
 			}),
 			transformResponse: (response) => validateData(CreateResponseSchema, response),
 			invalidatesTags: ["Publication"],
