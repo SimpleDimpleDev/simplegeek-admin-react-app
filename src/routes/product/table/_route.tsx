@@ -1,5 +1,6 @@
 import { Button, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
+import { useMemo, useState } from "react";
 import { useNavigate, useSubmit } from "react-router-dom";
 
 import { Add } from "@mui/icons-material";
@@ -7,7 +8,6 @@ import AdminTable from "@routes/table";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { getImageUrl } from "@utils/image";
 import { useGetProductListQuery } from "@api/admin/service";
-import { useState } from "react";
 
 const columns: GridColDef[] = [
 	{
@@ -34,7 +34,13 @@ export default function ProductTable() {
 
 	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
 
-	const [selectedProductIds, setSelectedProductIds] = useState<GridRowSelectionModel>([]);
+	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
+
+	const selectedProduct = useMemo(() => {
+		if (selectedItemIds.length !== 1) return null;
+		const selectedItemId = selectedItemIds[0];
+		return productList?.items.find((product) => product.id === selectedItemId) || null;
+	}, [selectedItemIds, productList]);
 
 	return (
 		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
@@ -60,37 +66,41 @@ export default function ProductTable() {
 					<AdminTable
 						columns={columns}
 						data={productList?.items}
-						onRowSelect={setSelectedProductIds}
-						selectedRows={selectedProductIds}
+						onRowSelect={setSelectedItemIds}
+						selectedRows={selectedItemIds}
 						headerButtons={
 							<>
 								<Button
 									variant="contained"
-									disabled={!selectedProductIds.length}
+									disabled={!selectedItemIds.length}
 									onClick={() =>
 										submit(
-											{ productIds: JSON.stringify(selectedProductIds) },
+											{ productIds: JSON.stringify(selectedItemIds) },
 											{ method: "post", action: "/admin/publication/create" }
 										)
 									}
 								>
-									{selectedProductIds.length > 1
+									{selectedItemIds.length > 1
 										? "Опубликовать вариативный товар"
 										: "Опубликовать товар"}
 								</Button>
+							</>
+						}
+						leftHeaderButtons={
+							<>
 								<Button
 									variant="contained"
-									disabled={!selectedProductIds.length || selectedProductIds.length > 1}
-									onClick={() => navigate(`/product/inspect/${selectedProductIds[0]}`)}
+									disabled={!selectedProduct}
+									onClick={() => navigate(`/product/inspect/${selectedProduct?.id}`)}
 								>
-									Подробнее
+									Подробнее о товаре
 								</Button>
 								<Button
 									variant="contained"
-									disabled={!selectedProductIds.length || selectedProductIds.length > 1}
-									onClick={() => navigate(`/product/edit/${selectedProductIds[0]}`)}
+									disabled={!selectedProduct}
+									onClick={() => navigate(`/product/edit/${selectedProduct?.id}`)}
 								>
-									Редактировать
+									Редактировать товар
 								</Button>
 							</>
 						}

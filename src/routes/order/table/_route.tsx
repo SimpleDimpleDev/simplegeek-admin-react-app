@@ -59,6 +59,12 @@ export default function OrderTable() {
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
+	const selectedOrder = useMemo(() => {
+		if (selectedItemIds.length !== 1) return null;
+		const selectedItemId = selectedItemIds[0];
+		return orderList?.items.find((order) => order.id === selectedItemId) || null;
+	}, [selectedItemIds, orderList]);
+
 	const handleChangeDeliveryService = (service: DeliveryService | "UNASSIGNED") => {
 		setSelectedItemIds([]);
 		setDeliveryService(service);
@@ -130,6 +136,16 @@ export default function OrderTable() {
 									onClick={() => {}}
 								>
 									Сформировать накладные
+								</Button>
+							</>
+						}
+						leftHeaderButtons={
+							<>
+								<Button variant="contained" disabled={!selectedOrder} onClick={() => {}}>
+									Подробнее о заказе
+								</Button>
+								<Button variant="contained" disabled={!selectedOrder} onClick={() => {}}>
+									Перейти к пользователю
 								</Button>
 							</>
 						}

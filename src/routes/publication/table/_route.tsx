@@ -100,12 +100,12 @@ export default function PublicationTable() {
 	);
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
-	const selectedItem =
-		(selectedItemIds.length === 1 && publicationsList?.items.find((item) => item.id === selectedItemIds.at(0))) ||
-		null;
 
-	console.log("rerender");
-	console.log(formattedPublications);
+	const selectedPublication = useMemo(() => {
+		if (selectedItemIds.length !== 1) return null;
+		const selectedItemId = selectedItemIds[0];
+		return publicationsList?.items.find((publication) => publication.id === selectedItemId) || null;
+	}, [selectedItemIds, publicationsList]);
 
 	return (
 		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
@@ -143,11 +143,15 @@ export default function PublicationTable() {
 									disabled={!selectedItemIds.length}
 									onClick={() => console.log("disabled", selectedItemIds)}
 								>
-									{selectedItemIds.length > 1 ? "Скрыть товар" : "Скрыть товары"}
+									{selectedItemIds.length > 1 ? "Скрыть публикацию" : "Скрыть публикации"}
 								</Button>
+							</>
+						}
+						leftHeaderButtons={
+							<>
 								<Button
 									variant="contained"
-									disabled={!selectedItemIds.length || selectedItemIds.length > 1}
+									disabled={!selectedPublication}
 									onClick={() => {
 										navigate(`/publication/inspect/${selectedItemIds.at(0)}`);
 									}}
@@ -156,10 +160,8 @@ export default function PublicationTable() {
 								</Button>
 								<Button
 									variant="contained"
-									disabled={!selectedItemIds.length || selectedItemIds.length > 1}
-									onClick={() =>
-										selectedItem && navigate(`/publication/edit/${selectedItem.id}`)
-									}
+									disabled={!selectedPublication}
+									onClick={() => navigate(`/publication/edit/${selectedPublication?.id}`)}
 								>
 									Редактировать
 								</Button>

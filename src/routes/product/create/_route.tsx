@@ -1,5 +1,3 @@
-import "react-image-crop/dist/ReactCrop.css";
-
 import { CircularProgress, Modal, Snackbar, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
