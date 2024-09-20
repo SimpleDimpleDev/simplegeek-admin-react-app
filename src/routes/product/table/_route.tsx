@@ -93,14 +93,14 @@ export default function ProductTable() {
 									disabled={!selectedProduct}
 									onClick={() => navigate(`/product/inspect/${selectedProduct?.id}`)}
 								>
-									Подробнее о товаре
+									Подробнее
 								</Button>
 								<Button
 									variant="contained"
 									disabled={!selectedProduct}
 									onClick={() => navigate(`/product/edit/${selectedProduct?.id}`)}
 								>
-									Редактировать товар
+									Редактировать
 								</Button>
 							</>
 						}

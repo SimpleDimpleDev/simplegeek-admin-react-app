@@ -142,7 +142,7 @@ export default function OrderTable() {
 						leftHeaderButtons={
 							<>
 								<Button variant="contained" disabled={!selectedOrder} onClick={() => {}}>
-									Подробнее о заказе
+									Подробнее
 								</Button>
 								<Button variant="contained" disabled={!selectedOrder} onClick={() => {}}>
 									Перейти к пользователю

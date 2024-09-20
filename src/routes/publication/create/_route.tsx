@@ -121,7 +121,7 @@ export default function PublicationCreate() {
 				</Select>
 			</FormControl>
 
-			<div className="d-f p-3 bg-secondary br-3" style={{ width: "80%" }}>
+			<div className="w-100 d-f p-3 bg-secondary br-3">
 				{publicationType === "STOCK" ? (
 					<PublicationCreateStockForm
 						productIds={productIds}

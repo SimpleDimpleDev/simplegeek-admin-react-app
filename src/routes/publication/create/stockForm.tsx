@@ -1,6 +1,7 @@
 import {
 	Autocomplete,
 	Button,
+	CircularProgress,
 	FormControl,
 	FormHelperText,
 	IconButton,
@@ -22,7 +23,6 @@ import {
 import { useCallback, useEffect, useMemo } from "react";
 import { useGetCategoryListQuery, useGetProductListQuery } from "@api/admin/service";
 
-import { LoadingSpinner } from "@components/LoadingSpinner";
 import { ProductAdmin } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
 import { getImageUrl } from "@utils/image";
@@ -367,13 +367,15 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 									{...field}
 									error={!!error}
 								>
-									<LoadingSpinner isLoading={categoryListIsLoading}>
-										{categoryList?.items.map((category) => (
+									{!categoryList || categoryListIsLoading ? (
+										<CircularProgress />
+									) : (
+										categoryList?.items.map((category) => (
 											<MenuItem key={category.id} value={category.id}>
 												{category.title}
 											</MenuItem>
-										))}
-									</LoadingSpinner>
+										))
+									)}
 								</Select>
 								<FormHelperText error={!!error}>{error?.message}</FormHelperText>
 							</FormControl>
