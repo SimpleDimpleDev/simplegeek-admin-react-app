@@ -1,9 +1,8 @@
 import { AdminGetBaseSchema } from "./Admin";
-import { z } from "zod";
-
 import { CreditInfoSchema } from "./Payment";
 import { IdSchema } from "./Primitives";
-import { ProductAdminSchema, ProductShopSchema } from "./Product";
+import { ProductAdminSchema } from "./Product";
+import { z } from "zod";
 
 export const CatalogItemPublishSchema = z.object({
 	productId: IdSchema,
@@ -20,12 +19,8 @@ export const CatalogItemGetBaseSchema = z.object({
 	creditInfo: CreditInfoSchema.nullable(),
 });
 
-export const CatalogItemShopSchema = CatalogItemGetBaseSchema.extend({
-	id: IdSchema,
-	product: ProductShopSchema,
-});
-
 export const CatalogItemAdminSchema = CatalogItemGetBaseSchema.extend({
+	id: IdSchema,
 	isActive: z.boolean(),
 	product: ProductAdminSchema,
 	quantity: z.number().nullable(),
