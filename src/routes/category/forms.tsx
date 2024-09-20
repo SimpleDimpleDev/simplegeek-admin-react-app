@@ -185,7 +185,7 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 								<div className="br-2" style={{ width: 96, height: 96 }}>
 									{smallImage ? (
 										<CanvasPreview
-											style={{ width: 96 }}
+											style={{ width: "96px" }}
 											file={smallImage.file}
 											crop={smallImage.properties.crop}
 											scale={smallImage.properties.scale}
@@ -254,7 +254,7 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 									<div className="br-2 d-f fd-r ai-c" style={{ height: 96 }}>
 										{bigImage ? (
 											<CanvasPreview
-												style={{ height: 96 }}
+												style={{ height: "96px" }}
 												file={bigImage.file}
 												crop={bigImage.properties.crop}
 												scale={bigImage.properties.scale}

@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import CanvasPreview from "./CanvasPreview";
 import { Search } from "@mui/icons-material";
 
+const MOVE_DISTANCE = 0.1;
+
 function getDefaultCrop(mediaWidth: number, mediaHeight: number, cropWidth: number, cropHeight: number): Crop {
 	const cropPercentageHeight = (cropHeight / mediaHeight) * 100;
 	const cropPercentageWidth = (cropWidth / mediaWidth) * 100;
@@ -37,6 +39,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 	onImageResolutionTooLow,
 }) => {
 	const imgRef = useRef<HTMLImageElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	const [selectedImage, setSelectedImage] = useState<File | null>(null);
 	const imageSrc = selectedImage ? URL.createObjectURL(selectedImage) : null;
@@ -75,6 +78,12 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [file]);
 
+	useEffect(() => {
+		if (containerRef.current) {
+			containerRef.current.focus();
+		}
+	}, []);
+
 	const handleScale = (e: React.WheelEvent<HTMLDivElement>) => {
 		e.preventDefault();
 		if (!scale) return;
@@ -84,13 +93,54 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 			setScale(scale / 1.001);
 		}
 	};
+
+	const handleMove = (direction: "UP" | "RIGHT" | "DOWN" | "LEFT") => {
+		setCrop((crop) => {
+			if (!crop) return;
+
+			return {
+				...crop,
+				x:
+					direction === "LEFT"
+						? crop.x - MOVE_DISTANCE
+						: direction === "RIGHT"
+						? crop.x + MOVE_DISTANCE
+						: crop.x,
+				y: direction === "UP" ? crop.y - MOVE_DISTANCE : direction === "DOWN" ? crop.y + MOVE_DISTANCE : crop.y,
+			};
+		});
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		console.log(e);
+		e.preventDefault();
+		if (e.key === "Escape") {
+			setSelectedImage(null);
+		} else if (e.key === "ArrowUp") {
+			handleMove("UP");
+		} else if (e.key === "ArrowRight") {
+			handleMove("RIGHT");
+		} else if (e.key === "ArrowDown") {
+			handleMove("DOWN");
+		} else if (e.key === "ArrowLeft") {
+			handleMove("LEFT");
+		}
+	};
+
 	return (
-		<div className="d-f fd-c gap-1 ai-c bg-primary w-mc h-mc py-2 px-4 br-3" onWheel={handleScale}>
+		<div
+			ref={containerRef}
+			tabIndex={0}
+			className="d-f fd-c gap-1 ai-c bg-primary w-mc h-mc py-2 px-4 br-3"
+			onKeyDown={handleKeyDown}
+			onWheel={handleScale}
+		>
 			<Typography variant="h6">Редактируйте изображение</Typography>
 			<div className="w-100 d-f fd-c js-sb gap-1">
 				<div>
 					<Typography variant="body1" sx={{ color: "typography.secondary" }}>
-						Используйте колёсико мыши для более точного изменения масштаба
+						Используйте колёсико мыши для более точного изменения масштаба.
+						Используйте стрелки для перемещения области
 					</Typography>
 				</div>
 
@@ -110,10 +160,10 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 			<div className="d-f fd-r gap-1">
 				{!!imageSrc && (
 					<ReactCrop
-						style={{ height: 768 }}
+						style={{ height: 768, width: 768 }}
 						locked
 						crop={crop}
-						onChange={(percentageCrop) => {
+						onChange={(_pixelCrop, percentageCrop) => {
 							setCrop(percentageCrop);
 						}}
 						aspect={1}
@@ -129,7 +179,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 				)}
 				{!!selectedImage && !!crop && (
 					<CanvasPreview
-						style={{ width: 768, border: "1px solid black" }}
+						style={{ width: "768px", border: "1px solid black" }}
 						file={selectedImage}
 						crop={crop}
 						scale={scale}
@@ -139,6 +189,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 			<Button
 				variant="contained"
 				onClick={() => {
+					console.log({ scale, crop, file });
 					onConfirm(scale!, crop!, file);
 				}}
 			>

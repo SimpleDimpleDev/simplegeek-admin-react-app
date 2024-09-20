@@ -29,6 +29,7 @@ const TO_RADIANS = Math.PI / 180;
 const CanvasPreview: React.FC<CanvasPreviewProps> = ({ file, crop, scale = 1, rotate = 0, style }) => {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [image, setImage] = useState<HTMLImageElement>();
+	const [aspectRatio, setAspectRatio] = useState<number | null>(null);
 
 	useEffect(() => {
 		// Create an Image object
@@ -36,6 +37,7 @@ const CanvasPreview: React.FC<CanvasPreviewProps> = ({ file, crop, scale = 1, ro
 		img.onload = () => {
 			// Set the loaded image to state when ready
 			setImage(img);
+			// Set the aspect ratio
 		};
 		// Set the src of the img to the file
 		img.src = URL.createObjectURL(file);
@@ -69,7 +71,7 @@ const CanvasPreview: React.FC<CanvasPreviewProps> = ({ file, crop, scale = 1, ro
 			cropWidth = crop.width;
 			cropHeight = crop.height;
 		}
-
+		setAspectRatio(cropWidth / cropHeight);
 		const pixelRatio = window.devicePixelRatio;
 
 		canvas.width = Math.floor(cropWidth * pixelRatio);
@@ -109,7 +111,14 @@ const CanvasPreview: React.FC<CanvasPreviewProps> = ({ file, crop, scale = 1, ro
 		ctx.restore();
 	}, [image, crop, scale, rotate]);
 
-	return <canvas style={style} ref={canvasRef} />;
+	console.log(aspectRatio);	
+	const canvasStyle = {
+		...style,
+		width: `${style?.width || "100%"}`,
+		height: `calc(${style?.width || "100%"} / ${aspectRatio})`,
+	};
+
+	return <canvas style={canvasStyle} ref={canvasRef} />;
 };
 
 export default CanvasPreview;
