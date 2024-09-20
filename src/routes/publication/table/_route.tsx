@@ -104,7 +104,14 @@ export default function PublicationTable() {
 	const selectedPublication = useMemo(() => {
 		if (selectedItemIds.length !== 1) return null;
 		const selectedItemId = selectedItemIds[0];
-		return publicationsList?.items.find((publication) => publication.id === selectedItemId) || null;
+		return (
+			publicationsList?.items.find((publication) => {
+				const selectedItemIdParts =
+					typeof selectedItemId === "string" ? selectedItemId.split("?") : [selectedItemId];
+				const publicationId = selectedItemIdParts[0];
+				return publication.id === publicationId;
+			}) || null
+		);
 	}, [selectedItemIds, publicationsList]);
 
 	return (
