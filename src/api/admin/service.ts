@@ -56,9 +56,6 @@ export const adminApi = createApi({
 					url: "/admin/category",
 					method: "POST",
 					body: formData,
-					headers: {
-						"Content-Type": "multipart/form-data",
-					},
 				};
 			},
 			transformResponse: (response) => validateData(CreateResponseSchema, response),
@@ -216,14 +213,14 @@ export const adminApi = createApi({
 			transformResponse: (response) => validateData(PublicationListGetAdminResponseSchema, response),
 			providesTags: ["Publication"],
 		}),
-		getOrder: builder.query({
-			query: (id: string) => ({
+		getOrder: builder.query<z.infer<typeof OrderGetAdminResponseSchema>, { orderId: string }>({
+			query: ({ orderId }) => ({
 				url: `/admin/order`,
-				params: { id },
+				params: { id: orderId },
 				method: "GET",
 			}),
 			transformResponse: (response) => validateData(OrderGetAdminResponseSchema, response),
-			providesTags: (_result, _error, id) => [{ type: "Order", id }],
+			providesTags: (_result, _error, { orderId }) => [{ type: "Order", id: orderId }],
 		}),
 		getOrderList: builder.query<z.infer<typeof OrderListGetAdminResponseSchema>, void>({
 			query: () => ({
