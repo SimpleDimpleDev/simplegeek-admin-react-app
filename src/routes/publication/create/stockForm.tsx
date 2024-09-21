@@ -23,14 +23,14 @@ import {
 import { useCallback, useEffect, useMemo } from "react";
 import { useGetCategoryListQuery, useGetProductListQuery } from "@api/admin/service";
 
-import { ProductAdmin } from "@appTypes/Product";
+import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
 import { getImageUrl } from "@utils/image";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 type CatalogItemPublishStockFormData = {
-	product: ProductAdmin | null;
+	product: ProductGet | null;
 	price: number | null;
 	quantity: number | null;
 	discount: number | null;
@@ -69,9 +69,9 @@ interface ItemFormProps {
 	dragHandleProps: DraggableProvidedDragHandleProps | undefined | null;
 	isSingle: boolean;
 	onRemove: (index: number) => void;
-	availableProducts: ProductAdmin[];
+	availableProducts: ProductGet[];
 	productsLoading: boolean;
-	selectedProducts: ProductAdmin[];
+	selectedProducts: ProductGet[];
 }
 
 const ItemForm: React.FC<ItemFormProps> = ({
@@ -122,7 +122,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 											}}
 										>
 											<img
-												src={getImageUrl(option.images.at(0) ?? "", "small")}
+												src={getImageUrl(option.images.at(0)?.url ?? "", "small")}
 												className="contain"
 											/>
 										</div>
@@ -220,7 +220,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 };
 
 interface getDefaultFormValuesArgs {
-	products: ProductAdmin[];
+	products: ProductGet[];
 	productIds?: string[];
 }
 

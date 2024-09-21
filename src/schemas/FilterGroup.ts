@@ -1,6 +1,7 @@
+import { ISOToDateSchema, IdSchema } from "./Primitives";
+
+import { CategoryGetSchema } from "./Category";
 import { z } from "zod";
-import { IdSchema, ISOToDateSchema } from "./Primitives";
-import { CategoryAdminSchema } from "./Category";
 
 export const FilterGroupNewSchema = z.object({
 	id: IdSchema.nullable(),
@@ -21,27 +22,15 @@ export const FilterGroupCreateSchema = z.object({
 		.object({
 			value: z.string(),
 		})
-		.array()
+		.array(),
 });
 
 export const FilterGroupGetSchema = z.object({
 	id: IdSchema,
-	title: z.string(),
-	filters: z
-		.object({
-			id: IdSchema,
-			value: z.string(),
-		})
-		.array()
-		.nonempty(),
-});
-
-export const FilterGroupAdminSchema = z.object({
-	id: IdSchema,
 	createdAt: ISOToDateSchema,
 	updatedAt: ISOToDateSchema,
 	title: z.string(),
-	category: CategoryAdminSchema.nullable(),
+	category: CategoryGetSchema.nullable(),
 	filters: z
 		.object({
 			id: IdSchema,

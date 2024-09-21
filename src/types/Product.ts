@@ -1,6 +1,8 @@
-import { ProductAdminSchema, ProductCreateSchema } from "@schemas/Product";
+import { ProductAddImageSchema, ProductCreateSchema, ProductGetSchema, ProductUpdateSchema } from "@schemas/Product";
 
 import { z } from "zod";
 
 export type ProductCreate = z.infer<typeof ProductCreateSchema>;
-export type ProductAdmin = z.infer<typeof ProductAdminSchema>;
+export type ProductGet = z.infer<typeof ProductGetSchema>;
+export type ProductAddImage = z.infer<typeof ProductAddImageSchema>;
+export type ProductUpdate = z.infer<typeof ProductUpdateSchema>;

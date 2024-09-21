@@ -1,8 +1,7 @@
-import { z } from "zod";
-
-import { ISOToDateSchema } from "./Primitives";
 import { AdminGetBaseSchema } from "./Admin";
-import { InvoiceAdminSchema, InvoiceShopSchema } from "./Payment";
+import { ISOToDateSchema } from "./Primitives";
+import { InvoiceGetSchema } from "./Payment";
+import { z } from "zod";
 
 export const PreorderStatusSchema = z.enum([
 	"NEW",
@@ -14,22 +13,14 @@ export const PreorderStatusSchema = z.enum([
 ]);
 export const ShippingCostIncludedSchema = z.enum(["FOREIGN", "FULL", "NOT"]);
 
-export const PreorderShopSchema = z.object({
+export const PreorderGetSchema = AdminGetBaseSchema.extend({
 	title: z.string(),
 	status: PreorderStatusSchema,
 	expectedArrival: ISOToDateSchema.nullable(),
 });
 
-export const PreorderAdminSchema = AdminGetBaseSchema.merge(PreorderShopSchema);
-
-export const PreorderOrderShopSchema = PreorderShopSchema.extend({
+export const PreorderOrderGetSchema = PreorderGetSchema.extend({
 	shippingCostIncluded: ShippingCostIncludedSchema,
-	foreignShippingInvoice: InvoiceShopSchema.nullable(),
-	localShippingInvoice: InvoiceShopSchema.nullable(),
-});
-
-export const PreorderOrderAdminSchema = PreorderAdminSchema.extend({
-	shippingCostIncluded: ShippingCostIncludedSchema,
-	foreignShippingInvoice: InvoiceAdminSchema.nullable(),
-	localShippingInvoice: InvoiceAdminSchema.nullable(),
+	foreignShippingInvoice: InvoiceGetSchema.nullable(),
+	localShippingInvoice: InvoiceGetSchema.nullable(),
 });

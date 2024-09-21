@@ -1,5 +1,5 @@
-import { CatalogItemAdminSchema, CatalogItemPublishSchema } from "./CatalogItem";
-import { PreorderAdminSchema, ShippingCostIncludedSchema } from "./Preorder";
+import { CatalogItemGetSchema, CatalogItemPublishSchema } from "./CatalogItem";
+import { PreorderGetSchema, ShippingCostIncludedSchema } from "./Preorder";
 
 import { AdminGetBaseSchema } from "./Admin";
 import { IdSchema } from "./Primitives";
@@ -13,8 +13,8 @@ export const PublicationCreateSchema = z.object({
 	items: CatalogItemPublishSchema.array(),
 });
 
-export const PublicationAdminSchema = AdminGetBaseSchema.extend({
+export const PublicationGetSchema = AdminGetBaseSchema.extend({
 	link: z.string(),
-	preorder: PreorderAdminSchema.nullable(),
-	items: CatalogItemAdminSchema.array().nonempty(),
+	preorder: PreorderGetSchema.nullable(),
+	items: CatalogItemGetSchema.array().nonempty(),
 });

@@ -1,6 +1,6 @@
 import { Box, Button, LinearProgress, Typography } from "@mui/material";
 
-import { CreditInfo } from "@appTypes/Credit";
+import { CreditInfo } from "@appTypes/Payment";
 import { DateFormatter } from "@utils/format";
 
 interface Marker {

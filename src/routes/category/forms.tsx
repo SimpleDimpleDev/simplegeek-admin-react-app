@@ -25,18 +25,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 type ImageEditorState = {
 	file: File;
-	image: "small" | "big";
+	image: "icon" | "banner";
 	properties: ImageEditProps | null;
 };
 
 export type CategoryCreateFormData = {
 	title: string;
 	link: string;
-	smallImage: {
+	icon: {
 		file: File;
 		properties: ImageEditProps;
 	} | null;
-	bigImage: {
+	banner: {
 		file: File;
 		properties: ImageEditProps;
 	} | null;
@@ -45,11 +45,11 @@ export type CategoryCreateFormData = {
 const CategoryCreateResolver = z.object({
 	title: z.string().min(1, { message: "Укажите название" }),
 	link: z.string().min(1, { message: "Укажите ссылку" }),
-	smallImage: z.object({
+	icon: z.object({
 		file: z.instanceof(File, { message: "Выберите изображение" }),
 		properties: ImageEditPropsSchema,
 	}),
-	bigImage: z.object({
+	banner: z.object({
 		file: z.instanceof(File, { message: "Выберите изображение" }),
 		properties: ImageEditPropsSchema,
 	}),
@@ -68,22 +68,22 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 		resolver: zodResolver(CategoryCreateResolver),
 	});
 	const [imageEditor, setImageEditor] = useState<ImageEditorState | null>(null);
-	const [imageResolutionTooLowSnackbarOpen, setImageResolutionTooLowSnackbarOpen] = useState<"small" | "big" | null>(
+	const [imageResolutionTooLowSnackbarOpen, setImageResolutionTooLowSnackbarOpen] = useState<"icon" | "banner" | null>(
 		null
 	);
 
-	const smallImage = watch("smallImage");
-	const bigImage = watch("bigImage");
+	const icon = watch("icon");
+	const banner = watch("banner");
 
-	const handleStartImageEdit = (imageType: "small" | "big") => {
+	const handleStartImageEdit = (imageType: "icon" | "banner") => {
 		let image;
 		switch (imageType) {
-			case "small": {
-				image = getValues().smallImage;
+			case "icon": {
+				image = getValues().icon;
 				break;
 			}
-			case "big": {
-				image = getValues().bigImage;
+			case "banner": {
+				image = getValues().banner;
 				break;
 			}
 		}
@@ -98,14 +98,14 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 	const handleEditImage = (scale: number, crop: Crop, file: File) => {
 		console.log({ scale, crop, file });
 		if (!imageEditor) return;
-		if (imageEditor.image === "small") {
-			setValue(`smallImage.properties.scale`, scale);
-			setValue(`smallImage.properties.crop`, crop);
-			setValue(`smallImage.file`, file);
+		if (imageEditor.image === "icon") {
+			setValue(`icon.properties.scale`, scale);
+			setValue(`icon.properties.crop`, crop);
+			setValue(`icon.file`, file);
 		} else {
-			setValue(`bigImage.properties.scale`, scale);
-			setValue(`bigImage.properties.crop`, crop);
-			setValue(`bigImage.file`, file);
+			setValue(`banner.properties.scale`, scale);
+			setValue(`banner.properties.crop`, crop);
+			setValue(`banner.file`, file);
 		}
 		setImageEditor(null);
 	};
@@ -128,8 +128,8 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 						file={imageEditor.file}
 						defaultScale={imageEditor.properties?.scale || 1}
 						defaultCrop={imageEditor.properties?.crop || null}
-						cropWidth={imageEditor.image === "small" ? 360 : 696}
-						cropHeight={imageEditor.image === "small" ? 360 : 300}
+						cropWidth={imageEditor.image === "icon" ? 360 : 696}
+						cropHeight={imageEditor.image === "icon" ? 360 : 300}
 						onConfirm={handleEditImage}
 						onImageResolutionTooLow={() => {
 							handleStopImageEdit();
@@ -183,12 +183,12 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 						<div className="w-100 d-f fd-r gap-1 py-1 px-2 br-2 bg-secondary">
 							<div className="w-100 d-f fd-r gap-1">
 								<div className="br-2" style={{ width: 96, height: 96 }}>
-									{smallImage ? (
+									{icon ? (
 										<CanvasPreview
 											style={{ width: "96px" }}
-											file={smallImage.file}
-											crop={smallImage.properties.crop}
-											scale={smallImage.properties.scale}
+											file={icon.file}
+											crop={icon.properties.crop}
+											scale={icon.properties.scale}
 											rotate={0}
 										/>
 									) : (
@@ -202,7 +202,7 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 												for (const file of files) {
 													setImageEditor({
 														file,
-														image: "small",
+														image: "icon",
 														properties: null,
 													});
 												}
@@ -222,7 +222,7 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 									)}
 								</div>
 								<div className="d-f fd-c jc-c pl-1">
-									{!smallImage && (
+									{!icon && (
 										<>
 											<Typography variant="body2">Выберите изображение</Typography>
 											<Typography variant="body2" sx={{ color: "typography.secondary" }}>
@@ -233,10 +233,10 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 								</div>
 							</div>
 
-							<IconButton onClick={() => handleStartImageEdit("small")}>
+							<IconButton onClick={() => handleStartImageEdit("icon")}>
 								<Edit />
 							</IconButton>
-							<IconButton onClick={() => setValue(`smallImage`, null)}>
+							<IconButton onClick={() => setValue(`icon`, null)}>
 								<Delete />
 							</IconButton>
 						</div>
@@ -252,12 +252,12 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 							<div className="w-100 d-f fd-r gap-1 py-1 px-2 br-2 bg-secondary">
 								<div className="w-100 d-f fd-r gap-1">
 									<div className="br-2 d-f fd-r ai-c" style={{ height: 96 }}>
-										{bigImage ? (
+										{banner ? (
 											<CanvasPreview
 												style={{ height: "96px" }}
-												file={bigImage.file}
-												crop={bigImage.properties.crop}
-												scale={bigImage.properties.scale}
+												file={banner.file}
+												crop={banner.properties.crop}
+												scale={banner.properties.scale}
 												rotate={0}
 											/>
 										) : (
@@ -271,7 +271,7 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 													for (const file of files) {
 														setImageEditor({
 															file,
-															image: "big",
+															image: "banner",
 															properties: null,
 														});
 													}
@@ -291,7 +291,7 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 										)}
 									</div>
 									<div className="d-f fd-c jc-c pl-1">
-										{!bigImage && (
+										{!banner && (
 											<>
 												<Typography variant="body2">Выберите изображение</Typography>
 												<Typography variant="body2" sx={{ color: "typography.secondary" }}>
@@ -302,10 +302,10 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 									</div>
 								</div>
 
-								<IconButton onClick={() => handleStartImageEdit("big")}>
+								<IconButton onClick={() => handleStartImageEdit("banner")}>
 									<Edit />
 								</IconButton>
-								<IconButton onClick={() => setValue(`bigImage`, null)}>
+								<IconButton onClick={() => setValue(`banner`, null)}>
 									<Delete />
 								</IconButton>
 							</div>

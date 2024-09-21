@@ -1,6 +1,6 @@
 import { Radio, Typography } from "@mui/material";
 
-import { CreditInfo } from "@appTypes/Credit";
+import { CreditInfo } from "@appTypes/Payment";
 
 export type OrderItemCardProps = {
 	imgUrl: string;

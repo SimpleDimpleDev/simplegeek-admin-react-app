@@ -1,12 +1,12 @@
 import { Button, TextField } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
-import { FAQItemCreateSchema, FAQItemSchema } from "@schemas/FAQ";
+import { FAQItemCreateSchema, FAQItemGetSchema } from "@schemas/FAQ";
 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 export type FaqItemCreateFormData = z.infer<typeof FAQItemCreateSchema>;
-export type FaqItemUpdateFormData = z.infer<typeof FAQItemSchema>;
+export type FaqItemUpdateFormData = z.infer<typeof FAQItemGetSchema>;
 
 export const FAQItemCreateForm = ({ onSubmit }: { onSubmit: (data: FaqItemCreateFormData) => void }) => {
     const { control, handleSubmit } = useForm<FaqItemCreateFormData>({ resolver: zodResolver(FAQItemCreateSchema) });
@@ -63,7 +63,7 @@ export const FAQItemUpdateForm = ({
         control,
         handleSubmit,
         formState: { isDirty },
-    } = useForm<FaqItemUpdateFormData>({ resolver: zodResolver(FAQItemSchema) });
+    } = useForm<FaqItemUpdateFormData>({ resolver: zodResolver(FAQItemGetSchema) });
     if (!itemToUpdate) { console.error("No faq item to update"); return null};
     return (
         <form className="h-100 d-f fd-c jc-sb px-2 pt-2 pb-4" onSubmit={handleSubmit(onSubmit)}>

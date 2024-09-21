@@ -159,7 +159,7 @@ export default function ProductInspect() {
 										<div className="d-f br-2" style={{ width: "300px", height: "300px" }}>
 											<img
 												className="contain"
-												src={getImageUrl(image, "medium")}
+												src={getImageUrl(image.url, "medium")}
 												alt={`img-${index}`}
 											/>
 										</div>

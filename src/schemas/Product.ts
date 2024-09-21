@@ -1,26 +1,40 @@
 import { AdminGetBaseSchema, ImageEditPropsSchema } from "./Admin";
 import { FilterGroupGetSchema, FilterGroupNewSchema } from "./FilterGroup";
 
-import { CategoryShopSchema } from "./Category";
+import { AttachmentGetSchema } from "./Attachment";
+import { CategoryGetSchema } from "./Category";
 import { PhysicalPropertiesSchema } from "./PhysicalProperties";
 import { z } from "zod";
 
 export const ProductCreateSchema = z.object({
+	categoryId: z.string(),
 	title: z.string(),
 	description: z.string().nullable(),
-	categoryId: z.string(),
 	physicalProperties: PhysicalPropertiesSchema.nullable(),
 	filterGroups: FilterGroupNewSchema.array(),
 	images: z.object({ file: z.instanceof(File), properties: ImageEditPropsSchema }).array(),
 });
 
-export const ProductAdminSchema = AdminGetBaseSchema.extend({
-	// Ya ponyal
+export const ProductGetSchema = AdminGetBaseSchema.extend({
 	isPublished: z.boolean().default(true),
-	category: CategoryShopSchema,
+	category: CategoryGetSchema,
 	title: z.string(),
-	images: z.string().array(),
 	description: z.string().nullable(),
-	filterGroups: FilterGroupGetSchema.array(),
 	physicalProperties: PhysicalPropertiesSchema.nullable(),
+	filterGroups: FilterGroupGetSchema.array(),
+	images: AttachmentGetSchema.array(),
+});
+
+export const ProductAddImageSchema = z.object({
+	productId: z.string(),
+	image: z.object({ file: z.instanceof(File), properties: ImageEditPropsSchema }),
+});
+
+export const ProductUpdateSchema = z.object({
+	id: z.string(),
+	title: z.string(),
+	description: z.string().nullable(),
+	physicalProperties: PhysicalPropertiesSchema.nullable(),
+	filterGroups: FilterGroupNewSchema.array(),
+	images: AttachmentGetSchema.array().nullable(),
 });

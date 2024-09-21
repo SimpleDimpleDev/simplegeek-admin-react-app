@@ -356,7 +356,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({ onSubmit }
 														>
 															<img
 																className="contain"
-																src={getImageUrl(category.image, "small")}
+																src={getImageUrl(category.icon.url, "small")}
 															/>
 														</div>
 														{category.title}

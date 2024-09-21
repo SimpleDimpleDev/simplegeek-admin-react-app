@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { Add } from "@mui/icons-material";
 import AdminTable from "@routes/table";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import { PublicationAdmin } from "@appTypes/Publication";
+import { PublicationGet } from "@appTypes/Publication";
 import { getImageUrl } from "@utils/image";
 import { useGetPublicationListQuery } from "@api/admin/service";
 import { useNavigate } from "react-router-dom";
@@ -67,14 +67,14 @@ interface TableRowData {
 	updatedAt: Date;
 }
 
-const formatPublications = (publications: PublicationAdmin[]): TableRowData[] => {
+const formatPublications = (publications: PublicationGet[]): TableRowData[] => {
 	return publications.flatMap((publication) => {
 		return publication.items.map((item) => {
 			return {
 				publicationId: publication.id,
 				variationIndex: item.variationIndex,
 				productTitle: item.product.title,
-				imageUrl: getImageUrl(item.product.images[0], "small"),
+				imageUrl: getImageUrl(item.product.images.at(0)?.url || "", "small"),
 				categoryTitle: item.product.category.title,
 				price: item.price,
 				discount: item.discount,

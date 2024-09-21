@@ -1,7 +1,6 @@
-import { z } from "zod";
-
-import { IdSchema, ISOToDateSchema } from "./Primitives";
 import { AdminGetBaseSchema } from "./Admin";
+import { ISOToDateSchema } from "./Primitives";
+import { z } from "zod";
 
 export const BaseCreditPaymentInfo = z.object({
 	sum: z.number(),
@@ -12,25 +11,13 @@ export const CreditInfoSchema = z.object({
 	payments: BaseCreditPaymentInfo.array(),
 });
 
-export const InvoiceShopSchema = z.object({
-	id: IdSchema,
+export const InvoiceGetSchema = AdminGetBaseSchema.extend({
 	amount: z.number(),
 	isPaid: z.boolean(),
 	expiresAt: ISOToDateSchema.nullable(),
 });
 
-export const InvoiceAdminSchema = AdminGetBaseSchema.extend({
-	amount: z.number(),
-	isPaid: z.boolean(),
-	expiresAt: ISOToDateSchema.nullable(),
-});
-
-export const CreditShopSchema = CreditInfoSchema.extend({
+export const CreditGetSchema = CreditInfoSchema.extend({
 	paidParts: z.number(),
-	invoice: InvoiceShopSchema.nullable(),
-});
-
-export const CreditAdminSchema = CreditInfoSchema.extend({
-	paidParts: z.number(),
-	invoices: InvoiceAdminSchema.array(),
+	invoices: InvoiceGetSchema.array(),
 });

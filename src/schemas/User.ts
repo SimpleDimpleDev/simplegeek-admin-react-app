@@ -6,7 +6,7 @@ export const UserAuthoritySchema = z.object({
 	isAdmin: z.boolean(),
 });
 
-export const UserAdminTableSchema = AdminGetBaseSchema.extend({
+export const UserTableGetSchema = AdminGetBaseSchema.extend({
 	email: z.string(),
 	verified: z.boolean(),
 	vkId: z.string().nullable(),

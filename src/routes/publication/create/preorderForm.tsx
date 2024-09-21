@@ -28,8 +28,8 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { PreorderAdmin } from "@appTypes/Preorder";
-import { ProductAdmin } from "@appTypes/Product";
+import { PreorderGet } from "@appTypes/Preorder";
+import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
 import dayjs from "dayjs";
 import { getImageUrl } from "@utils/image";
@@ -39,7 +39,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 type ShippingCostIncluded = "FOREIGN" | "FULL" | "NOT";
 
 type CatalogItemPublishPreorderFormData = {
-	product: ProductAdmin | null;
+	product: ProductGet | null;
 	price: number | null;
 	quantity: number | null;
 	discount: number | null;
@@ -92,9 +92,9 @@ interface ItemFormProps {
 	dragHandleProps: DraggableProvidedDragHandleProps | undefined | null;
 	isSingle: boolean;
 	onRemove: (index: number) => void;
-	availableProducts: ProductAdmin[];
+	availableProducts: ProductGet[];
 	productsLoading: boolean;
-	selectedProducts: ProductAdmin[];
+	selectedProducts: ProductGet[];
 }
 
 const ItemForm: React.FC<ItemFormProps> = ({
@@ -165,7 +165,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 											}}
 										>
 											<img
-												src={getImageUrl(option.images.at(0) ?? "", "small")}
+												src={getImageUrl(option.images.at(0)?.url ?? "", "small")}
 												className="contain"
 											/>
 										</div>
@@ -333,9 +333,9 @@ const ItemForm: React.FC<ItemFormProps> = ({
 };
 
 interface getDefaultFormValuesArgs {
-	products: ProductAdmin[];
+	products: ProductGet[];
 	productIds?: string[];
-	preorders: PreorderAdmin[];
+	preorders: PreorderGet[];
 	preorderId?: string;
 }
 
@@ -416,7 +416,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
 	const { data: preorderList, isLoading: preorderListIsLoading } = {
-		data: { items: [] as PreorderAdmin[] },
+		data: { items: [] as PreorderGet[] },
 		isLoading: true,
 	};
 

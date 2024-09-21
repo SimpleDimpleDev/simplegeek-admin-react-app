@@ -2,7 +2,7 @@ import "react-image-crop/dist/ReactCrop.css";
 
 import { Button, FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
-import { OrderAdmin, OrderStatus } from "@appTypes/Order";
+import { OrderGet, OrderStatus } from "@appTypes/Order";
 import { useMemo, useState } from "react";
 
 import AdminTable from "@routes/table";
@@ -17,7 +17,7 @@ const deliveryServiceMapping: Record<DeliveryService | "UNASSIGNED", string> = {
 	SELF_PICKUP: "Самовывоз",
 };
 
-const columns: GridColDef<OrderAdmin>[] = [
+const columns: GridColDef<OrderGet>[] = [
 	{
 		field: "user",
 		headerName: "Пользователь",
