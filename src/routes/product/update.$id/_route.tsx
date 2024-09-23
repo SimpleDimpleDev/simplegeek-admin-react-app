@@ -14,7 +14,7 @@ export default function ProductUpdateRoute() {
 	const productId = params.id;
 	if (!productId) throw new Response("No product id provided", { status: 404 });
 	const { data: product, isLoading: productIsLoading } = useGetProductQuery({ productId });
-
+	
 	const [
 		updateProduct,
 		{ isSuccess: updateProductIsSuccess, isLoading: updateProductIsLoading, isError: updateProductIsError },

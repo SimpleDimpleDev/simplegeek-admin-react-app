@@ -114,11 +114,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 					mass: product.physicalProperties.mass.toString(),
 			  }
 			: null,
-		images: product.images.map((image) => ({
-			id: image.id,
-			url: image.url,
-			index: image.index,
-		})),
+		images: product.images,
 		filterGroups: product.filterGroups.map((filterGroup) => ({
 			id: filterGroup.id,
 			title: filterGroup.title,

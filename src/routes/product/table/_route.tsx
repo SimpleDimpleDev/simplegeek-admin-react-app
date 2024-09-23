@@ -16,7 +16,7 @@ const columns: GridColDef[] = [
 		renderCell: (params) => (
 			<div className="d-f fd-r gap-1 ai-c">
 				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden" }}>
-					<img src={getImageUrl(params.row.images[0], "small")} className="contain" />
+					<img src={getImageUrl(params.row.images[0].url, "small")} className="contain" />
 				</div>
 				{params.row.title}
 			</div>
