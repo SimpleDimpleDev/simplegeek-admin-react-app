@@ -34,8 +34,6 @@ type ProductUpdateFormData = {
 		id: string;
 		index: number;
 		url: string;
-		createdAt: Date;
-		updatedAt: Date;
 	}[];
 	filterGroups: {
 		id: string | null;
@@ -71,6 +69,7 @@ const ProductUpdateResolver = z.object({
 	images: z
 		.object({
 			id: z.string(),
+			index: z.number(),
 			url: z.string(),
 		})
 		.array(),
@@ -116,7 +115,11 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 					mass: product.physicalProperties.mass.toString(),
 			  }
 			: null,
-		images: product.images,
+		images: product.images.map((image) =>({
+			id: image.id,
+			index: image.index,
+			url: image.url,
+		})),
 		filterGroups: product.filterGroups.map((filterGroup) => ({
 			id: filterGroup.id,
 			title: filterGroup.title,

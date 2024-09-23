@@ -36,5 +36,9 @@ export const ProductUpdateSchema = z.object({
 	description: z.string().nullable(),
 	physicalProperties: PhysicalPropertiesSchema.nullable(),
 	filterGroups: FilterGroupNewSchema.array(),
-	images: AttachmentGetSchema.array().nullable(),
+	images: z.object({
+		id: z.string(),
+		index: z.number(),
+		url: z.string(),
+	}).array().nullable(),
 });
