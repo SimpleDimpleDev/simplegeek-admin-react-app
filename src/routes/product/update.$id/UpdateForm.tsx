@@ -32,8 +32,10 @@ type ProductUpdateFormData = {
 	} | null;
 	images: {
 		id: string;
-		url: string;
 		index: number;
+		url: string;
+		createdAt: Date;
+		updatedAt: Date;
 	}[];
 	filterGroups: {
 		id: string | null;
