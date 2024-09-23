@@ -52,18 +52,14 @@ export default function ProductUpdateRoute() {
 				open={successSnackBarOpened}
 				autoHideDuration={3000}
 				onClose={() => setSuccessSnackBarOpened(false)}
-				anchorOrigin={{ vertical: "top", horizontal: "right" }}
-			>
-				<Typography variant="body1">Товар успешно обновлен</Typography>
-			</Snackbar>
+				message="Продукт успешно обновлен"
+			/>
 			<Snackbar
 				open={errorSnackBarOpened}
 				autoHideDuration={3000}
 				onClose={() => setErrorSnackBarOpened(false)}
-				anchorOrigin={{ vertical: "top", horizontal: "right" }}
-			>
-				<Typography variant="body1">Что-то пошло не так</Typography>
-			</Snackbar>
+				message="Произошла ошибка при обновлении продукта"
+			/>
 			<LoadingSpinner isLoading={productIsLoading}>
 				<div className="h-100 d-f fd-c gap-2 px-3 pt-1 pb-4" style={{ minHeight: "100vh" }}>
 					<Button onClick={() => navigate(-1)} sx={{ color: "warning.main", width: "fit-content" }}>

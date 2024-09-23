@@ -115,7 +115,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 					mass: product.physicalProperties.mass.toString(),
 			  }
 			: null,
-		images: product.images.map((image) =>({
+		images: product.images.map((image) => ({
 			id: image.id,
 			index: image.index,
 			url: image.url,
@@ -137,7 +137,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 	const {
 		control,
 		handleSubmit,
-		formState: { errors },
+		formState: { errors, isDirty },
 		watch,
 	} = useForm<ProductUpdateFormData>({
 		resolver: zodResolver(ProductUpdateResolver),
@@ -659,7 +659,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 				</Button>
 			</div>
 
-			<Button type="submit" variant="contained" color="primary">
+			<Button disabled={!isDirty} type="submit" variant="contained" color="primary">
 				Submit
 			</Button>
 		</form>
