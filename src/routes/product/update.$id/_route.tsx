@@ -1,10 +1,11 @@
-import { Button, CircularProgress, Modal, Snackbar, Typography } from "@mui/material";
+import { Button, CircularProgress, Divider, Modal, Snackbar, Typography } from "@mui/material";
+import { useAddImageProductMutation, useGetProductQuery, useUpdateProductMutation } from "@api/admin/service";
 import { useEffect, useState } from "react";
-import { useGetProductQuery, useUpdateProductMutation } from "@api/admin/service";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { ChevronLeft } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import { ProductAddImageForm } from "./AddImageForm";
 import { ProductUpdateForm } from "./UpdateForm";
 
 export default function ProductUpdateRoute() {
@@ -18,6 +19,9 @@ export default function ProductUpdateRoute() {
 		updateProduct,
 		{ isSuccess: updateProductIsSuccess, isLoading: updateProductIsLoading, isError: updateProductIsError },
 	] = useUpdateProductMutation();
+	const [addImageProduct,
+		{ isLoading: addImageProductIsLoading, isError: addImageProductIsError },
+	] = useAddImageProductMutation();
 
 	const [successSnackBarOpened, setSuccessSnackBarOpened] = useState(false);
 	const [errorSnackBarOpened, setErrorSnackBarOpened] = useState(false);
@@ -30,14 +34,14 @@ export default function ProductUpdateRoute() {
 	}, [updateProductIsSuccess, setSuccessSnackBarOpened, navigate, productId]);
 
 	useEffect(() => {
-		if (updateProductIsError) {
+		if (updateProductIsError || addImageProductIsError) {
 			setErrorSnackBarOpened(true);
 		}
-	}, [updateProductIsError, setErrorSnackBarOpened]);
+	}, [updateProductIsError, addImageProductIsError, setErrorSnackBarOpened]);
 
 	return (
 		<>
-			{updateProductIsLoading && (
+			{updateProductIsLoading || addImageProductIsLoading && (
 				<Modal open={true}>
 					<div className="w-100v h-100v d-f ai-c jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
 						<CircularProgress />
@@ -73,6 +77,8 @@ export default function ProductUpdateRoute() {
 					) : (
 						<>
 							<ProductUpdateForm onSubmit={updateProduct} product={product} />
+							<Divider />
+							<ProductAddImageForm onSubmit={addImageProduct} product={product} />
 						</>
 					)}
 				</div>
