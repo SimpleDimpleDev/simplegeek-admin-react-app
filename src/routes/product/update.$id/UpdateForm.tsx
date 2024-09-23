@@ -20,6 +20,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 type ProductUpdateFormData = {
+	id: string;
 	title: string;
 	description: string | null;
 	categoryId: string;
@@ -45,6 +46,7 @@ type ProductUpdateFormData = {
 };
 
 const ProductUpdateResolver = z.object({
+	id: z.string(),
 	title: z.string({ message: "Введите название" }).min(1, { message: "Введите название" }),
 	description: z.string().nullable(),
 	categoryId: z.string(),
@@ -100,6 +102,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 	const physicalPropertiesDefined = useMemo(() => !!product.physicalProperties, [product.physicalProperties]);
 
 	const defaultValues: ProductUpdateFormData = {
+		id: product.id,
 		title: product.title,
 		description: product.description,
 		categoryId: product.category.id,
@@ -200,6 +203,11 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 			onKeyDown={handleKeyDown}
 			noValidate
 		>
+			<Controller
+				name="id"
+				control={control}
+				render={({ field }) => <input type="hidden" value={field.value} />}
+			/>
 			{/* Base data */}
 			<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
 				<Typography variant="h5">О товаре</Typography>

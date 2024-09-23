@@ -4,11 +4,11 @@ import { useMemo, useState } from "react";
 
 import AdminTable from "@routes/table";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import { UserTableGet } from "@appTypes/User";
+import { UserGet } from "@appTypes/User";
 import { useGetUserListQuery } from "@api/admin/service";
 import { useNavigate } from "react-router-dom";
 
-const columns: GridColDef<UserTableGet>[] = [
+const columns: GridColDef<UserGet>[] = [
 	{ field: "email", headerName: "Email" },
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },

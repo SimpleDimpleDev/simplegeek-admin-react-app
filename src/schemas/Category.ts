@@ -23,3 +23,15 @@ export const CategoryGetSchema = AdminGetBaseSchema.extend({
 	banner: AttachmentGetSchema,
 	isActive: z.boolean(),
 });
+
+export const CategoryChangeImageSchema = z.object({
+	id: z.string(),
+	imageType: z.enum(["ICON", "BANNER"]),
+	image: z.object({ file: z.instanceof(File), properties: ImageEditPropsSchema }),
+});
+
+export const CategoryUpdateSchema = z.object({
+	id: z.string(),
+	title: z.string(),
+	link: z.string(),
+});

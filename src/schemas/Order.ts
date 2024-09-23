@@ -4,7 +4,7 @@ import { DeliveryOrderSchema, DeliverySchema } from "./Delivery";
 import { AdminGetBaseSchema } from "./Admin";
 import { IdSchema } from "./Primitives";
 import { PreorderOrderGetSchema } from "./Preorder";
-import { UserTableGetSchema } from "./User";
+import { UserGetSchema } from "./User";
 import { z } from "zod";
 
 export const OrderStatusSchema = z.enum(["CANCELLED", "UNPAID", "ACCEPTED", "ASSEMBLY", "DELIVERY", "FINISHED"]);
@@ -24,7 +24,7 @@ export const OrderItemGetSchema = z.object({
 });
 
 export const OrderGetSchema = AdminGetBaseSchema.extend({
-	user: UserTableGetSchema,
+	user: UserGetSchema,
 	status: OrderStatusSchema,
 	delivery: DeliveryOrderSchema.nullable(),
 	preorder: PreorderOrderGetSchema.nullable(),

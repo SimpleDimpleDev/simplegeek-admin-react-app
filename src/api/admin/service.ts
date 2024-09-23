@@ -2,7 +2,7 @@ import {
 	CategoryCreateRequestSchema,
 	CategoryListResponseSchema,
 	CreateResponseSchema,
-	FAQItemTableResponseSchema,
+	FAQItemListResponseSchema,
 	FilterGroupCreateRequestSchema,
 	FilterGroupListResponseSchema,
 	OrderGetResponseSchema,
@@ -19,6 +19,8 @@ import {
 import { ZodError, ZodSchema, z } from "zod";
 import { categoryCreateFormDataMapper, productCreateFormDataMapper } from "./utils";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
+import { CategoryUpdateSchema } from "@schemas/Category";
 
 const validateData = <T extends ZodSchema>(schema: T, data: unknown): z.infer<T> => {
 	try {
@@ -63,9 +65,16 @@ export const adminApi = createApi({
 				method: "GET",
 			}),
 			transformResponse: (response) => validateData(CategoryListResponseSchema, response),
-			providesTags: ["Category"],
+			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Category", id: item.id })),
 		}),
-
+		updateCategory: builder.mutation<void, z.infer<typeof CategoryUpdateSchema>>({
+			query: (body) => ({
+				url: "/admin/category",
+				method: "PUT",
+				body: body,
+			}),
+			invalidatesTags: (_result, _error, body) => [{ type: "Category", id: body.id }],
+		}),
 		// FAQItem
 		createFAQItem: builder.mutation({
 			query: (item) => ({
@@ -75,13 +84,13 @@ export const adminApi = createApi({
 			}),
 			invalidatesTags: ["FAQItem"],
 		}),
-		getFAQItemsTable: builder.query<z.infer<typeof FAQItemTableResponseSchema>, void>({
+		getFAQItemList: builder.query<z.infer<typeof FAQItemListResponseSchema>, void>({
 			query: () => ({
-				url: "/admin/faq-item/table",
+				url: "/admin/faq-item-list",
 				method: "GET",
 			}),
-			transformResponse: (response) => validateData(FAQItemTableResponseSchema, response),
-			providesTags: ["FAQItem"],
+			transformResponse: (response) => validateData(FAQItemListResponseSchema, response),
+			providesTags: (result) => (result?.items || []).map((item) => ({ type: "FAQItem", id: item.id })),
 		}),
 		updateFAQItem: builder.mutation({
 			query: (item) => ({

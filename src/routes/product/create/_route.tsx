@@ -1,7 +1,7 @@
 import { CircularProgress, Modal, Snackbar, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { ProductCreateForm } from "./forms";
+import { ProductCreateForm } from "./CreateForm";
 import { useCreateProductMutation } from "@api/admin/service";
 import { useNavigate } from "react-router-dom";
 

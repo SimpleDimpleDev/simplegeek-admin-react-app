@@ -6,14 +6,14 @@ import { PublicationCreateSchema, PublicationGetSchema } from "@schemas/Publicat
 import { FAQItemGetSchema } from "@schemas/FAQ";
 import { IdSchema } from "@schemas/Primitives";
 import { OrderGetSchema } from "@schemas/Order";
-import { UserTableGetSchema } from "@schemas/User";
+import { UserGetSchema } from "@schemas/User";
 import { z } from "zod";
 
 export const CreateResponseSchema = z.object({
 	id: IdSchema,
 });
 
-export const FAQItemTableResponseSchema = z.object({
+export const FAQItemListResponseSchema = z.object({
 	items: FAQItemGetSchema.array(),
 });
 
@@ -42,7 +42,7 @@ export const OrderGetResponseSchema = OrderGetSchema;
 export const OrderListGetResponseSchema = z.object({
 	items: OrderGetSchema.array(),
 });
-export const UserGetResponseSchema = UserTableGetSchema;
+export const UserGetResponseSchema = UserGetSchema;
 export const UserListGetResponseSchema = z.object({
-	items: UserTableGetSchema.array(),
+	items: UserGetSchema.array(),
 });

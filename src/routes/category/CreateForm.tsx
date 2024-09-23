@@ -59,6 +59,7 @@ interface CategoryCreateFormProps {
 	onSubmit: (data: z.infer<typeof CategoryCreateSchema>) => void;
 }
 
+
 export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit }) => {
 	const resolvedOnSubmit = (data: CategoryCreateFormData) => {
 		onSubmit(data as z.infer<typeof CategoryCreateResolver>);
@@ -68,9 +69,9 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 		resolver: zodResolver(CategoryCreateResolver),
 	});
 	const [imageEditor, setImageEditor] = useState<ImageEditorState | null>(null);
-	const [imageResolutionTooLowSnackbarOpen, setImageResolutionTooLowSnackbarOpen] = useState<"icon" | "banner" | null>(
-		null
-	);
+	const [imageResolutionTooLowSnackbarOpen, setImageResolutionTooLowSnackbarOpen] = useState<
+		"icon" | "banner" | null
+	>(null);
 
 	const icon = watch("icon");
 	const banner = watch("banner");
