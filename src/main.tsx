@@ -11,6 +11,7 @@ import OrderTable from "@routes/order/table/_route.tsx";
 import ProductCreate from "@routes/product/create/_route.tsx";
 import ProductInspect from "@routes/product/inspect.$id/_route.tsx";
 import ProductTable from "@routes/product/table/_route.tsx";
+import ProductUpdateRoute from "@routes/product/update.$id/_route.tsx";
 import PublicationCreate from "@routes/publication/create/_route.tsx";
 import PublicationInspect from "@routes/publication/inspect.$id/_route.tsx";
 import PublicationTable from "@routes/publication/table/_route.tsx";
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
 						path: "inspect/:id",
 						element: <ProductInspect />,
 					},
+					{
+						path: "update/:id",
+						element: <ProductUpdateRoute />,
+					}
 				],
 			},
 			{

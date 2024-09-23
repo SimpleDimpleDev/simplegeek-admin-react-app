@@ -7,7 +7,7 @@ import { useCreateCategoryMutation, useGetCategoryListQuery } from "@api/admin/s
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
 import AdminTable from "../table";
-import { CategoryCreateForm } from "./createForm";
+import { CategoryCreateForm } from "./CreateForm";
 import { CategoryCreateSchema } from "@schemas/Category";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../managementModal";
