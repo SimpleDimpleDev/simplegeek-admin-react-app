@@ -15,6 +15,7 @@ import { ProductGet, ProductUpdate } from "@appTypes/Product";
 import React, { useMemo } from "react";
 
 import { ProductUpdateSchema } from "@schemas/Product";
+import { getImageUrl } from "@utils/image";
 import { useGetFilterGroupListQuery } from "@api/admin/service";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -404,7 +405,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 																		style={{ width: 96, height: 96 }}
 																	>
 																		<img
-																			src={image.url}
+																			src={getImageUrl(image.url, "small")}
 																			style={{
 																				width: "100%",
 																				height: "100%",

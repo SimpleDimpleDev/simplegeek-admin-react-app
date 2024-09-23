@@ -1,4 +1,4 @@
-import { Box, CircularProgress, IconButton, Modal, Snackbar, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, IconButton, Modal, Snackbar, Typography } from "@mui/material";
 import { Delete, Edit, FileUpload } from "@mui/icons-material";
 
 import CanvasPreview from "@components/CanvasPreview";
@@ -45,12 +45,11 @@ interface ProductAddImageFormProps {
 }
 
 export const ProductAddImageForm: React.FC<ProductAddImageFormProps> = ({ product, onSubmit }) => {
+	const resolvedOnSubmit = (data: ProductAddImageFormData) => {
+		onSubmit(ProductAddImageSchema.parse(data));
+	};
 
-    const resolvedOnSubmit = (data: ProductAddImageFormData) => {
-        onSubmit(ProductAddImageSchema.parse(data));
-    };
-
-    const { register, getValues, setValue, watch, handleSubmit } = useForm<ProductAddImageFormData>({
+	const { register, getValues, setValue, watch, handleSubmit } = useForm<ProductAddImageFormData>({
 		resolver: zodResolver(ProductAddImageResolver),
 		defaultValues: {
 			id: product.id,
@@ -112,12 +111,13 @@ export const ProductAddImageForm: React.FC<ProductAddImageFormProps> = ({ produc
 				)}
 			</Modal>
 
-			<form className="h-100 d-f fd-c jc-sb px-2 pt-2 pb-4" onSubmit={handleSubmit(resolvedOnSubmit)}>
-                <input type="hidden" {...register("id")} />
+			<form
+				className="w-100 d-f fd-c p-3 bg-primary br-3 gap-2 px-2 pt-2 pb-4"
+				onSubmit={handleSubmit(resolvedOnSubmit)}
+			>
+				<input type="hidden" {...register("id")} />
 				<div className="d-f fd-c gap-1 bg-primary">
-					<Typography variant="subtitle0">
-						
-					</Typography>
+					<Typography variant="subtitle0"></Typography>
 
 					<div className="w-100 d-f fd-r gap-1 py-1 px-2 br-2 bg-secondary">
 						<div className="w-100 d-f fd-r gap-1">
@@ -179,7 +179,10 @@ export const ProductAddImageForm: React.FC<ProductAddImageFormProps> = ({ produc
 						</IconButton>
 					</div>
 				</div>
+				<Button variant="contained" type="submit" fullWidth>
+					Добавить изображение
+				</Button>
 			</form>
 		</>
 	);
-}
+};
