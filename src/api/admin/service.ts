@@ -1,15 +1,19 @@
 import {
+	CategoryChangeImageRequestSchema,
 	CategoryCreateRequestSchema,
 	CategoryListResponseSchema,
+	CategoryUpdateRequestSchema,
 	CreateResponseSchema,
 	FAQItemListResponseSchema,
 	FilterGroupCreateRequestSchema,
 	FilterGroupListResponseSchema,
 	OrderGetResponseSchema,
 	OrderListGetResponseSchema,
+	ProductAddImageRequestSchema,
 	ProductCreateRequestSchema,
 	ProductGetResponseSchema,
 	ProductListGetResponseSchema,
+	ProductUpdateRequestSchema,
 	PublicationCreateRequestSchema,
 	PublicationGetResponseSchema,
 	PublicationListGetResponseSchema,
@@ -17,10 +21,13 @@ import {
 	UserListGetResponseSchema,
 } from "./schemas";
 import { ZodError, ZodSchema, z } from "zod";
-import { categoryCreateFormDataMapper, productCreateFormDataMapper } from "./utils";
+import {
+	categoryChangeImageFormDataMapper,
+	categoryCreateFormDataMapper,
+	productAddImageFormDataMapper,
+	productCreateFormDataMapper,
+} from "./utils";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
-import { CategoryUpdateSchema } from "@schemas/Category";
 
 const validateData = <T extends ZodSchema>(schema: T, data: unknown): z.infer<T> => {
 	try {
@@ -67,7 +74,7 @@ export const adminApi = createApi({
 			transformResponse: (response) => validateData(CategoryListResponseSchema, response),
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Category", id: item.id })),
 		}),
-		updateCategory: builder.mutation<void, z.infer<typeof CategoryUpdateSchema>>({
+		updateCategory: builder.mutation<void, z.infer<typeof CategoryUpdateRequestSchema>>({
 			query: (body) => ({
 				url: "/admin/category",
 				method: "PUT",
@@ -75,6 +82,19 @@ export const adminApi = createApi({
 			}),
 			invalidatesTags: (_result, _error, body) => [{ type: "Category", id: body.id }],
 		}),
+		changeImageCategory: builder.mutation<void, z.infer<typeof CategoryChangeImageRequestSchema>>({
+			query: (body) => {
+				const formData = categoryChangeImageFormDataMapper(body);
+
+				return {
+					url: "/admin/category",
+					method: "PUT",
+					body: formData,
+				};
+			},
+			invalidatesTags: (_result, _error, body) => [{ type: "Category", id: body.id }],
+		}),
+		
 		// FAQItem
 		createFAQItem: builder.mutation({
 			query: (item) => ({
@@ -184,6 +204,27 @@ export const adminApi = createApi({
 			transformResponse: (response) => validateData(ProductListGetResponseSchema, response),
 			providesTags: ["Product"],
 		}),
+		updateProduct: builder.mutation<void, z.infer<typeof ProductUpdateRequestSchema>>({
+			query: (data) => {
+				return {
+					url: "/admin/product",
+					method: "PUT",
+					body: data,
+				};
+			},
+			invalidatesTags: (_result, _error, data) => [{ type: "Product", id: data.id }],
+		}),
+		addImageProduct: builder.mutation<void, z.infer<typeof ProductAddImageRequestSchema>>({
+			query: (data) => {
+				const formData = productAddImageFormDataMapper(data);
+				return {
+					url: "/admin/product/image",
+					method: "POST",
+					body: formData,
+				};
+			},
+			invalidatesTags: (_result, _error, data) => [{ type: "Product", id: data.id }],
+		}),
 
 		// Publication
 		createPublication: builder.mutation({
@@ -250,12 +291,19 @@ export const adminApi = createApi({
 });
 
 export const {
-	useGetFAQItemsTableQuery,
+	useGetFAQItemListQuery,
 	useGetFilterGroupListQuery,
 	useLazyGetFilterGroupListQuery,
+	// Category
 	useGetCategoryListQuery,
+	useUpdateCategoryMutation,
+	useChangeImageCategoryMutation,
+	// Product
 	useGetProductQuery,
 	useGetProductListQuery,
+	useUpdateProductMutation,
+	useAddImageProductMutation,
+
 	useGetPublicationQuery,
 	useGetPublicationListQuery,
 	useGetOrderQuery,

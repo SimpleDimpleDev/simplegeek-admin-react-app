@@ -1,6 +1,6 @@
-import { CategoryCreateSchema, CategoryGetSchema } from "@schemas/Category";
+import { CategoryChangeImageSchema, CategoryCreateSchema, CategoryGetSchema, CategoryUpdateSchema } from "@schemas/Category";
 import { FilterGroupCreateSchema, FilterGroupGetSchema } from "@schemas/FilterGroup";
-import { ProductCreateSchema, ProductGetSchema } from "@schemas/Product";
+import { ProductAddImageSchema, ProductCreateSchema, ProductGetSchema, ProductUpdateSchema } from "@schemas/Product";
 import { PublicationCreateSchema, PublicationGetSchema } from "@schemas/Publication";
 
 import { FAQItemGetSchema } from "@schemas/FAQ";
@@ -17,21 +17,27 @@ export const FAQItemListResponseSchema = z.object({
 	items: FAQItemGetSchema.array(),
 });
 
+// Category
 export const CategoryCreateRequestSchema = CategoryCreateSchema;
 export const CategoryListResponseSchema = z.object({
 	items: CategoryGetSchema.array(),
 });
+export const CategoryUpdateRequestSchema = CategoryUpdateSchema;
+export const CategoryChangeImageRequestSchema = CategoryChangeImageSchema;
 
 export const FilterGroupCreateRequestSchema = FilterGroupCreateSchema;
 export const FilterGroupListResponseSchema = z.object({
 	items: FilterGroupGetSchema.array(),
 });
 
+// Product
 export const ProductCreateRequestSchema = ProductCreateSchema;
 export const ProductGetResponseSchema = ProductGetSchema;
 export const ProductListGetResponseSchema = z.object({
 	items: ProductGetSchema.array(),
 });
+export const ProductUpdateRequestSchema = ProductUpdateSchema;
+export const ProductAddImageRequestSchema = ProductAddImageSchema;
 
 export const PublicationCreateRequestSchema = PublicationCreateSchema;
 export const PublicationGetResponseSchema = PublicationGetSchema;

@@ -1,7 +1,7 @@
 import { Button, Snackbar, Typography } from "@mui/material";
 import { FAQItemCreateForm, FAQItemUpdateForm, FaqItemCreateFormData, FaqItemUpdateFormData } from "./forms";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
-import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemsTableQuery } from "@api/admin/service";
+import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemListQuery } from "@api/admin/service";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
@@ -16,7 +16,7 @@ const columns: GridColDef[] = [
 ];
 
 export default function Faq() {
-	const { data: FAQItemList, isLoading: FAQItemListIsLoading } = useGetFAQItemsTableQuery();
+	const { data: FAQItemList, isLoading: FAQItemListIsLoading } = useGetFAQItemListQuery();
 	const [createFAQItem] = useCreateFAQItemMutation();
 	const [updateFAQItem] = useCreateFAQItemMutation();
 	const [deleteFAQItems] = useDeleteFAQItemsMutation();

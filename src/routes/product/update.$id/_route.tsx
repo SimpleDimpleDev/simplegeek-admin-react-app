@@ -1,9 +1,10 @@
 import { Button, Typography } from "@mui/material";
+import { useGetProductQuery, useUpdateProductMutation } from "@api/admin/service";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { ChevronLeft } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import { useGetProductQuery } from "@api/admin/service";
+import { ProductUpdateForm } from "./UpdateForm";
 
 export default function ProductUpdateRoute() {
 	const params = useParams();
@@ -11,6 +12,8 @@ export default function ProductUpdateRoute() {
 	const productId = params.id;
 	if (!productId) throw new Response("No product id provided", { status: 404 });
 	const { data: product, isLoading: productIsLoading } = useGetProductQuery({ productId });
+
+	const [ updateProduct, { isLoading: updateProductIsLoading } ] = useUpdateProductMutation();
 	return (
 		<>
 			<LoadingSpinner isLoading={productIsLoading}>
@@ -26,7 +29,7 @@ export default function ProductUpdateRoute() {
 							<Typography variant="h5">Что-то пошло не так</Typography>
 						</div>
 					) : (
-						<>Form here</>
+						<ProductUpdateForm product={product} />
 					)}
 				</div>
 			</LoadingSpinner>
