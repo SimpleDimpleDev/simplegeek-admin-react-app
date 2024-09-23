@@ -38,7 +38,7 @@ export const productCreateFormDataMapper = (data: z.infer<typeof ProductCreateRe
 
 export const productAddImageFormDataMapper = (data: z.infer<typeof ProductAddImageRequestSchema>) => {
 	const formData = new FormData();
-	formData.append("id", data.id);
+	formData.append("productId", data.productId);
 	formData.append("imageProperties", JSON.stringify(data.image.properties));
 	formData.append("image", data.image.file);
 	return formData;

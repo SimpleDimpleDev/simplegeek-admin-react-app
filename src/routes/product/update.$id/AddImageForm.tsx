@@ -20,7 +20,7 @@ type ImageEditorState = {
 };
 
 type ProductAddImageFormData = {
-	id: string;
+	productId: string;
 	imageType: "ICON" | "BANNER";
 	image: {
 		file: File;
@@ -29,7 +29,7 @@ type ProductAddImageFormData = {
 };
 
 const ProductAddImageResolver = z.object({
-	id: z.string(),
+	productId: z.string(),
 	image: z.object(
 		{
 			file: z.instanceof(File),
@@ -52,7 +52,7 @@ export const ProductAddImageForm: React.FC<ProductAddImageFormProps> = ({ produc
 	const { register, getValues, setValue, watch, handleSubmit } = useForm<ProductAddImageFormData>({
 		resolver: zodResolver(ProductAddImageResolver),
 		defaultValues: {
-			id: product.id,
+			productId: product.id,
 			image: null,
 		},
 	});
@@ -115,7 +115,7 @@ export const ProductAddImageForm: React.FC<ProductAddImageFormProps> = ({ produc
 				className="w-100 d-f fd-c p-3 bg-primary br-3 gap-2 px-2 pt-2 pb-4"
 				onSubmit={handleSubmit(resolvedOnSubmit)}
 			>
-				<input type="hidden" {...register("id")} />
+				<input type="hidden" {...register("productId")} />
 				<div className="d-f fd-c gap-1 bg-primary">
 					<Typography variant="subtitle0"></Typography>
 

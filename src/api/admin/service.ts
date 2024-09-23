@@ -223,7 +223,7 @@ export const adminApi = createApi({
 					body: formData,
 				};
 			},
-			invalidatesTags: (_result, _error, data) => [{ type: "Product", id: data.id }],
+			invalidatesTags: (_result, _error, data) => [{ type: "Product", id: data.productId }],
 		}),
 
 		// Publication
