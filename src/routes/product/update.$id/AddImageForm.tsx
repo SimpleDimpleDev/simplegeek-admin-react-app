@@ -49,13 +49,7 @@ export const ProductAddImageForm: React.FC<ProductAddImageFormProps> = ({ produc
 		onSubmit(ProductAddImageSchema.parse(data));
 	};
 
-	const {
-		register,
-		getValues,
-		setValue,
-		watch,
-		handleSubmit,
-	} = useForm<ProductAddImageFormData>({
+	const { register, getValues, setValue, watch, handleSubmit, reset } = useForm<ProductAddImageFormData>({
 		resolver: zodResolver(ProductAddImageResolver),
 		defaultValues: {
 			productId: product.id,
@@ -64,6 +58,11 @@ export const ProductAddImageForm: React.FC<ProductAddImageFormProps> = ({ produc
 	});
 	const [imageEditor, setImageEditor] = useState<ImageEditorState | null>(null);
 	const [imageResolutionTooLowSnackbarOpen, setImageResolutionTooLowSnackbarOpen] = useState<boolean>(false);
+
+    const submit = (data: ProductAddImageFormData) => {
+        resolvedOnSubmit(data);
+        reset();
+    }
 
 	const handleStartImageEdit = () => {
 		const image = getValues().image;
@@ -119,7 +118,7 @@ export const ProductAddImageForm: React.FC<ProductAddImageFormProps> = ({ produc
 
 			<form
 				className="w-100 d-f fd-c p-3 bg-primary br-3 gap-2 px-2 pt-2 pb-4"
-				onSubmit={handleSubmit(resolvedOnSubmit)}
+				onSubmit={handleSubmit(submit)}
 			>
 				<input type="hidden" {...register("productId")} />
 				<div className="d-f fd-c gap-1 bg-primary">

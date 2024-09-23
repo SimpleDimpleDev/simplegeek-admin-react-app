@@ -12,7 +12,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Delete, DragIndicator } from "@mui/icons-material";
 import { DragDropContext, Draggable, DropResult, Droppable } from "react-beautiful-dnd";
 import { ProductGet, ProductUpdate } from "@appTypes/Product";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 
 import { ProductUpdateSchema } from "@schemas/Product";
 import { getImageUrl } from "@utils/image";
@@ -138,6 +138,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 	const {
 		control,
 		handleSubmit,
+		setValue,
 		formState: { errors, isDirty },
 		watch,
 	} = useForm<ProductUpdateFormData>({
@@ -160,6 +161,10 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 		move: moveFilterGroup,
 		remove: removeFilterGroup,
 	} = useFieldArray({ control, name: "filterGroups" });
+
+	useEffect(() => {
+		setValue("images", product.images.map((image) => ({ id: image.id, index: image.index, url: image.url })));
+	}, [product, setValue]);
 
 	const selectedFilterGroups = watch("filterGroups");
 	const selectedPhysicalProperties = watch("physicalProperties");
