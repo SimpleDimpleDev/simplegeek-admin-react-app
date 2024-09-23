@@ -49,7 +49,14 @@ export const ProductAddImageForm: React.FC<ProductAddImageFormProps> = ({ produc
 		onSubmit(ProductAddImageSchema.parse(data));
 	};
 
-	const { register, getValues, setValue, watch, handleSubmit } = useForm<ProductAddImageFormData>({
+	const {
+		register,
+		getValues,
+		setValue,
+		watch,
+		handleSubmit,
+		formState: { isDirty },
+	} = useForm<ProductAddImageFormData>({
 		resolver: zodResolver(ProductAddImageResolver),
 		defaultValues: {
 			productId: product.id,
@@ -179,7 +186,7 @@ export const ProductAddImageForm: React.FC<ProductAddImageFormProps> = ({ produc
 						</IconButton>
 					</div>
 				</div>
-				<Button variant="contained" type="submit" fullWidth>
+				<Button disabled={!isDirty} variant="contained" type="submit" fullWidth>
 					Добавить изображение
 				</Button>
 			</form>
