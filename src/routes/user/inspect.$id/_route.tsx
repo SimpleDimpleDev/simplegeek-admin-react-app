@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { ChevronLeft } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import { useGetUserQuery } from "@api/admin/service";
+import { useGetUserQuery } from "@api/admin/user";
 
 export default function UserInspect() {
 	const navigate = useNavigate();

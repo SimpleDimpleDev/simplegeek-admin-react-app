@@ -1,7 +1,7 @@
 import { Button, Snackbar, Typography } from "@mui/material";
 import { FAQItemCreateForm, FAQItemUpdateForm, FaqItemCreateFormData, FaqItemUpdateFormData } from "./forms";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
-import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemListQuery } from "@api/admin/service";
+import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemListQuery } from "@api/admin/faqItem";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";

@@ -7,7 +7,7 @@ import { Add } from "@mui/icons-material";
 import AdminTable from "@routes/table";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { getImageUrl } from "@utils/image";
-import { useGetProductListQuery } from "@api/admin/service";
+import { useGetProductListQuery } from "@api/admin/product";
 
 const columns: GridColDef[] = [
 	{

@@ -2,7 +2,7 @@ import "react-image-crop/dist/ReactCrop.css";
 
 import { Button, Snackbar, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
-import { useCreateCategoryMutation, useGetCategoryListQuery } from "@api/admin/service";
+import { useCreateCategoryMutation, useGetCategoryListQuery } from "@api/admin/category";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";

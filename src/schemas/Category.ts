@@ -25,7 +25,7 @@ export const CategoryGetSchema = AdminGetBaseSchema.extend({
 });
 
 export const CategoryChangeImageSchema = z.object({
-	id: z.string(),
+	categoryId: z.string(),
 	imageType: z.enum(["ICON", "BANNER"]),
 	image: z.object({ file: z.instanceof(File), properties: ImageEditPropsSchema }),
 });

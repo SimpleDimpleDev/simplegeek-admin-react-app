@@ -1,5 +1,5 @@
 import { Button, CircularProgress, Divider, Modal, Snackbar, Typography } from "@mui/material";
-import { useAddImageProductMutation, useGetProductQuery, useUpdateProductMutation } from "@api/admin/service";
+import { useAddImageProductMutation, useGetProductQuery, useUpdateProductMutation } from "@api/admin/product";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -7,6 +7,7 @@ import { ChevronLeft } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { ProductAddImageForm } from "./AddImageForm";
 import { ProductUpdateForm } from "./UpdateForm";
+import { useLazyGetFilterGroupListQuery } from "@api/admin/filterGroup";
 
 export default function ProductUpdateRoute() {
 	const params = useParams();
@@ -14,17 +15,26 @@ export default function ProductUpdateRoute() {
 	const productId = params.id;
 	if (!productId) throw new Response("No product id provided", { status: 404 });
 	const { data: product, isLoading: productIsLoading } = useGetProductQuery({ productId });
-	
+
+	const [loadFilterGroupList, { data: filterGroupList, isLoading: filterGroupListIsLoading }] =
+		useLazyGetFilterGroupListQuery();
+
 	const [
 		updateProduct,
 		{ isSuccess: updateProductIsSuccess, isLoading: updateProductIsLoading, isError: updateProductIsError },
 	] = useUpdateProductMutation();
-	const [addImageProduct,
-		{ isLoading: addImageProductIsLoading, isError: addImageProductIsError },
-	] = useAddImageProductMutation();
+
+	const [addImageProduct, { isLoading: addImageProductIsLoading, isError: addImageProductIsError }] =
+		useAddImageProductMutation();
 
 	const [successSnackBarOpened, setSuccessSnackBarOpened] = useState(false);
 	const [errorSnackBarOpened, setErrorSnackBarOpened] = useState(false);
+
+	useEffect(() => {
+		if (product) {
+			loadFilterGroupList({ categoryId: product.category.id });
+		}
+	}, [product, loadFilterGroupList]);
 
 	useEffect(() => {
 		if (updateProductIsSuccess) {
@@ -41,13 +51,14 @@ export default function ProductUpdateRoute() {
 
 	return (
 		<>
-			{updateProductIsLoading || addImageProductIsLoading && (
-				<Modal open={true}>
-					<div className="w-100v h-100v d-f ai-c jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-						<CircularProgress />
-					</div>
-				</Modal>
-			)}
+			{updateProductIsLoading ||
+				(addImageProductIsLoading && (
+					<Modal open={true}>
+						<div className="w-100v h-100v d-f ai-c jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+							<CircularProgress />
+						</div>
+					</Modal>
+				))}
 			<Snackbar
 				open={successSnackBarOpened}
 				autoHideDuration={3000}
@@ -72,9 +83,14 @@ export default function ProductUpdateRoute() {
 						</div>
 					) : (
 						<>
-							<ProductUpdateForm onSubmit={updateProduct} product={product} />
+							<ProductUpdateForm
+								product={product}
+								filterGroupList={filterGroupList}
+								filterGroupListIsLoading={filterGroupListIsLoading}
+								onSubmit={updateProduct}
+							/>
 							<Divider />
-							<ProductAddImageForm onSubmit={addImageProduct} product={product} />
+							<ProductAddImageForm product={product} onSubmit={addImageProduct} />
 						</>
 					)}
 				</div>

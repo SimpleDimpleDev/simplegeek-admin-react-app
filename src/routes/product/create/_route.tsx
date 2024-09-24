@@ -2,13 +2,20 @@ import { CircularProgress, Modal, Snackbar, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import { ProductCreateForm } from "./CreateForm";
-import { useCreateProductMutation } from "@api/admin/service";
+import { useCreateProductMutation } from "@api/admin/product";
+import { useGetCategoryListQuery } from "@api/admin/category";
+import { useLazyGetFilterGroupListQuery } from "@api/admin/filterGroup";
 import { useNavigate } from "react-router-dom";
 
 export default function ProductCreate() {
 	const navigate = useNavigate();
 
 	const [createProduct, { isLoading, isSuccess, isError }] = useCreateProductMutation();
+	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
+	const [
+		fetchFilterGroupList,
+		{ data: filterGroupList, isLoading: filterGroupListIsLoading, isFetching: filterGroupListIsFetching },
+	] = useLazyGetFilterGroupListQuery();
 
 	const [successSnackBarOpened, setSuccessSnackBarOpened] = useState(false);
 	const [errorSnackBarOpened, setErrorSnackBarOpened] = useState(false);
@@ -51,7 +58,15 @@ export default function ProductCreate() {
 				<Typography variant="h5">Создать товар</Typography>
 			</div>
 
-			<ProductCreateForm onSubmit={createProduct} />
+			<ProductCreateForm
+				onSubmit={createProduct}
+				categoryList={categoryList}
+				categoryListIsLoading={categoryListIsLoading}
+				fetchFilterGroupList={fetchFilterGroupList}
+				filterGroupList={filterGroupList}
+				filterGroupListIsLoading={filterGroupListIsLoading}
+				filterGroupListIsFetching={filterGroupListIsFetching}
+			/>
 		</div>
 	);
 }

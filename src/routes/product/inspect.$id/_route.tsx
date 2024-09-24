@@ -5,7 +5,7 @@ import ActionDialog from "@components/ActionDialog";
 import { ChevronLeft } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { getImageUrl } from "@utils/image";
-import { useGetProductQuery } from "@api/admin/service";
+import { useGetProductQuery } from "@api/admin/product";
 import { useState } from "react";
 
 export default function ProductInspect() {

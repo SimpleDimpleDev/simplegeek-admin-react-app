@@ -14,9 +14,9 @@ import { DragDropContext, Draggable, DropResult, Droppable } from "react-beautif
 import { ProductGet, ProductUpdate } from "@appTypes/Product";
 import React, { useEffect, useMemo } from "react";
 
+import { FilterGroupGet } from "@appTypes/Filters";
 import { ProductUpdateSchema } from "@schemas/Product";
 import { getImageUrl } from "@utils/image";
-import { useGetFilterGroupListQuery } from "@api/admin/service";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -93,10 +93,12 @@ const ProductUpdateResolver = z.object({
 
 interface ProductUpdateFormProps {
 	product: ProductGet;
+	filterGroupList: { items: FilterGroupGet[] } | undefined;
+	filterGroupListIsLoading: boolean;
 	onSubmit: (data: ProductUpdate) => void;
 }
 
-export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, onSubmit }) => {
+export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, onSubmit, filterGroupList, filterGroupListIsLoading }) => {
 	const resolvedOnSubmit = (data: ProductUpdateFormData) => {
 		onSubmit(ProductUpdateSchema.parse(data));
 	};
@@ -130,10 +132,6 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 			})),
 		})),
 	};
-
-	const { data: filterGroupList, isLoading: filterGroupListIsLoading } = useGetFilterGroupListQuery({
-		categoryId: product.category.id,
-	});
 
 	const {
 		control,
@@ -216,7 +214,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 				render={({ field }) => <input type="hidden" value={field.value} />}
 			/>
 			{/* Base data */}
-			<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
+			<div className="d-f fd-c gap-2 p-3 bg-primary br-3">
 				<Typography variant="h5">О товаре</Typography>
 				<div className="d-f fd-c gap-2">
 					<Controller
@@ -258,7 +256,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 			</div>
 
 			{/* Physical Properties */}
-			<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
+			<div className="d-f fd-c gap-2 p-3 bg-primary br-3">
 				<Typography variant="h5">Физические свойства</Typography>
 				<div className="d-f fd-c gap-2">
 					{!physicalPropertiesDefined && (

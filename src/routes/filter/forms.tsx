@@ -16,7 +16,7 @@ import {
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 
 import { FilterGroupCreateSchema } from "@schemas/FilterGroup";
-import { useGetCategoryListQuery } from "@api/admin/service";
+import { useGetCategoryListQuery } from "@api/admin/category";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 

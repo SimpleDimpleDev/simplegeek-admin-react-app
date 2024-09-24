@@ -7,7 +7,7 @@ import AdminTable from "@routes/table";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { PublicationGet } from "@appTypes/Publication";
 import { getImageUrl } from "@utils/image";
-import { useGetPublicationListQuery } from "@api/admin/service";
+import { useGetPublicationListQuery } from "@api/admin/publication";
 import { useNavigate } from "react-router-dom";
 
 const columns: GridColDef[] = [
@@ -25,12 +25,6 @@ const columns: GridColDef[] = [
 	},
 	{ field: "categoryTitle", headerName: "Категория" },
 	{ field: "price", headerName: "Цена", type: "number", renderCell: (params) => `${params.row.price} ₽` },
-	{
-		field: "discount",
-		headerName: "Скидка",
-		type: "number",
-		renderCell: (params) => (params.row.discount ? `${params.row.discount} %` : "-"),
-	},
 	{
 		field: "preorderTitle",
 		headerName: "Предзаказ",

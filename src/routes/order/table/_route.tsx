@@ -9,7 +9,7 @@ import AdminTable from "@routes/table";
 import { DeliveryService } from "@appTypes/Delivery";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { orderStatusBadges } from "@components/Badges";
-import { useGetOrderListQuery } from "@api/admin/service";
+import { useGetOrderListQuery } from "@api/admin/order";
 
 const deliveryServiceMapping: Record<DeliveryService | "UNASSIGNED", string> = {
 	UNASSIGNED: "Не назначено",

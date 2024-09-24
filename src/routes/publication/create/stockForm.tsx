@@ -21,8 +21,8 @@ import {
 	Droppable,
 } from "react-beautiful-dnd";
 import { useCallback, useEffect, useMemo } from "react";
-import { useGetCategoryListQuery, useGetProductListQuery } from "@api/admin/service";
 
+import { CategoryGet } from "@appTypes/Category";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
 import { getImageUrl } from "@utils/image";
@@ -254,12 +254,20 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 };
 
 type PublicationCreateStockFormProps = {
+	productList?: { items: ProductGet[] } | undefined;
+	productListIsLoading: boolean;
+	categoryList?: { items: CategoryGet[] } | undefined;
+	categoryListIsLoading: boolean;
 	onSubmit: (data: PublicationCreate) => void;
 	onDirty: () => void;
 	productIds?: string[];
 };
 
 export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProps> = ({
+	productList,
+	productListIsLoading,
+	categoryList,
+	categoryListIsLoading,
 	onSubmit,
 	onDirty,
 	productIds,
@@ -283,9 +291,6 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 		},
 		[onSubmit]
 	);
-
-	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
-	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
 
 	const {
 		control,

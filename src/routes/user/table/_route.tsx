@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import AdminTable from "@routes/table";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { UserGet } from "@appTypes/User";
-import { useGetUserListQuery } from "@api/admin/service";
+import { useGetUserListQuery } from "@api/admin/user";
 import { useNavigate } from "react-router-dom";
 
 const columns: GridColDef<UserGet>[] = [

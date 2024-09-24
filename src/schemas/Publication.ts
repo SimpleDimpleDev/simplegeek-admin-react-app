@@ -16,5 +16,11 @@ export const PublicationCreateSchema = z.object({
 export const PublicationGetSchema = AdminGetBaseSchema.extend({
 	link: z.string(),
 	preorder: PreorderGetSchema.nullable(),
+	shippingCostIncluded: ShippingCostIncludedSchema.nullable(),
 	items: CatalogItemGetSchema.array().nonempty(),
+});
+
+export const PublicationUpdateSchema = z.object({
+	id: IdSchema,
+	link: z.string(),
 });

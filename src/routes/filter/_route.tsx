@@ -5,7 +5,7 @@ import {
 	useDeleteFilterGroupsMutation,
 	useGetFilterGroupListQuery,
 	useUpdateFilterGroupMutation,
-} from "@api/admin/service";
+} from "@api/admin/filterGroup";
 import { useEffect, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";

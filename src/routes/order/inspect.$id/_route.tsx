@@ -6,7 +6,7 @@ import { ChevronLeft } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { getImageUrl } from "@utils/image";
 import { orderStatusBadges } from "@components/Badges";
-import { useGetOrderQuery } from "@api/admin/service";
+import { useGetOrderQuery } from "@api/admin/order";
 
 export default function OrderInspect() {
 	const navigate = useNavigate();

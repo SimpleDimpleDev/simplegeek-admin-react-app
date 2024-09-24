@@ -22,9 +22,9 @@ import {
 	Droppable,
 } from "react-beautiful-dnd";
 import { useCallback, useEffect, useMemo } from "react";
-import { useGetCategoryListQuery, useGetProductListQuery } from "@api/admin/service";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { CategoryGet } from "@appTypes/Category";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -379,6 +379,12 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 };
 
 type PublicationCreatePreorderFormProps = {
+	productList?: { items: ProductGet[] } | undefined;
+	productListIsLoading: boolean;
+	categoryList?: { items: CategoryGet[] } | undefined;
+	categoryListIsLoading: boolean;
+	preorderList?: { items: PreorderGet[] } | undefined;
+	preorderListIsLoading: boolean;
 	onSubmit: (data: PublicationCreate) => void;
 	onDirty: () => void;
 	productIds?: string[];
@@ -386,6 +392,12 @@ type PublicationCreatePreorderFormProps = {
 };
 
 export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFormProps> = ({
+	productList,
+	productListIsLoading,
+	categoryList,
+	categoryListIsLoading,
+	preorderList,
+	preorderListIsLoading,
 	onSubmit,
 	onDirty,
 	productIds,
@@ -412,13 +424,6 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 		},
 		[onSubmit]
 	);
-
-	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
-	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
-	const { data: preorderList, isLoading: preorderListIsLoading } = {
-		data: { items: [] as PreorderGet[] },
-		isLoading: true,
-	};
 
 	const {
 		control,

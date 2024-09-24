@@ -14,14 +14,24 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
+import { PreorderGet } from "@appTypes/Preorder";
 import { PublicationCreatePreorderForm } from "./preorderForm";
 import { PublicationCreateStockForm } from "./stockForm";
-import { useCreatePublicationMutation } from "@api/admin/service";
+import { useCreatePublicationMutation } from "@api/admin/publication";
+import { useGetCategoryListQuery } from "@api/admin/category";
+import { useGetProductListQuery } from "@api/admin/product";
 import { useNavigate } from "react-router-dom";
 
 export default function PublicationCreate() {
 	const navigate = useNavigate();
 
+	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
+	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
+	// TODO: fetch preorderList
+	const { data: preorderList, isLoading: preorderListIsLoading } = {
+		data: { items: [] as PreorderGet[] },
+		isLoading: true,
+	};
 	const [createPublication, { isSuccess, isLoading, isError }] = useCreatePublicationMutation();
 
 	// TODO: retrieve productIds to create from product table
@@ -124,12 +134,25 @@ export default function PublicationCreate() {
 			<div className="w-100 d-f p-3 bg-secondary br-3">
 				{publicationType === "STOCK" ? (
 					<PublicationCreateStockForm
+						productList={productList}
+						productListIsLoading={productListIsLoading}
+						categoryList={categoryList}
+						categoryListIsLoading={categoryListIsLoading}
 						productIds={productIds}
 						onDirty={() => setFormIsDirty(true)}
 						onSubmit={createPublication}
 					/>
 				) : (
-					<PublicationCreatePreorderForm onDirty={() => setFormIsDirty(true)} onSubmit={createPublication} />
+					<PublicationCreatePreorderForm
+						productList={productList}
+						productListIsLoading={productListIsLoading}
+						categoryList={categoryList}
+						categoryListIsLoading={categoryListIsLoading}
+						preorderList={preorderList}
+						preorderListIsLoading={preorderListIsLoading}
+						onDirty={() => setFormIsDirty(true)}
+						onSubmit={createPublication}
+					/>
 				)}
 			</div>
 		</div>

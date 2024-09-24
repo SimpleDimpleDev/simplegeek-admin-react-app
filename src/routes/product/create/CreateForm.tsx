@@ -21,11 +21,12 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Delete, DragIndicator, Edit } from "@mui/icons-material";
 import { DragDropContext, Draggable, DropResult, Droppable } from "react-beautiful-dnd";
 import React, { useEffect } from "react";
-import { useGetCategoryListQuery, useLazyGetFilterGroupListQuery } from "@api/admin/service";
 
 import CanvasPreview from "@components/CanvasPreview";
+import { CategoryGet } from "@appTypes/Category";
 import { Crop } from "react-image-crop";
 import Dropzone from "react-dropzone";
+import { FilterGroupGet } from "@appTypes/Filters";
 import { ImageEditProps } from "@appTypes/Admin";
 import { ImageEditPropsSchema } from "@schemas/Admin";
 import { ImageEditor } from "@components/ImageEditor";
@@ -111,15 +112,23 @@ const ProductCreateResolver = z.object({
 
 interface ProductCreateFormProps {
 	onSubmit: (data: ProductCreate) => void;
+	categoryList?: { items: CategoryGet[] } | undefined;
+	categoryListIsLoading?: boolean;
+	fetchFilterGroupList: (data: { categoryId: string }) => void;
+	filterGroupList?: { items: FilterGroupGet[] } | undefined;
+	filterGroupListIsLoading?: boolean;
+	filterGroupListIsFetching?: boolean;
 }
 
-export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({ onSubmit }) => {
-	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
-	const [
-		fetchFilterGroupList,
-		{ data: filterGroupList, isLoading: filterGroupListIsLoading, isFetching: filterGroupListIsFetching },
-	] = useLazyGetFilterGroupListQuery();
-
+export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
+	onSubmit,
+	categoryList,
+	categoryListIsLoading,
+	fetchFilterGroupList,
+	filterGroupList,
+	filterGroupListIsLoading,
+	filterGroupListIsFetching,
+}) => {
 	const resolvedOnSubmit = (data: ProductCreateFormData) => {
 		onSubmit(ProductCreateSchema.parse(data));
 	};
