@@ -159,13 +159,6 @@ export default function PublicationTable() {
 								>
 									Подробнее
 								</Button>
-								<Button
-									variant="contained"
-									disabled={!selectedPublication}
-									onClick={() => navigate(`/publication/edit/${selectedPublication?.id}`)}
-								>
-									Редактировать
-								</Button>
 							</>
 						}
 					/>

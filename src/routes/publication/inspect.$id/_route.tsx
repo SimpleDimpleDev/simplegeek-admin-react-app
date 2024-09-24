@@ -165,7 +165,9 @@ export default function PublicationInspect() {
 										{DateFormatter.DDMMYYYY(publication.createdAt)}
 									</Typography>
 								</div>
-								<Button variant="contained">Редактировать</Button>
+								<Button onClick={() => setUpdateModalOpened(true)} variant="contained">
+									Редактировать
+								</Button>
 							</div>
 							{currentVariation && (
 								<div className="w-100 d-f fd-r jc-sb p-3 br-3 bg-primary">
