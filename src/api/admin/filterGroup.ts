@@ -12,7 +12,8 @@ const FilterGroupListResponseSchema = z.object({
 export const filterGroupApi = createApi({
 	reducerPath: "filterGroupApi",
 	baseQuery: fetchBaseQuery({
-		baseUrl: "/admin",
+		baseUrl: import.meta.env.SHOP_API_URL,
+		credentials: "include",
 	}),
 	tagTypes: ["FilterGroup"],
 	endpoints: (builder) => ({

@@ -11,7 +11,8 @@ const FAQItemListResponseSchema = z.object({
 export const FAQItemApi = createApi({
 	reducerPath: "FAQItemApi",
 	baseQuery: fetchBaseQuery({
-		baseUrl: "/admin",
+		baseUrl: import.meta.env.SHOP_API_URL,
+		credentials: "include",
 	}),
 	tagTypes: ["FAQItem"],
 	endpoints: (builder) => ({

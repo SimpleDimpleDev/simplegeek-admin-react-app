@@ -11,7 +11,8 @@ const OrderListGetResponseSchema = z.object({
 export const orderApi = createApi({
 	reducerPath: "orderApi",
 	baseQuery: fetchBaseQuery({
-		baseUrl: "/admin",
+		baseUrl: import.meta.env.SHOP_API_URL,
+		credentials: "include",
 	}),
 	tagTypes: ["Order"],
 	endpoints: (builder) => ({

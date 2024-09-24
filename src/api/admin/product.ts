@@ -34,7 +34,8 @@ const productAddImageFormDataMapper = (data: z.infer<typeof ProductAddImageSchem
 export const productApi = createApi({
 	reducerPath: "productApi",
 	baseQuery: fetchBaseQuery({
-		baseUrl: "/admin",
+		baseUrl: import.meta.env.SHOP_API_URL,
+		credentials: "include",
 	}),
 	tagTypes: ["Product"],
 	endpoints: (builder) => ({

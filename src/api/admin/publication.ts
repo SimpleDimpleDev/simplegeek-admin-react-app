@@ -12,7 +12,8 @@ const PublicationListGetResponseSchema = z.object({
 export const publicationApi = createApi({
 	reducerPath: "PublicationApi",
 	baseQuery: fetchBaseQuery({
-		baseUrl: "/admin",
+		baseUrl: import.meta.env.SHOP_API_URL,
+		credentials: "include",
 	}),
 	tagTypes: ["Publication"],
 	endpoints: (builder) => ({

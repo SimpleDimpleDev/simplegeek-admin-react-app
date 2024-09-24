@@ -11,7 +11,8 @@ export const UserListGetResponseSchema = z.object({
 export const userApi = createApi({
 	reducerPath: "userApi",
 	baseQuery: fetchBaseQuery({
-		baseUrl: "/admin",
+		baseUrl: import.meta.env.SHOP_API_URL,
+		credentials: "include",
 	}),
 	tagTypes: ["User"],
 	endpoints: (builder) => ({
