@@ -144,29 +144,31 @@ export const FilterGroupUpdateForm: React.FC<FilterGroupUpdateFormProps> = ({
 				</div>
 				<div className="d-f fd-c gap-2 bg-primary">
 					<Typography variant="subtitle0">Фильтры</Typography>
-					<Stack spacing={1} divider={<Divider />}>
-						{filtersFields.fields.map((field, index) => (
-							<Controller
-								key={field.id}
-								name={`filters.${index}.value`}
-								control={control}
-								render={({ field, fieldState }) => (
-									<div className="w-100 d-f fd-r ai-c jc-sb">
-										<TextField
-											{...field}
-											label="Значение"
-											error={!!fieldState.error}
-											helperText={fieldState.error?.message}
-											fullWidth
-										/>
-										<IconButton onClick={() => handleRemoveFilter(index)}>
-											<Delete />
-										</IconButton>
-									</div>
-								)}
-							/>
-						))}
-					</Stack>
+					<div style={{ maxHeight: "100%", overflowY: "auto" }}>
+						<Stack spacing={1} divider={<Divider />}>
+							{filtersFields.fields.map((field, index) => (
+								<Controller
+									key={field.id}
+									name={`filters.${index}.value`}
+									control={control}
+									render={({ field, fieldState }) => (
+										<div className="w-100 d-f fd-r ai-c jc-sb">
+											<TextField
+												{...field}
+												label="Значение"
+												error={!!fieldState.error}
+												helperText={fieldState.error?.message}
+												fullWidth
+											/>
+											<IconButton onClick={() => handleRemoveFilter(index)}>
+												<Delete />
+											</IconButton>
+										</div>
+									)}
+								/>
+							))}
+						</Stack>
+					</div>
 					<IconButton onClick={handleAddFilter}>
 						<Add />
 					</IconButton>
