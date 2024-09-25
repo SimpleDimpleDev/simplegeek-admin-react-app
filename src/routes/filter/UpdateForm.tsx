@@ -44,6 +44,7 @@ const FilterGroupUpdateResolver = z.object({
 
 interface FilterGroupUpdateFormProps {
 	filterGroup: FilterGroupGet;
+    // TODO: add update schema
 	onSubmit: (data: z.infer<typeof FilterGroupUpdateResolver>) => void;
 	categoryList: { items: CategoryGet[] } | undefined;
 	categoryListIsLoading: boolean;
@@ -84,6 +85,11 @@ export const FilterGroupUpdateForm: React.FC<FilterGroupUpdateFormProps> = ({
 
 	return (
 		<form className="h-100 d-f fd-c jc-sb px-2 pt-2 pb-4" onSubmit={handleSubmit(resolvedOnSubmit)}>
+            <Controller
+                name="id"
+                control={control}
+                render={({ field }) => <input type="hidden" {...field} />}
+            />
 			<Stack direction={"column"} spacing={2} divider={<Divider />}>
 				<div className="d-f fd-c gap-2 bg-primary">
 					<Typography variant="subtitle0">Группа</Typography>
@@ -164,7 +170,7 @@ export const FilterGroupUpdateForm: React.FC<FilterGroupUpdateFormProps> = ({
 				</div>
 			</Stack>
 			<Button type="submit" variant="contained">
-				Создать
+                Сохранить
 			</Button>
 		</form>
 	);
