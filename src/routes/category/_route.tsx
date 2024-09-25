@@ -1,13 +1,19 @@
 import "react-image-crop/dist/ReactCrop.css";
 
-import { Button, CircularProgress, Modal, Snackbar, Typography } from "@mui/material";
+import { Button, CircularProgress, Divider, Modal, Snackbar, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
-import { useCreateCategoryMutation, useGetCategoryListQuery, useUpdateCategoryMutation } from "@api/admin/category";
+import {
+	useChangeImageCategoryMutation,
+	useCreateCategoryMutation,
+	useGetCategoryListQuery,
+	useUpdateCategoryMutation,
+} from "@api/admin/category";
 import { useEffect, useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
 import AdminTable from "../table";
+import { CategoryChangeImageForm } from "./ChangeImageForm";
 import { CategoryCreateForm } from "./CreateForm";
 import { CategoryGet } from "@appTypes/Category";
 import { CategoryUpdateForm } from "./UpdateForm";
@@ -39,6 +45,10 @@ export default function Category() {
 		useCreateCategoryMutation();
 	const [updateCategory, { isLoading: updateIsLoading, isSuccess: updateSuccess, error: updateError }] =
 		useUpdateCategoryMutation();
+	const [
+		changeImageCategory,
+		{ isLoading: changeImageIsLoading, isSuccess: changeImageSuccess, error: changeImageError },
+	] = useChangeImageCategoryMutation();
 
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
 	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
@@ -50,6 +60,9 @@ export default function Category() {
 	const [updateSuccessSnackBarOpened, setUpdateSuccessSnackBarOpened] = useState<boolean>(false);
 	const [updateErrorSnackBarOpened, setUpdateErrorSnackBarOpened] = useState<boolean>(false);
 
+	const [changeImageSuccessSnackBarOpened, setChangeImageSuccessSnackBarOpened] = useState<boolean>(false);
+	const [changeImageErrorSnackBarOpened, setChangeImageErrorSnackBarOpened] = useState<boolean>(false);
+
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
 	const selectedCategory = useMemo(() => {
@@ -58,8 +71,8 @@ export default function Category() {
 	}, [categoryList, selectedItemIds]);
 
 	const showLoadingOverlay = useMemo(() => {
-		return createIsLoading || updateIsLoading;
-	}, [createIsLoading, updateIsLoading]);
+		return createIsLoading || updateIsLoading || changeImageIsLoading;
+	}, [createIsLoading, updateIsLoading, changeImageIsLoading]);
 
 	useEffect(() => {
 		if (createSuccess) {
@@ -88,6 +101,20 @@ export default function Category() {
 			setUpdateModalOpened(false);
 		}
 	}, [updateError]);
+
+	useEffect(() => {
+		if (changeImageSuccess) {
+			setChangeImageSuccessSnackBarOpened(true);
+			setUpdateModalOpened(false);
+		}
+	}, [changeImageSuccess]);
+
+	useEffect(() => {
+		if (changeImageError) {
+			setChangeImageErrorSnackBarOpened(true);
+			setUpdateModalOpened(false);
+		}
+	}, [changeImageError]);
 
 	return (
 		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
@@ -122,6 +149,19 @@ export default function Category() {
 				message="Произошла ошибка при обновлении категории"
 			/>
 
+			<Snackbar
+				open={changeImageSuccessSnackBarOpened}
+				autoHideDuration={2000}
+				onClose={() => setChangeImageSuccessSnackBarOpened(false)}
+				message="Картинка категории успешно обновлена"
+			/>
+			<Snackbar
+				open={changeImageErrorSnackBarOpened}
+				autoHideDuration={2000}
+				onClose={() => setChangeImageErrorSnackBarOpened(false)}
+				message="Произошла ошибка при обновлении картинки категории"
+			/>
+
 			<ManagementModal
 				title="Создать категорию"
 				opened={createModalOpened}
@@ -138,7 +178,21 @@ export default function Category() {
 					{!selectedCategory ? (
 						<Typography variant="h6">Что-то пошло не так</Typography>
 					) : (
-						<CategoryUpdateForm category={selectedCategory} onSubmit={updateCategory} />
+						<>
+							<CategoryUpdateForm category={selectedCategory} onSubmit={updateCategory} />
+							<Divider />
+							<CategoryChangeImageForm
+								imageType="ICON"
+								category={selectedCategory}
+								onSubmit={changeImageCategory}
+							/>
+							<Divider />
+							<CategoryChangeImageForm
+								imageType="BANNER"
+								category={selectedCategory}
+								onSubmit={changeImageCategory}
+							/>
+						</>
 					)}
 				</LoadingSpinner>
 			</ManagementModal>
