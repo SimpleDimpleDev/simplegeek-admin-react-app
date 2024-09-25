@@ -17,6 +17,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 
 import { CategoryGet } from "@appTypes/Category";
 import { FilterGroupGet } from "@appTypes/Filters";
+import { FilterGroupUpdateSchema } from "@schemas/FilterGroup";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -44,8 +45,7 @@ const FilterGroupUpdateResolver = z.object({
 
 interface FilterGroupUpdateFormProps {
 	filterGroup: FilterGroupGet;
-    // TODO: add update schema
-	onSubmit: (data: z.infer<typeof FilterGroupUpdateResolver>) => void;
+	onSubmit: (data: z.infer<typeof FilterGroupUpdateSchema>) => void;
 	categoryList: { items: CategoryGet[] } | undefined;
 	categoryListIsLoading: boolean;
 }
@@ -57,13 +57,13 @@ export const FilterGroupUpdateForm: React.FC<FilterGroupUpdateFormProps> = ({
 	categoryListIsLoading,
 }) => {
 	const resolvedOnSubmit = (data: FilterGroupUpdateFormData) => {
-		// TODO: add update schema
-		onSubmit(FilterGroupUpdateResolver.parse(data));
+		onSubmit(FilterGroupUpdateSchema.parse(data));
 	};
 
 	const { control, handleSubmit } = useForm<FilterGroupUpdateFormData>({
 		resolver: zodResolver(FilterGroupUpdateResolver),
 		defaultValues: {
+			id: filterGroup.id,
 			title: filterGroup.title,
 			categoryId: filterGroup.category?.id || null,
 			filters: filterGroup.filters,
@@ -85,11 +85,7 @@ export const FilterGroupUpdateForm: React.FC<FilterGroupUpdateFormProps> = ({
 
 	return (
 		<form className="h-100 d-f fd-c jc-sb px-2 pt-2 pb-4" onSubmit={handleSubmit(resolvedOnSubmit)}>
-            <Controller
-                name="id"
-                control={control}
-                render={({ field }) => <input type="hidden" {...field} />}
-            />
+			<Controller name="id" control={control} render={({ field }) => <input type="hidden" {...field} />} />
 			<Stack direction={"column"} spacing={2} divider={<Divider />}>
 				<div className="d-f fd-c gap-2 bg-primary">
 					<Typography variant="subtitle0">Группа</Typography>
@@ -107,37 +103,44 @@ export const FilterGroupUpdateForm: React.FC<FilterGroupUpdateFormProps> = ({
 						)}
 					/>
 
-					<Controller
-						name="categoryId"
-						control={control}
-						render={({ field, fieldState: { error } }) => (
-							<FormControl fullWidth>
-								<InputLabel id="category-label">Категория</InputLabel>
-								<Select
-									labelId="category-label"
-									label="Категория"
-									fullWidth
-									{...field}
-									variant="outlined"
-									error={!!error}
-								>
-									<MenuItem value="FREE">
-										<em>Без привязки</em>
-									</MenuItem>
-									{!categoryList || categoryListIsLoading ? (
-										<CircularProgress />
-									) : (
-										categoryList.items.map((category) => (
-											<MenuItem key={category.id} value={category.id}>
-												{category.title}
-											</MenuItem>
-										))
-									)}
-								</Select>
-								{error && <FormHelperText>{error?.message}</FormHelperText>}
-							</FormControl>
-						)}
-					/>
+					<div className="d-f fd-c gap-05">
+						<Controller
+							name="categoryId"
+							control={control}
+							render={({ field, fieldState: { error } }) => (
+								<FormControl fullWidth>
+									<InputLabel id="category-label">Категория</InputLabel>
+									<Select
+										labelId="category-label"
+										label="Категория"
+										fullWidth
+										{...field}
+										variant="outlined"
+										error={!!error}
+									>
+										<MenuItem value="FREE">
+											<em>Без привязки</em>
+										</MenuItem>
+										{!categoryList || categoryListIsLoading ? (
+											<CircularProgress />
+										) : (
+											categoryList.items.map((category) => (
+												<MenuItem key={category.id} value={category.id}>
+													{category.title}
+												</MenuItem>
+											))
+										)}
+									</Select>
+									{error && <FormHelperText>{error?.message}</FormHelperText>}
+								</FormControl>
+							)}
+						/>
+						<em>
+							<Typography variant="subtitle0" sx={{ color: "typography.secondary" }}>
+								Категорию нельзя изменить, если фильтры используются в товарах
+							</Typography>
+						</em>
+					</div>
 				</div>
 				<div className="d-f fd-c gap-2 bg-primary">
 					<Typography variant="subtitle0">Фильтры</Typography>
@@ -170,7 +173,7 @@ export const FilterGroupUpdateForm: React.FC<FilterGroupUpdateFormProps> = ({
 				</div>
 			</Stack>
 			<Button type="submit" variant="contained">
-                Сохранить
+				Сохранить
 			</Button>
 		</form>
 	);

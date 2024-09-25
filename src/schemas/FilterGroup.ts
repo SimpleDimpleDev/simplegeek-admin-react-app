@@ -25,6 +25,18 @@ export const FilterGroupCreateSchema = z.object({
 		.array(),
 });
 
+export const FilterGroupUpdateSchema = z.object({
+	id: z.string(),
+	categoryId: z.string().nullable(),
+	title: z.string(),
+	filters: z
+		.object({
+			id: z.string().nullable(),
+			value: z.string(),
+		})
+		.array(),
+});
+
 export const FilterGroupGetSchema = z.object({
 	id: IdSchema,
 	createdAt: ISOToDateSchema,

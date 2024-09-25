@@ -72,8 +72,8 @@ const categoryApi = adminApi.injectEndpoints({
 				const formData = categoryChangeImageFormDataMapper(body);
 
 				return {
-					url: "/admin/category",
-					method: "PUT",
+					url: "/admin/category/image",
+					method: "PATCH",
 					body: formData,
 				};
 			},

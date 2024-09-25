@@ -1,4 +1,4 @@
-import { FilterGroupCreateSchema, FilterGroupGetSchema } from "@schemas/FilterGroup";
+import { FilterGroupCreateSchema, FilterGroupGetSchema, FilterGroupUpdateSchema } from "@schemas/FilterGroup";
 
 import { CreateResponseSchema } from "@schemas/Api";
 import { adminApi } from "./root";
@@ -34,16 +34,16 @@ export const filterGroupApi = adminApi.injectEndpoints({
 				params: { categoryId },
 			}),
 			transformResponse: (response) => validateData(FilterGroupListResponseSchema, response),
-			providesTags: (_result, _error, { categoryId }) => [{ type: "FilterGroup", id: categoryId || "LIST" }],
+			providesTags: (result) => (result?.items || []).map((item) => ({ type: "FilterGroup", id: item.id })),
 		}),
 
-		updateFilterGroup: build.mutation({
+		updateFilterGroup: build.mutation<void, z.infer<typeof FilterGroupUpdateSchema>>({
 			query: (filterGroup) => ({
 				url: "/admin/filter-group",
 				method: "PUT",
 				body: filterGroup,
 			}),
-			invalidatesTags: ["FilterGroup"],
+			invalidatesTags: (_result, _error, body) => [{ type: "FilterGroup", id: body.id }],
 		}),
 
 		deleteFilterGroups: build.mutation<z.infer<typeof CreateResponseSchema>, string[]>({
