@@ -46,10 +46,10 @@ export default function ProductInspect() {
 			<LoadingSpinner isLoading={productIsLoading}>
 				<div className="h-100 d-f fd-c gap-2 px-3 pt-1 pb-4" style={{ minHeight: "100vh" }}>
 					<Button
-						onClick={() => navigate("/product/table")}
+						onClick={() => navigate(-1)}
 						sx={{ color: "warning.main", width: "fit-content" }}
 					>
-						<ChevronLeft />К списку всех товаров
+						<ChevronLeft />Назад
 					</Button>
 					{!product ? (
 						<div className="w-100 h-100v d-f ai-c jc-c">

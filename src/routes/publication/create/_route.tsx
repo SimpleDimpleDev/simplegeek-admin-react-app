@@ -1,19 +1,18 @@
 import {
 	Button,
-	CircularProgress,
 	Dialog,
 	DialogActions,
 	DialogTitle,
 	FormControl,
 	InputLabel,
 	MenuItem,
-	Modal,
 	Select,
 	Snackbar,
 	Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
+import { LoadingOverlay } from "@components/LoadingOverlay";
 import { PreorderGet } from "@appTypes/Preorder";
 import { PublicationCreatePreorderForm } from "./preorderForm";
 import { PublicationCreateStockForm } from "./stockForm";
@@ -41,21 +40,29 @@ export default function PublicationCreate() {
 	const [publicationTypeChangeTo, setPublicationTypeChangeTo] = useState<"STOCK" | "PREORDER" | null>(null);
 	const [formIsDirty, setFormIsDirty] = useState(false);
 	const [confirmationIsOpen, setConfirmationIsOpen] = useState(false);
-	const [successSnackBarOpened, setSuccessSnackBarOpened] = useState(false);
-	const [errorSnackBarOpened, setErrorSnackBarOpened] = useState(false);
+
+	const [snackbarOpened, setSnackbarOpened] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState("");
+
+	const showLoadingOverlay = isLoading;
+
+	const showSnackBarMessage = (message: string) => {
+		setSnackbarMessage(message);
+		setSnackbarOpened(true);
+	};
 
 	useEffect(() => {
 		if (isSuccess) {
-			setSuccessSnackBarOpened(true);
+			showSnackBarMessage("Публикация успешно создана!");
 			setTimeout(() => navigate("/publication/table"), 1500);
 		}
-	}, [isSuccess, setSuccessSnackBarOpened, navigate]);
+	}, [isSuccess, navigate]);
 
 	useEffect(() => {
 		if (isError) {
-			setErrorSnackBarOpened(true);
+			showSnackBarMessage("Произошла ошибка при создании публикации");
 		}
-	}, [isError, setErrorSnackBarOpened]);
+	}, [isError]);
 
 	const handleChangePublicationType = (type: "STOCK" | "PREORDER") => {
 		if (formIsDirty) {
@@ -83,25 +90,12 @@ export default function PublicationCreate() {
 
 	return (
 		<div className="h-100 d-f fd-c px-3 pt-1 pb-4" style={{ minHeight: "100vh" }}>
-			{isLoading && (
-				<Modal open={true}>
-					<div className="w-100v h-100v d-f ai-c jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-						<CircularProgress />
-					</div>
-				</Modal>
-			)}
+			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar
-				open={successSnackBarOpened}
+				open={snackbarOpened}
 				autoHideDuration={1500}
-				onClose={() => setSuccessSnackBarOpened(false)}
-				message="Публикация создана!"
-			/>
-
-			<Snackbar
-				open={errorSnackBarOpened}
-				autoHideDuration={1500}
-				onClose={() => setErrorSnackBarOpened(false)}
-				message="Произошла ошибка при создании публикации"
+				onClose={() => setSnackbarOpened(false)}
+				message={snackbarMessage}
 			/>
 
 			<Dialog open={confirmationIsOpen} onClose={() => handleRejectPublicationTypeChange()}>

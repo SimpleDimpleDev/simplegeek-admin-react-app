@@ -1,6 +1,6 @@
 import "react-image-crop/dist/ReactCrop.css";
 
-import { Button, CircularProgress, Divider, Modal, Snackbar, Typography } from "@mui/material";
+import { Button, Divider, Snackbar, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import {
 	useChangeImageCategoryMutation,
@@ -17,6 +17,7 @@ import { CategoryChangeImageForm } from "./ChangeImageForm";
 import { CategoryCreateForm } from "./CreateForm";
 import { CategoryGet } from "@appTypes/Category";
 import { CategoryUpdateForm } from "./UpdateForm";
+import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../managementModal";
 import { getImageUrl } from "@utils/image";
@@ -54,14 +55,8 @@ export default function Category() {
 	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
 	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
 
-	const [createSuccessSnackBarOpened, setCreateSuccessSnackBarOpened] = useState<boolean>(false);
-	const [createErrorSnackBarOpened, setCreateErrorSnackBarOpened] = useState<boolean>(false);
-
-	const [updateSuccessSnackBarOpened, setUpdateSuccessSnackBarOpened] = useState<boolean>(false);
-	const [updateErrorSnackBarOpened, setUpdateErrorSnackBarOpened] = useState<boolean>(false);
-
-	const [changeImageSuccessSnackBarOpened, setChangeImageSuccessSnackBarOpened] = useState<boolean>(false);
-	const [changeImageErrorSnackBarOpened, setChangeImageErrorSnackBarOpened] = useState<boolean>(false);
+	const [snackbarOpened, setSnackbarOpened] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState("");
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
@@ -74,94 +69,62 @@ export default function Category() {
 		return createIsLoading || updateIsLoading || changeImageIsLoading;
 	}, [createIsLoading, updateIsLoading, changeImageIsLoading]);
 
+	const showSnackBarMessage = (message: string) => {
+		setSnackbarMessage(message);
+		setSnackbarOpened(true);
+	}
+
 	useEffect(() => {
 		if (createSuccess) {
-			setCreateSuccessSnackBarOpened(true);
+			showSnackBarMessage("Категория успешно создана!");
 			setCreateModalOpened(false);
 		}
 	}, [createSuccess]);
 
 	useEffect(() => {
 		if (createError) {
-			setCreateErrorSnackBarOpened(true);
+			showSnackBarMessage("Произошла ошибка при создании категории!");
 			setCreateModalOpened(false);
 		}
 	}, [createError]);
 
 	useEffect(() => {
 		if (updateSuccess) {
-			setUpdateSuccessSnackBarOpened(true);
+			showSnackBarMessage("Категория успешно обновлена!");
 			setUpdateModalOpened(false);
 		}
 	}, [updateSuccess]);
 
 	useEffect(() => {
 		if (updateError) {
-			setUpdateErrorSnackBarOpened(true);
+			showSnackBarMessage("Произошла ошибка при обновлении категории!");
 			setUpdateModalOpened(false);
 		}
 	}, [updateError]);
 
 	useEffect(() => {
 		if (changeImageSuccess) {
-			setChangeImageSuccessSnackBarOpened(true);
+			showSnackBarMessage("Картинка категории успешно обновлена!");
 			setUpdateModalOpened(false);
 		}
 	}, [changeImageSuccess]);
 
 	useEffect(() => {
 		if (changeImageError) {
-			setChangeImageErrorSnackBarOpened(true);
+			showSnackBarMessage("Произошла ошибка при обновлении картинки категории!");
 			setUpdateModalOpened(false);
 		}
 	}, [changeImageError]);
 
 	return (
 		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
-			<Modal open={showLoadingOverlay}>
-				<div className="w-100v h-100v d-f ai-c jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-					<CircularProgress />
-				</div>
-			</Modal>
+			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar
-				open={createSuccessSnackBarOpened}
+				open={snackbarOpened}
 				autoHideDuration={2000}
-				onClose={() => setCreateSuccessSnackBarOpened(false)}
-				message="Категория успешно создана"
+				onClose={() => setSnackbarOpened(false)}
+				message={snackbarMessage}
 			/>
-			<Snackbar
-				open={createErrorSnackBarOpened}
-				autoHideDuration={2000}
-				onClose={() => setCreateErrorSnackBarOpened(false)}
-				message="Произошла ошибка при создании категории"
-			/>
-
-			<Snackbar
-				open={updateSuccessSnackBarOpened}
-				autoHideDuration={2000}
-				onClose={() => setUpdateSuccessSnackBarOpened(false)}
-				message="Категория успешно обновлена"
-			/>
-			<Snackbar
-				open={updateErrorSnackBarOpened}
-				autoHideDuration={2000}
-				onClose={() => setUpdateErrorSnackBarOpened(false)}
-				message="Произошла ошибка при обновлении категории"
-			/>
-
-			<Snackbar
-				open={changeImageSuccessSnackBarOpened}
-				autoHideDuration={2000}
-				onClose={() => setChangeImageSuccessSnackBarOpened(false)}
-				message="Картинка категории успешно обновлена"
-			/>
-			<Snackbar
-				open={changeImageErrorSnackBarOpened}
-				autoHideDuration={2000}
-				onClose={() => setChangeImageErrorSnackBarOpened(false)}
-				message="Произошла ошибка при обновлении картинки категории"
-			/>
-
 			<ManagementModal
 				title="Создать категорию"
 				opened={createModalOpened}

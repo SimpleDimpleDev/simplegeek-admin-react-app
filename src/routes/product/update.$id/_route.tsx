@@ -1,9 +1,10 @@
-import { Button, CircularProgress, Divider, Modal, Snackbar, Typography } from "@mui/material";
+import { Button, Divider, Snackbar, Typography } from "@mui/material";
 import { useAddImageProductMutation, useGetProductQuery, useUpdateProductMutation } from "@api/admin/product";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { ChevronLeft } from "@mui/icons-material";
+import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { ProductAddImageForm } from "./AddImageForm";
 import { ProductUpdateForm } from "./UpdateForm";
@@ -16,7 +17,7 @@ export default function ProductUpdateRoute() {
 	if (!productId) throw new Response("No product id provided", { status: 404 });
 	const { data: product, isLoading: productIsLoading } = useGetProductQuery({ productId });
 
-	const [loadFilterGroupList, { data: filterGroupList, isLoading: filterGroupListIsLoading }] =
+	const [fetchFilterGroupList, { data: filterGroupList, isLoading: filterGroupListIsLoading }] =
 		useLazyGetFilterGroupListQuery();
 
 	const [
@@ -24,52 +25,59 @@ export default function ProductUpdateRoute() {
 		{ isSuccess: updateProductIsSuccess, isLoading: updateProductIsLoading, isError: updateProductIsError },
 	] = useUpdateProductMutation();
 
-	const [addImageProduct, { isLoading: addImageProductIsLoading, isError: addImageProductIsError }] =
-		useAddImageProductMutation();
+	const [
+		addImageProduct,
+		{ isLoading: addImageProductIsLoading, isSuccess: addImageProductIsSuccess, isError: addImageProductIsError },
+	] = useAddImageProductMutation();
 
-	const [successSnackBarOpened, setSuccessSnackBarOpened] = useState(false);
-	const [errorSnackBarOpened, setErrorSnackBarOpened] = useState(false);
+	const [snackbarOpened, setSuccessSnackBarOpened] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState("");
+
+	const showLoadingOverlay = updateProductIsLoading || addImageProductIsLoading;
+
+	const showSnackbarMessage = (message: string) => {
+		setSnackbarMessage(message);
+		setSuccessSnackBarOpened(true);
+	};
 
 	useEffect(() => {
 		if (product) {
-			loadFilterGroupList({ categoryId: product.category.id });
+			fetchFilterGroupList({ categoryId: product.category.id });
 		}
-	}, [product, loadFilterGroupList]);
+	}, [product, fetchFilterGroupList]);
 
 	useEffect(() => {
 		if (updateProductIsSuccess) {
-			setSuccessSnackBarOpened(true);
-			setTimeout(() => navigate(`/product/inspect/${productId}`), 1500);
+			showSnackbarMessage("Продукт успешно обновлен");
 		}
-	}, [updateProductIsSuccess, setSuccessSnackBarOpened, navigate, productId]);
+	}, [updateProductIsSuccess]);
 
 	useEffect(() => {
-		if (updateProductIsError || addImageProductIsError) {
-			setErrorSnackBarOpened(true);
+		if (updateProductIsError) {
+			showSnackbarMessage("Произошла ошибка при обновлении продукта");
 		}
-	}, [updateProductIsError, addImageProductIsError, setErrorSnackBarOpened]);
+	}, [updateProductIsError]);
+
+	useEffect(() => {
+		if (addImageProductIsSuccess) {
+			showSnackbarMessage("Изображение успешно добавлено");
+		}
+	}, [addImageProductIsSuccess]);
+
+	useEffect(() => {
+		if (addImageProductIsError) {
+			showSnackbarMessage("Произошла ошибка при добавлении изображения");
+		}
+	}, [addImageProductIsError]);
 
 	return (
 		<>
-			{updateProductIsLoading ||
-				(addImageProductIsLoading && (
-					<Modal open={true}>
-						<div className="w-100v h-100v d-f ai-c jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-							<CircularProgress />
-						</div>
-					</Modal>
-				))}
+			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar
-				open={successSnackBarOpened}
+				open={snackbarOpened}
 				autoHideDuration={3000}
 				onClose={() => setSuccessSnackBarOpened(false)}
-				message="Продукт успешно обновлен"
-			/>
-			<Snackbar
-				open={errorSnackBarOpened}
-				autoHideDuration={3000}
-				onClose={() => setErrorSnackBarOpened(false)}
-				message="Произошла ошибка при обновлении продукта"
+				message={snackbarMessage}
 			/>
 			<LoadingSpinner isLoading={productIsLoading}>
 				<div className="h-100 d-f fd-c gap-2 px-3 pt-1 pb-4" style={{ minHeight: "100vh" }}>

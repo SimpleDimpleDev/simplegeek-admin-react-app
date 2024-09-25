@@ -48,13 +48,8 @@ export default function Filter() {
 	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
 
-	const [createSuccessSnackBarOpened, setCreateSuccessSnackBarOpened] = useState<boolean>(false);
-	const [updateSuccessSnackBarOpened, setUpdateSuccessSnackBarOpened] = useState<boolean>(false);
-	const [deleteSuccessSnackBarOpened, setDeleteSuccessSnackBarOpened] = useState<boolean>(false);
-
-	const [createErrorSnackBarOpened, setCreateErrorSnackBarOpened] = useState<boolean>(false);
-	const [updateErrorSnackBarOpened, setUpdateErrorSnackBarOpened] = useState<boolean>(false);
-	const [deleteErrorSnackBarOpened, setDeleteErrorSnackBarOpened] = useState<boolean>(false);
+	const [snackbarOpened, setSnackbarOpened] = useState<boolean>(false);
+	const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
@@ -65,42 +60,47 @@ export default function Filter() {
 
 	const showLoadingOverlay = createIsLoading || updateIsLoading || deleteIsLoading;
 
+	const showSnackbarMessage = (message: string) => {
+		setSnackbarMessage(message);
+		setSnackbarOpened(true);
+	};
+
 	useEffect(() => {
 		if (createIsSuccess) {
-			setCreateSuccessSnackBarOpened(true);
+			showSnackbarMessage("Группа фильтров успешно создана");
 			setCreateModalOpened(false);
 		}
 	}, [createIsSuccess]);
 
 	useEffect(() => {
 		if (updateIsSuccess) {
-			setUpdateSuccessSnackBarOpened(true);
+			showSnackbarMessage("Группа фильтров успешно обновлена");
 			setUpdateModalOpened(false);
 		}
 	}, [updateIsSuccess]);
 
 	useEffect(() => {
 		if (deleteFilterGroupsIsSuccess) {
-			setDeleteSuccessSnackBarOpened(true);
+			showSnackbarMessage("Группа фильтров успешно удалена");
 			setDeletionDialogOpened(false);
 		}
 	}, [deleteFilterGroupsIsSuccess]);
 
 	useEffect(() => {
 		if (createIsError) {
-			setCreateErrorSnackBarOpened(true);
+			showSnackbarMessage("Произошла ошибка при создании группы фильтров");
 		}
 	}, [createIsError]);
 
 	useEffect(() => {
 		if (updateIsError) {
-			setUpdateErrorSnackBarOpened(true);
+			showSnackbarMessage("Произошла ошибка при обновлении группы фильтров");
 		}
 	}, [updateIsError]);
 
 	useEffect(() => {
 		if (deleteFilterGroupsIsError) {
-			setDeleteErrorSnackBarOpened(true);
+			showSnackbarMessage("Произошла ошибка при удалении группы фильтров");
 		}
 	}, [deleteFilterGroupsIsError]);
 
@@ -125,41 +125,12 @@ export default function Filter() {
 					<CircularProgress />
 				</div>
 			</Modal>
+
 			<Snackbar
-				open={createSuccessSnackBarOpened}
+				open={snackbarOpened}
 				autoHideDuration={2000}
-				onClose={() => setCreateSuccessSnackBarOpened(false)}
-				message="Группа фильтров успешно создана"
-			/>
-			<Snackbar
-				open={updateSuccessSnackBarOpened}
-				autoHideDuration={2000}
-				onClose={() => setUpdateSuccessSnackBarOpened(false)}
-				message="Группа фильтров успешно обновлена"
-			/>
-			<Snackbar
-				open={deleteSuccessSnackBarOpened}
-				autoHideDuration={2000}
-				onClose={() => setDeleteSuccessSnackBarOpened(false)}
-				message="Группа фильтров успешно удалена"
-			/>
-			<Snackbar
-				open={createErrorSnackBarOpened}
-				autoHideDuration={2000}
-				onClose={() => setCreateErrorSnackBarOpened(false)}
-				message="Произошла ошибка при создании группы фильтров"
-			/>
-			<Snackbar
-				open={updateErrorSnackBarOpened}
-				autoHideDuration={2000}
-				onClose={() => setUpdateErrorSnackBarOpened(false)}
-				message="Произошла ошибка при обновлении группы фильтров"
-			/>
-			<Snackbar
-				open={deleteErrorSnackBarOpened}
-				autoHideDuration={2000}
-				onClose={() => setDeleteErrorSnackBarOpened(false)}
-				message="Произошла ошибка при удалении группы фильтров"
+				onClose={() => setSnackbarOpened(false)}
+				message={snackbarMessage}
 			/>
 
 			<ManagementModal

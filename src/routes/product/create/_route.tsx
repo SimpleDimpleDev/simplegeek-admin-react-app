@@ -10,32 +10,38 @@ import { useNavigate } from "react-router-dom";
 export default function ProductCreate() {
 	const navigate = useNavigate();
 
-	const [createProduct, { isLoading, isSuccess, isError }] = useCreateProductMutation();
+	const [createProduct, { isLoading: createIsLoading, isSuccess: createIsSuccess, isError: createIsError }] =
+		useCreateProductMutation();
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
 	const [
 		fetchFilterGroupList,
 		{ data: filterGroupList, isLoading: filterGroupListIsLoading, isFetching: filterGroupListIsFetching },
 	] = useLazyGetFilterGroupListQuery();
 
-	const [successSnackBarOpened, setSuccessSnackBarOpened] = useState(false);
-	const [errorSnackBarOpened, setErrorSnackBarOpened] = useState(false);
+	const [snackbarOpened, setSnackbarOpened] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState("");
+
+	const showSnackBarMessage = (message: string) => {
+		setSnackbarMessage(message);
+		setSnackbarOpened(true);
+	};
 
 	useEffect(() => {
-		if (isSuccess) {
-			setSuccessSnackBarOpened(true);
+		if (createIsSuccess) {
+			showSnackBarMessage("Товар создан!");
 			setTimeout(() => navigate("/product/table"), 1500);
 		}
-	}, [isSuccess, setSuccessSnackBarOpened, navigate]);
+	}, [createIsSuccess, navigate]);
 
 	useEffect(() => {
-		if (isError) {
-			setErrorSnackBarOpened(true);
+		if (createIsError) {
+			showSnackBarMessage("Произошла ошибка при создании товара");
 		}
-	}, [isError, setErrorSnackBarOpened]);
+	}, [createIsError]);
 
 	return (
 		<div className="h-100 d-f fd-c px-3 pt-1 pb-4" style={{ minHeight: "100vh" }}>
-			{isLoading && (
+			{createIsLoading && (
 				<Modal open={true}>
 					<div className="w-100v h-100v d-f ai-c jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
 						<CircularProgress />
@@ -43,16 +49,10 @@ export default function ProductCreate() {
 				</Modal>
 			)}
 			<Snackbar
-				open={successSnackBarOpened}
+				open={snackbarOpened}
 				autoHideDuration={1500}
-				onClose={() => setSuccessSnackBarOpened(false)}
-				message="Товар создан!"
-			/>
-			<Snackbar
-				open={errorSnackBarOpened}
-				autoHideDuration={1500}
-				onClose={() => setErrorSnackBarOpened(false)}
-				message="Произошла ошибка при создании товара"
+				onClose={() => setSnackbarOpened(false)}
+				message={snackbarMessage}
 			/>
 			<div className="p-2">
 				<Typography variant="h5">Создать товар</Typography>

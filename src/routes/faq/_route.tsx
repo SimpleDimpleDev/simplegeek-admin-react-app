@@ -1,15 +1,16 @@
 import { Button, Snackbar, Typography } from "@mui/material";
-import { FAQItemCreateForm, FAQItemUpdateForm, FaqItemCreateFormData, FaqItemUpdateFormData } from "./forms";
+import { FAQItemCreateForm, FAQItemUpdateForm } from "./forms";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemListQuery } from "@api/admin/faqItem";
+import { useEffect, useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
 import AdminTable from "../table";
 import { FAQItemGet } from "@appTypes/FAQ";
+import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../managementModal";
-import { useState } from "react";
 
 const columns: GridColDef<FAQItemGet>[] = [
 	{ field: "question", headerName: "Вопрос" },
@@ -18,55 +19,79 @@ const columns: GridColDef<FAQItemGet>[] = [
 
 export default function Faq() {
 	const { data: FAQItemList, isLoading: FAQItemListIsLoading } = useGetFAQItemListQuery();
-	const [createFAQItem] = useCreateFAQItemMutation();
-	const [updateFAQItem] = useCreateFAQItemMutation();
-	const [deleteFAQItems] = useDeleteFAQItemsMutation();
-
-	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
-	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
-	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
-	const [successSnackBarOpened, setSuccessSnackBarOpened] = useState<boolean>(false);
+	const [createFAQItem, { isLoading: createIsLoading, isSuccess: createSuccess, error: createError }] = useCreateFAQItemMutation();
+	const [updateFAQItem, { isLoading: updateIsLoading, isSuccess: updateSuccess, error: updateError }] = useCreateFAQItemMutation();
+	const [deleteFAQItems, { isLoading: deleteIsLoading, isSuccess: deleteSuccess, error: deleteError }] = useDeleteFAQItemsMutation();
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
-	const handleCreateFAQItem = async (data: FaqItemCreateFormData) => {
-		console.log("Submitting FaqItemCreate, data:", data);
-		const response = await createFAQItem(data);
-		console.log("FaqItemCreate response:", response);
-		setSuccessSnackBarOpened(true);
-		setCreateModalOpened(false);
-	};
+	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
+	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
+	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
 
-	const handleUpdateFAQItem = (data: FaqItemUpdateFormData) => {
-		console.log("Submitting FaqItemUpdate, data:", data);
-		const response = updateFAQItem(data);
-		console.log("FaqItemUpdate response:", response);
-		setSuccessSnackBarOpened(true);
-		setUpdateModalOpened(false);
-	};
+	const [snackbarOpened, setSnackbarOpened] = useState<boolean>(false);
+	const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
-	const handleDeleteFaqItems = async () => {
-		console.log("Submitting FaqItemsDelete, ids:", selectedItemIds);
-		const response = await deleteFAQItems(selectedItemIds.map(String));
-		console.log("FaqItemsDelete response:", response);
-		setSuccessSnackBarOpened(true);
-		setDeletionDialogOpened(false);
-	};
+	const showLoadingOverlay = useMemo(() => {
+		return createIsLoading || updateIsLoading || deleteIsLoading;
+	}, [createIsLoading, updateIsLoading, deleteIsLoading]);
+
+	const showSnackbarMessage = (message: string) => {
+		setSnackbarMessage(message);
+		setSnackbarOpened(true);
+	}
+
+	useEffect(() => {
+		if (createSuccess) {
+			showSnackbarMessage("Вопрос успешно создан");
+		}
+	}, [createSuccess]);
+
+	useEffect(() => {
+		if (createError) {
+			showSnackbarMessage("Произошла ошибка при создании вопроса");
+		}
+	}, [createError]);
+
+	useEffect(() => {
+		if (updateSuccess) {
+			showSnackbarMessage("Вопрос успешно обновлен");
+		}
+	}, [updateSuccess]);
+
+	useEffect(() => {
+		if (updateError) {
+			showSnackbarMessage("Произошла ошибка при обновлении вопроса");
+		}
+	}, [updateError]);
+
+	useEffect(() => {
+		if (deleteSuccess) {
+			showSnackbarMessage("Вопрос успешно удален");
+		}
+	}, [deleteSuccess]);
+
+	useEffect(() => {
+		if (deleteError) {
+			showSnackbarMessage("Произошла ошибка при удалении вопроса");
+		}
+	}, [deleteError]);
 
 	return (
 		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
+			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar
-				open={successSnackBarOpened}
-				autoHideDuration={4000}
-				onClose={() => setSuccessSnackBarOpened(false)}
-				message="Изменения сохранены"
+				open={snackbarOpened}
+				autoHideDuration={2000}
+				onClose={() => setSnackbarOpened(false)}
+				message={snackbarMessage}
 			/>
 			<ManagementModal
 				title="Создать вопрос"
 				opened={createModalOpened}
 				onClose={() => setCreateModalOpened(false)}
 			>
-				<FAQItemCreateForm onSubmit={handleCreateFAQItem} />
+				<FAQItemCreateForm onSubmit={createFAQItem} />
 			</ManagementModal>
 			<ManagementModal
 				title="Редактировать вопрос"
@@ -75,7 +100,7 @@ export default function Faq() {
 			>
 				<FAQItemUpdateForm
 					itemToUpdate={FAQItemList?.items.find((item) => item.id === selectedItemIds.at(0))}
-					onSubmit={handleUpdateFAQItem}
+					onSubmit={updateFAQItem}
 				/>
 			</ManagementModal>
 			<ActionDialog
@@ -85,7 +110,7 @@ export default function Faq() {
 				onClose={() => setDeletionDialogOpened(false)}
 				confirmButton={{
 					text: "Удалить",
-					onClick: handleDeleteFaqItems,
+					onClick: () => deleteFAQItems(selectedItemIds.map(String)),
 				}}
 				declineButton={{
 					text: "Отмена",
