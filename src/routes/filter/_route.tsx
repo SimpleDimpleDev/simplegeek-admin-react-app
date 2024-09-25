@@ -1,4 +1,4 @@
-import { Button, Snackbar, Typography } from "@mui/material";
+import { Button, CircularProgress, Modal, Snackbar, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import {
 	useCreateFilterGroupMutation,
@@ -6,19 +6,25 @@ import {
 	useGetFilterGroupListQuery,
 	useUpdateFilterGroupMutation,
 } from "@api/admin/filterGroup";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
 import AdminTable from "../table";
-import { FilterGroupCreateForm } from "./forms";
+import { FilterGroupCreateForm } from "./CreateForm";
 import { FilterGroupGet } from "@appTypes/Filters";
+import { FilterGroupUpdateForm } from "./UpdateForm";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../managementModal";
+import { useLazyGetCategoryListQuery } from "@api/admin/category";
 
 const columns: GridColDef<FilterGroupGet>[] = [
 	{ field: "title", headerName: "Название" },
-	{ field: "category", headerName: "Категория", renderCell: (params) => params.row.category?.title || "Без привязки" },
+	{
+		field: "category",
+		headerName: "Категория",
+		renderCell: (params) => params.row.category?.title || "Без привязки",
+	},
 	{ field: "values", headerName: "Значения" },
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
@@ -28,80 +34,160 @@ export default function Filter() {
 	const { data: filterGroupList, isLoading: filterGroupListIsLoading } = useGetFilterGroupListQuery({
 		categoryId: undefined,
 	});
-	const [createFilterGroup, { isSuccess: createFilterGroupIsSuccess, isError: createFilterGroupIsError }] =
+	const [fetchCategoryList, { data: categoryList, isLoading: categoryListIsLoading }] = useLazyGetCategoryListQuery();
+	const [createFilterGroup, { isSuccess: createIsSuccess, isLoading: createIsLoading, isError: createIsError }] =
 		useCreateFilterGroupMutation();
-	const [updateFilterGroup, { isSuccess: updateFilterGroupIsSuccess, isError: updateFilterGroupIsError }] =
+	const [updateFilterGroup, { isSuccess: updateIsSuccess, isLoading: updateIsLoading, isError: updateIsError }] =
 		useUpdateFilterGroupMutation();
-	const [deleteFilterGroups, { isSuccess: deleteFilterGroupsIsSuccess, isError: deleteFilterGroupsIsError }] =
-		useDeleteFilterGroupsMutation();
+	const [
+		deleteFilterGroups,
+		{ isSuccess: deleteFilterGroupsIsSuccess, isLoading: deleteIsLoading, isError: deleteFilterGroupsIsError },
+	] = useDeleteFilterGroupsMutation();
 
-	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
 	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
 	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
-	const [successSnackBarOpened, setSuccessSnackBarOpened] = useState<boolean>(false);
+	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
+
+	const [createSuccessSnackBarOpened, setCreateSuccessSnackBarOpened] = useState<boolean>(false);
+	const [updateSuccessSnackBarOpened, setUpdateSuccessSnackBarOpened] = useState<boolean>(false);
+	const [deleteSuccessSnackBarOpened, setDeleteSuccessSnackBarOpened] = useState<boolean>(false);
+
+	const [createErrorSnackBarOpened, setCreateErrorSnackBarOpened] = useState<boolean>(false);
+	const [updateErrorSnackBarOpened, setUpdateErrorSnackBarOpened] = useState<boolean>(false);
+	const [deleteErrorSnackBarOpened, setDeleteErrorSnackBarOpened] = useState<boolean>(false);
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
+	const selectedFilterGroup = useMemo(() => {
+		if (!filterGroupList) return null;
+		return filterGroupList.items.find((filterGroup) => filterGroup.id === selectedItemIds[0]);
+	}, [filterGroupList, selectedItemIds]);
+
+	const showLoadingOverlay = createIsLoading || updateIsLoading || deleteIsLoading;
+
 	useEffect(() => {
-		if (createFilterGroupIsSuccess) {
-			setSuccessSnackBarOpened(true);
+		if (createIsSuccess) {
+			setCreateSuccessSnackBarOpened(true);
 			setCreateModalOpened(false);
 		}
+	}, [createIsSuccess]);
 
-		if (updateFilterGroupIsSuccess) {
-			setSuccessSnackBarOpened(true);
+	useEffect(() => {
+		if (updateIsSuccess) {
+			setUpdateSuccessSnackBarOpened(true);
 			setUpdateModalOpened(false);
 		}
+	}, [updateIsSuccess]);
 
+	useEffect(() => {
 		if (deleteFilterGroupsIsSuccess) {
-			setSuccessSnackBarOpened(true);
+			setDeleteSuccessSnackBarOpened(true);
 			setDeletionDialogOpened(false);
 		}
+	}, [deleteFilterGroupsIsSuccess]);
 
-		if (createFilterGroupIsError) {
-			console.error("createFilterGroupIsError:", createFilterGroupIsError);
+	useEffect(() => {
+		if (createIsError) {
+			setCreateErrorSnackBarOpened(true);
 		}
+	}, [createIsError]);
 
-		if (updateFilterGroupIsError) {
-			console.error("updateFilterGroupIsError:", updateFilterGroupIsError);
+	useEffect(() => {
+		if (updateIsError) {
+			setUpdateErrorSnackBarOpened(true);
 		}
+	}, [updateIsError]);
 
+	useEffect(() => {
 		if (deleteFilterGroupsIsError) {
-			console.error("deleteFilterGroupsIsError:", deleteFilterGroupsIsError);
+			setDeleteErrorSnackBarOpened(true);
 		}
-	}, [
-		createFilterGroupIsSuccess,
-		updateFilterGroupIsSuccess,
-		deleteFilterGroupsIsSuccess,
-		createFilterGroupIsError,
-		updateFilterGroupIsError,
-		deleteFilterGroupsIsError,
-	]);
+	}, [deleteFilterGroupsIsError]);
+
+	const handleStartCreate = () => {
+		fetchCategoryList();
+		setCreateModalOpened(true);
+	};
+
+	const handleStartUpdate = () => {
+		fetchCategoryList();
+		setUpdateModalOpened(true);
+	};
+
+	const handleStartDelete = () => {
+		setDeletionDialogOpened(true);
+	};
 
 	return (
 		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
+			<Modal open={showLoadingOverlay}>
+				<div className="w-100v h-100v d-f ai-c jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+					<CircularProgress />
+				</div>
+			</Modal>
 			<Snackbar
-				open={successSnackBarOpened}
-				autoHideDuration={4000}
-				onClose={() => setSuccessSnackBarOpened(false)}
-				message="Изменения сохранены"
+				open={createSuccessSnackBarOpened}
+				autoHideDuration={2000}
+				onClose={() => setCreateSuccessSnackBarOpened(false)}
+				message="Группа фильтров успешно создана"
 			/>
+			<Snackbar
+				open={updateSuccessSnackBarOpened}
+				autoHideDuration={2000}
+				onClose={() => setUpdateSuccessSnackBarOpened(false)}
+				message="Группа фильтров успешно обновлена"
+			/>
+			<Snackbar
+				open={deleteSuccessSnackBarOpened}
+				autoHideDuration={2000}
+				onClose={() => setDeleteSuccessSnackBarOpened(false)}
+				message="Группа фильтров успешно удалена"
+			/>
+			<Snackbar
+				open={createErrorSnackBarOpened}
+				autoHideDuration={2000}
+				onClose={() => setCreateErrorSnackBarOpened(false)}
+				message="Произошла ошибка при создании группы фильтров"
+			/>
+			<Snackbar
+				open={updateErrorSnackBarOpened}
+				autoHideDuration={2000}
+				onClose={() => setUpdateErrorSnackBarOpened(false)}
+				message="Произошла ошибка при обновлении группы фильтров"
+			/>
+			<Snackbar
+				open={deleteErrorSnackBarOpened}
+				autoHideDuration={2000}
+				onClose={() => setDeleteErrorSnackBarOpened(false)}
+				message="Произошла ошибка при удалении группы фильтров"
+			/>
+
 			<ManagementModal
 				title="Создать группу фильтров"
 				opened={createModalOpened}
 				onClose={() => setCreateModalOpened(false)}
 			>
-				<FilterGroupCreateForm onSubmit={createFilterGroup} />
+				<FilterGroupCreateForm
+					categoryList={categoryList}
+					categoryListIsLoading={categoryListIsLoading}
+					onSubmit={createFilterGroup}
+				/>
 			</ManagementModal>
 			<ManagementModal
 				title="Редактировать группу фильтров"
 				opened={updateModalOpened}
 				onClose={() => setUpdateModalOpened(false)}
 			>
-				<div>
-					<h1>Not implemented</h1>
-					<button onClick={updateFilterGroup}>Submit</button>
-				</div>
+				{!selectedFilterGroup ? (
+					<Typography variant="body2">Выберите группу</Typography>
+				) : (
+					<FilterGroupUpdateForm
+						filterGroup={selectedFilterGroup}
+						categoryList={categoryList}
+						categoryListIsLoading={categoryListIsLoading}
+						onSubmit={updateFilterGroup}
+					/>
+				)}
 			</ManagementModal>
 			<ActionDialog
 				title="Удалить выбранные группы?"
@@ -125,7 +211,7 @@ export default function Filter() {
 						Количество: {filterGroupList?.items.length}
 					</Typography>
 				</div>
-				<Button variant="contained" onClick={() => setCreateModalOpened(true)}>
+				<Button variant="contained" onClick={handleStartCreate}>
 					<Add />
 					Добавить
 				</Button>
@@ -146,14 +232,14 @@ export default function Filter() {
 								<Button
 									variant="contained"
 									disabled={!selectedItemIds.length}
-									onClick={() => setDeletionDialogOpened(true)}
+									onClick={handleStartDelete}
 								>
 									Удалить
 								</Button>
 								<Button
 									variant="contained"
 									disabled={!selectedItemIds.length || selectedItemIds.length > 1}
-									onClick={() => setUpdateModalOpened(true)}
+									onClick={handleStartUpdate}
 								>
 									Редактировать
 								</Button>

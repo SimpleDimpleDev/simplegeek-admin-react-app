@@ -86,6 +86,7 @@ const categoryApi = adminApi.injectEndpoints({
 export const {
 	useCreateCategoryMutation,
 	useGetCategoryListQuery,
+	useLazyGetCategoryListQuery,
 	useUpdateCategoryMutation,
 	useChangeImageCategoryMutation,
 } = categoryApi;
