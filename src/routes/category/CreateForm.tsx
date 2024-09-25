@@ -6,6 +6,7 @@ import {
 	IconButton,
 	Modal,
 	Snackbar,
+	Stack,
 	TextField,
 	Typography,
 } from "@mui/material";
@@ -58,7 +59,6 @@ const CategoryCreateResolver = z.object({
 interface CategoryCreateFormProps {
 	onSubmit: (data: z.infer<typeof CategoryCreateSchema>) => void;
 }
-
 
 export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit }) => {
 	const resolvedOnSubmit = (data: CategoryCreateFormData) => {
@@ -143,38 +143,40 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 			</Modal>
 
 			<form className="h-100 d-f fd-c jc-sb px-2 pt-2 pb-4" onSubmit={handleSubmit(resolvedOnSubmit)}>
-				<div className="d-f fd-c gap-1">
-					<Controller
-						name="title"
-						control={control}
-						defaultValue={""}
-						render={({ field, fieldState }) => (
-							<TextField
-								{...field}
-								label="Название"
-								error={!!fieldState.error}
-								helperText={fieldState.error?.message}
-								fullWidth
-							/>
-						)}
-					/>
+				<Stack direction={"column"} spacing={2} divider={<Divider />}>
+					<div className="d-f fd-c gap-2 bg-primary">
+						<Typography variant="subtitle0">Категория</Typography>
+						<Controller
+							name="title"
+							control={control}
+							defaultValue={""}
+							render={({ field, fieldState }) => (
+								<TextField
+									{...field}
+									label="Название"
+									error={!!fieldState.error}
+									helperText={fieldState.error?.message}
+									fullWidth
+								/>
+							)}
+						/>
 
-					<Controller
-						name="link"
-						control={control}
-						defaultValue={""}
-						render={({ field, fieldState }) => (
-							<TextField
-								{...field}
-								label="Ссылка"
-								error={!!fieldState.error}
-								helperText={fieldState.error?.message}
-								fullWidth
-							/>
-						)}
-					/>
+						<Controller
+							name="link"
+							control={control}
+							defaultValue={""}
+							render={({ field, fieldState }) => (
+								<TextField
+									{...field}
+									label="Ссылка"
+									error={!!fieldState.error}
+									helperText={fieldState.error?.message}
+									fullWidth
+								/>
+							)}
+						/>
+					</div>
 
-					<Divider />
 					<div className="d-f fd-c gap-1 bg-primary">
 						<Typography variant="subtitle0">Маленькое изображение</Typography>
 						<Typography variant="body1" sx={{ color: "typography.secondary" }}>
@@ -243,7 +245,6 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 						</div>
 					</div>
 
-					<Divider />
 					<div className="d-f fd-c gap-1 bg-primary">
 						<Typography variant="subtitle0">Большое изображение</Typography>
 						<Typography variant="body1" sx={{ color: "typography.secondary" }}>
@@ -312,7 +313,7 @@ export const CategoryCreateForm: React.FC<CategoryCreateFormProps> = ({ onSubmit
 							</div>
 						</div>
 					</div>
-				</div>
+				</Stack>
 
 				<Button type="submit" variant="contained">
 					Создать

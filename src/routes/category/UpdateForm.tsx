@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, Typography } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 
 import { CategoryGet } from "@appTypes/Category";
@@ -41,13 +41,13 @@ export const CategoryUpdateForm: React.FC<CategoryUpdateFormProps> = ({ onSubmit
 	});
 	return (
 		<form className="h-100 d-f fd-c jc-sb px-2 pt-2 pb-4" onSubmit={handleSubmit(resolvedOnSubmit)}>
-			<div className="d-f fd-c gap-1">
+			<div className="d-f fd-c gap-2">
 				<Controller
 					name="id"
 					control={control}
 					render={({ field: { value } }) => <input type="hidden" value={value} />}
 				/>
-
+				<Typography variant="subtitle0">Категория</Typography>
 				<Controller
 					name="title"
 					control={control}
