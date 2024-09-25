@@ -1,4 +1,4 @@
-import { Button, CircularProgress, Modal, Snackbar, Typography } from "@mui/material";
+import { Button, CircularProgress, Modal, Snackbar, Tooltip, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import {
 	useCreateFilterGroupMutation,
@@ -25,7 +25,18 @@ const columns: GridColDef<FilterGroupGet>[] = [
 		headerName: "Категория",
 		renderCell: (params) => params.row.category?.title || "Без привязки",
 	},
-	{ field: "values", headerName: "Значения" },
+	{
+		field: "filters",
+		headerName: "Значения",
+		renderCell: (params) => {
+			const valuesString = params.row.filters.join(", ");
+			return (
+				<Tooltip title={valuesString}>
+					<Typography>{valuesString}</Typography>
+				</Tooltip>
+			);
+		},
+	},
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
 ];
