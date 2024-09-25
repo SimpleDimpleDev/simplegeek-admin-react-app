@@ -29,11 +29,13 @@ const columns: GridColDef<FilterGroupGet>[] = [
 		field: "filters",
 		headerName: "Значения",
 		renderCell: (params) => {
-			const valuesString = params.row.filters.join(", ");
+			const valuesString = params.row.filters.map(({ value }) => value).join(", ");
 			return (
-				<Tooltip title={valuesString}>
-					<Typography>{valuesString}</Typography>
-				</Tooltip>
+				<div className="d-f jc-c ai-c">
+					<Tooltip title={valuesString}>
+						<Typography>{valuesString}</Typography>
+					</Tooltip>
+				</div>
 			);
 		},
 	},
