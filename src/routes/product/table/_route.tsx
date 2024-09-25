@@ -77,7 +77,7 @@ export default function ProductTable() {
 									onClick={() =>
 										submit(
 											{ productIds: JSON.stringify(selectedItemIds) },
-											{ method: "post", action: "/admin/publication/create" }
+											{ method: "post", action: "/publication/create" }
 										)
 									}
 								>

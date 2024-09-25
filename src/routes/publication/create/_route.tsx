@@ -10,6 +10,7 @@ import {
 	Snackbar,
 	Typography,
 } from "@mui/material";
+import { useActionData, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import { LoadingOverlay } from "@components/LoadingOverlay";
@@ -19,10 +20,15 @@ import { PublicationCreateStockForm } from "./stockForm";
 import { useCreatePublicationMutation } from "@api/admin/publication";
 import { useGetCategoryListQuery } from "@api/admin/category";
 import { useGetProductListQuery } from "@api/admin/product";
-import { useNavigate } from "react-router-dom";
+
+interface ProductIdsToPublish {
+	productIds: string;
+}
 
 export default function PublicationCreate() {
 	const navigate = useNavigate();
+	const actionData = useActionData() as ProductIdsToPublish;
+	const productIds = actionData?.productIds ? JSON.parse(actionData.productIds) : undefined;
 
 	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
@@ -32,9 +38,6 @@ export default function PublicationCreate() {
 		isLoading: true,
 	};
 	const [createPublication, { isSuccess, isLoading, isError }] = useCreatePublicationMutation();
-
-	// TODO: retrieve productIds to create from product table
-	const productIds = undefined;
 
 	const [publicationType, setPublicationType] = useState<"STOCK" | "PREORDER">("STOCK");
 	const [publicationTypeChangeTo, setPublicationTypeChangeTo] = useState<"STOCK" | "PREORDER" | null>(null);
