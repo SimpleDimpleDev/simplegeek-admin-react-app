@@ -57,6 +57,9 @@ export const FilterGroupUpdateForm: React.FC<FilterGroupUpdateFormProps> = ({
 	categoryListIsLoading,
 }) => {
 	const resolvedOnSubmit = (data: FilterGroupUpdateFormData) => {
+		if (data.categoryId === "FREE") {
+			data.categoryId = null
+		}
 		onSubmit(FilterGroupUpdateSchema.parse(data));
 	};
 
@@ -144,7 +147,7 @@ export const FilterGroupUpdateForm: React.FC<FilterGroupUpdateFormProps> = ({
 				</div>
 				<div className="d-f fd-c gap-2 bg-primary">
 					<Typography variant="subtitle0">Фильтры</Typography>
-					<div style={{ maxHeight: "100%", overflowY: "auto" }}>
+					<div style={{ maxHeight: "440px", paddingTop: "8px", overflowY: "auto" }}>
 						<Stack spacing={1} divider={<Divider />}>
 							{filtersFields.fields.map((field, index) => (
 								<Controller
