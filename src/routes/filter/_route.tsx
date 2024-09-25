@@ -28,6 +28,7 @@ const columns: GridColDef<FilterGroupGet>[] = [
 	{
 		field: "filters",
 		headerName: "Значения",
+		maxWidth: 600,
 		renderCell: (params) => {
 			const valuesString = params.row.filters.map(({ value }) => value).join(", ");
 			return (
