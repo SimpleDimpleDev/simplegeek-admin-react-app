@@ -22,7 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 interface FilterGroupCreateFormData {
 	title: string;
-	categoryId: string;
+	categoryId: string | null;
 	filters: { value: string }[];
 }
 
@@ -45,6 +45,13 @@ const FilterGroupCreateForm: React.FC<FilterGroupCreateFormProps> = ({
 	categoryList,
 	categoryListIsLoading,
 }) => {
+	const resolvedOnSubmit = (data: FilterGroupCreateFormData) => {
+		if (data.categoryId === "FREE") {
+			data.categoryId = null
+		}
+		onSubmit(FilterGroupCreateSchema.parse(data));
+	}
+
 	const { control, handleSubmit } = useForm<FilterGroupCreateFormData>({
 		resolver: zodResolver(FilterGroupCreateResolver),
 		defaultValues: {
@@ -60,7 +67,7 @@ const FilterGroupCreateForm: React.FC<FilterGroupCreateFormProps> = ({
 	});
 
 	return (
-		<form className="h-100 d-f fd-c jc-sb px-2 pt-2 pb-4" onSubmit={handleSubmit(onSubmit)}>
+		<form className="h-100 d-f fd-c jc-sb px-2 pt-2 pb-4" onSubmit={handleSubmit(resolvedOnSubmit)}>
 			<Stack direction={"column"} spacing={2} divider={<Divider />}>
 				<div className="d-f fd-c gap-2 bg-primary">
 					<Typography variant="subtitle0">Группа</Typography>
@@ -94,7 +101,7 @@ const FilterGroupCreateForm: React.FC<FilterGroupCreateFormProps> = ({
 									variant="outlined"
 									error={!!error}
 								>
-									<MenuItem>
+									<MenuItem value={"FREE"}>
 										<em>Без привязки</em>
 									</MenuItem>
 									{!categoryList || categoryListIsLoading ? (
