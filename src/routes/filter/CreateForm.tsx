@@ -94,7 +94,7 @@ const FilterGroupCreateForm: React.FC<FilterGroupCreateFormProps> = ({
 									variant="outlined"
 									error={!!error}
 								>
-									<MenuItem value="FREE">
+									<MenuItem>
 										<em>Без привязки</em>
 									</MenuItem>
 									{!categoryList || categoryListIsLoading ? (
