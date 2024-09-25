@@ -40,7 +40,7 @@ export const CategoryUpdateForm: React.FC<CategoryUpdateFormProps> = ({ onSubmit
 		},
 	});
 	return (
-		<form className="h-100 d-f fd-c jc-sb px-2 pt-2 pb-4" onSubmit={handleSubmit(resolvedOnSubmit)}>
+		<form className="d-f fd-c gap-2 px-2 pt-2 pb-4" onSubmit={handleSubmit(resolvedOnSubmit)}>
 			<div className="d-f fd-c gap-2">
 				<Controller
 					name="id"
