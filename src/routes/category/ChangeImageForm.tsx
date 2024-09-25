@@ -1,4 +1,4 @@
-import { Box, CircularProgress, IconButton, Modal, Snackbar, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, IconButton, Modal, Snackbar, Typography } from "@mui/material";
 import { Delete, Edit, FileUpload } from "@mui/icons-material";
 
 import CanvasPreview from "@components/CanvasPreview";
@@ -183,6 +183,9 @@ export const CategoryChangeImageForm: React.FC<CategoryChangeImageFormProps> = (
 						</IconButton>
 					</div>
 				</div>
+				<Button disabled={!image} type="submit" variant="contained">
+					Сохранить {imageType === "ICON" ? "иконку" : "баннер"}
+				</Button>
 			</form>
 		</>
 	);

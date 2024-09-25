@@ -1,5 +1,6 @@
-import { Close } from "@mui/icons-material";
 import { Divider, IconButton, Modal, Slide, Typography } from "@mui/material";
+
+import { Close } from "@mui/icons-material";
 
 type Props = {
     title: string;
@@ -20,7 +21,7 @@ export default function ManagementModal({ title, opened, onClose, children }: Pr
                         </IconButton>
                     </div>
                     <Divider />
-                    <div style={{ height: "calc(100% - 72px)" }}>{children}</div>
+                    <div className="d-f fd-c" style={{ height: "calc(100% - 72px)" }}>{children}</div>
                 </div>
             </Slide>
         </Modal>
