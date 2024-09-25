@@ -65,7 +65,7 @@ export const FilterGroupUpdateForm: React.FC<FilterGroupUpdateFormProps> = ({
 		defaultValues: {
 			id: filterGroup.id,
 			title: filterGroup.title,
-			categoryId: filterGroup.category?.id || null,
+			categoryId: filterGroup.category?.id || "FREE",
 			filters: filterGroup.filters,
 		},
 	});
