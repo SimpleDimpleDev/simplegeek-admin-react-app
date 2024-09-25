@@ -20,7 +20,7 @@ type ImageEditorState = {
 };
 
 type CategoryChangeImageFormData = {
-	id: string;
+	categoryId: string;
 	imageType: "ICON" | "BANNER";
 	image: {
 		file: File;
@@ -29,7 +29,7 @@ type CategoryChangeImageFormData = {
 };
 
 const CategoryChangeImageResolver = z.object({
-	id: z.string(),
+	categoryId: z.string(),
 	imageType: z.enum(["ICON", "BANNER"]),
 	image: z.object(
 		{
@@ -51,10 +51,10 @@ export const CategoryChangeImageForm: React.FC<CategoryChangeImageFormProps> = (
 		onSubmit(CategoryChangeImageSchema.parse(data));
 	};
 
-	const { getValues, setValue, watch, handleSubmit } = useForm<CategoryChangeImageFormData>({
+	const { register, getValues, setValue, watch, handleSubmit } = useForm<CategoryChangeImageFormData>({
 		resolver: zodResolver(CategoryChangeImageResolver),
 		defaultValues: {
-			id: category.id,
+			categoryId: category.id,
 			imageType: imageType,
 			image: null,
 		},
@@ -115,6 +115,7 @@ export const CategoryChangeImageForm: React.FC<CategoryChangeImageFormProps> = (
 			</Modal>
 
 			<form className="h-100 d-f fd-c jc-sb px-2 pt-2 pb-4" onSubmit={handleSubmit(resolvedOnSubmit)}>
+				<input type="hidden" {...register("categoryId")} />
 				<div className="d-f fd-c gap-1 bg-primary">
 					<Typography variant="subtitle0">
 						{imageType === "ICON" ? "Иконка категории" : "Баннер категории"}
