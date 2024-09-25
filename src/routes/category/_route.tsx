@@ -9,15 +9,28 @@ import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
 import AdminTable from "../table";
 import { CategoryCreateForm } from "./CreateForm";
+import { CategoryGet } from "@appTypes/Category";
 import { CategoryUpdateForm } from "./UpdateForm";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../managementModal";
+import { getImageUrl } from "@utils/image";
 
-const columns: GridColDef[] = [
+const columns: GridColDef<CategoryGet>[] = [
+	{
+		field: "title",
+		headerName: "Название",
+		renderCell: (params) => (
+			<div className="d-f fd-r gap-1 ai-c">
+				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden" }}>
+					<img src={getImageUrl(params.row.icon.url, "small")} className="contain" />
+				</div>
+				{params.row.title}
+			</div>
+		),
+	},
+	{ field: "link", headerName: "Ссылка" },
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
-	{ field: "title", headerName: "Название" },
-	{ field: "link", headerName: "Ссылка" },
 ];
 
 export default function Category() {

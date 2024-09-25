@@ -6,10 +6,11 @@ import { useNavigate, useSubmit } from "react-router-dom";
 import { Add } from "@mui/icons-material";
 import AdminTable from "@routes/table";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import { ProductGet } from "@appTypes/Product";
 import { getImageUrl } from "@utils/image";
 import { useGetProductListQuery } from "@api/admin/product";
 
-const columns: GridColDef[] = [
+const columns: GridColDef<ProductGet>[] = [
 	{
 		field: "title",
 		headerName: "Название",
@@ -22,10 +23,10 @@ const columns: GridColDef[] = [
 			</div>
 		),
 	},
-	{ field: "category", headerName: "Категория" },
+	{ field: "category", headerName: "Категория", renderCell: (params) => params.row.category.title },
+	{ field: "isPublished", headerName: "Есть в публикации", type: "boolean" },
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
-	{ field: "isPublished", headerName: "Есть в публикации", type: "boolean" },
 ];
 
 export default function ProductTable() {

@@ -12,15 +12,16 @@ import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
 import AdminTable from "../table";
 import { FilterGroupCreateForm } from "./forms";
+import { FilterGroupGet } from "@appTypes/Filters";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../managementModal";
 
-const columns: GridColDef[] = [
+const columns: GridColDef<FilterGroupGet>[] = [
+	{ field: "title", headerName: "Название" },
+	{ field: "category", headerName: "Категория", renderCell: (params) => params.row.category?.title || "Без привязки" },
+	{ field: "values", headerName: "Значения" },
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
-	{ field: "title", headerName: "Название" },
-	{ field: "category", headerName: "Категория" },
-	{ field: "values", headerName: "Значения" },
 ];
 
 export default function Filter() {

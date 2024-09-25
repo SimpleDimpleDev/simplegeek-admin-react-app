@@ -6,11 +6,12 @@ import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemListQ
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
 import AdminTable from "../table";
+import { FAQItemGet } from "@appTypes/FAQ";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../managementModal";
 import { useState } from "react";
 
-const columns: GridColDef[] = [
+const columns: GridColDef<FAQItemGet>[] = [
 	{ field: "question", headerName: "Вопрос" },
 	{ field: "answer", headerName: "Ответ" },
 ];
