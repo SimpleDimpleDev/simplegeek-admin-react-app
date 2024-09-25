@@ -1,7 +1,7 @@
 import { FilterGroupCreateSchema, FilterGroupGetSchema } from "@schemas/FilterGroup";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { CreateResponseSchema } from "@schemas/Api";
+import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
 
@@ -9,15 +9,9 @@ const FilterGroupListResponseSchema = z.object({
 	items: FilterGroupGetSchema.array(),
 });
 
-export const filterGroupApi = createApi({
-	reducerPath: "filterGroupApi",
-	baseQuery: fetchBaseQuery({
-		baseUrl: import.meta.env.SHOP_API_URL,
-		credentials: "include",
-	}),
-	tagTypes: ["FilterGroup"],
-	endpoints: (builder) => ({
-		createFilterGroup: builder.mutation<
+export const filterGroupApi = adminApi.injectEndpoints({
+	endpoints: (build) => ({
+		createFilterGroup: build.mutation<
 			z.infer<typeof CreateResponseSchema>,
 			z.infer<typeof FilterGroupCreateSchema>
 		>({
@@ -30,7 +24,7 @@ export const filterGroupApi = createApi({
 			invalidatesTags: ["FilterGroup"],
 		}),
 
-		getFilterGroupList: builder.query<
+		getFilterGroupList: build.query<
 			z.infer<typeof FilterGroupListResponseSchema>,
 			{ categoryId: string | undefined }
 		>({
@@ -43,7 +37,7 @@ export const filterGroupApi = createApi({
 			providesTags: (_result, _error, { categoryId }) => [{ type: "FilterGroup", id: categoryId || "LIST" }],
 		}),
 
-		updateFilterGroup: builder.mutation({
+		updateFilterGroup: build.mutation({
 			query: (filterGroup) => ({
 				url: "/admin/filter-group",
 				method: "PUT",
@@ -52,7 +46,7 @@ export const filterGroupApi = createApi({
 			invalidatesTags: ["FilterGroup"],
 		}),
 
-		deleteFilterGroups: builder.mutation<z.infer<typeof CreateResponseSchema>, string[]>({
+		deleteFilterGroups: build.mutation<z.infer<typeof CreateResponseSchema>, string[]>({
 			query: (ids: string[]) => ({
 				url: "/admin/filter-group",
 				method: "DELETE",

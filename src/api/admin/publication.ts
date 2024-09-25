@@ -1,7 +1,7 @@
 import { PublicationCreateSchema, PublicationGetSchema, PublicationUpdateSchema } from "@schemas/Publication";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { CreateResponseSchema } from "@schemas/Api";
+import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
 
@@ -9,15 +9,9 @@ const PublicationListGetResponseSchema = z.object({
 	items: PublicationGetSchema.array(),
 });
 
-export const publicationApi = createApi({
-	reducerPath: "PublicationApi",
-	baseQuery: fetchBaseQuery({
-		baseUrl: import.meta.env.SHOP_API_URL,
-		credentials: "include",
-	}),
-	tagTypes: ["Publication"],
-	endpoints: (builder) => ({
-		createPublication: builder.mutation({
+export const publicationApi = adminApi.injectEndpoints({
+	endpoints: (build) => ({
+		createPublication: build.mutation({
 			query: (data: z.infer<typeof PublicationCreateSchema>) => ({
 				url: "/admin/publication",
 				method: "POST",
@@ -27,7 +21,7 @@ export const publicationApi = createApi({
 			invalidatesTags: ["Publication"],
 		}),
 
-		getPublication: builder.query<z.infer<typeof PublicationGetSchema>, { publicationId: string }>({
+		getPublication: build.query<z.infer<typeof PublicationGetSchema>, { publicationId: string }>({
 			query: ({ publicationId }) => ({
 				url: `/admin/publication`,
 				params: { id: publicationId },
@@ -37,7 +31,7 @@ export const publicationApi = createApi({
 			providesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),
 
-		getPublicationList: builder.query<z.infer<typeof PublicationListGetResponseSchema>, void>({
+		getPublicationList: build.query<z.infer<typeof PublicationListGetResponseSchema>, void>({
 			query: () => ({
 				url: "/admin/publication-list",
 				method: "GET",
@@ -46,7 +40,7 @@ export const publicationApi = createApi({
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Publication", id: item.id })),
 		}),
 
-		updatePublication: builder.mutation<void, z.infer<typeof PublicationUpdateSchema>>({
+		updatePublication: build.mutation<void, z.infer<typeof PublicationUpdateSchema>>({
 			query: (data) => ({
 				url: "/admin/publication",
 				method: "PUT",

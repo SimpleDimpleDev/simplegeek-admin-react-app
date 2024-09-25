@@ -4,9 +4,9 @@ import {
 	CategoryGetSchema,
 	CategoryUpdateSchema,
 } from "@schemas/Category";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { CreateResponseSchema } from "@schemas/Api";
+import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
 
@@ -34,15 +34,9 @@ const categoryChangeImageFormDataMapper = (data: z.infer<typeof CategoryChangeIm
 	return formData;
 };
 
-export const categoryApi = createApi({
-	reducerPath: "categoryApi",
-	baseQuery: fetchBaseQuery({
-		baseUrl: import.meta.env.SHOP_API_URL,
-		credentials: "include",
-	}),
-	tagTypes: ["Category"],
-	endpoints: (builder) => ({
-		createCategory: builder.mutation<z.infer<typeof CreateResponseSchema>, z.infer<typeof CategoryCreateSchema>>({
+const categoryApi = adminApi.injectEndpoints({
+	endpoints: (build) => ({
+		createCategory: build.mutation<z.infer<typeof CreateResponseSchema>, z.infer<typeof CategoryCreateSchema>>({
 			query: (body) => {
 				const formData = categoryCreateFormDataMapper(body);
 				return {
@@ -55,7 +49,7 @@ export const categoryApi = createApi({
 			invalidatesTags: ["Category"],
 		}),
 
-		getCategoryList: builder.query<z.infer<typeof CategoryListResponseSchema>, void>({
+		getCategoryList: build.query<z.infer<typeof CategoryListResponseSchema>, void>({
 			query: () => ({
 				url: "/admin/category-list",
 				method: "GET",
@@ -64,16 +58,16 @@ export const categoryApi = createApi({
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Category", id: item.id })),
 		}),
 
-		updateCategory: builder.mutation<void, z.infer<typeof CategoryUpdateSchema>>({
+		updateCategory: build.mutation<void, z.infer<typeof CategoryUpdateSchema>>({
 			query: (body) => ({
 				url: "/admin/category",
 				method: "PUT",
 				body: body,
 			}),
-			invalidatesTags: (_result, _error, body) => [{ type: "Category", id: body.id }],
+			invalidatesTags: (_result, _error, body) => [{ type: "Category", id: body.id }, { type: "Product"}, {type: "Publication"}],
 		}),
 
-		changeImageCategory: builder.mutation<void, z.infer<typeof CategoryChangeImageSchema>>({
+		changeImageCategory: build.mutation<void, z.infer<typeof CategoryChangeImageSchema>>({
 			query: (body) => {
 				const formData = categoryChangeImageFormDataMapper(body);
 
@@ -86,6 +80,7 @@ export const categoryApi = createApi({
 			invalidatesTags: (_result, _error, body) => [{ type: "Category", id: body.categoryId }],
 		}),
 	}),
+	overrideExisting: false,
 });
 
 export const {

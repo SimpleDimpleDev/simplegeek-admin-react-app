@@ -1,27 +1,15 @@
-import { FAQItemApi, categoryApi, filterGroupApi, orderApi, productApi, publicationApi, userApi } from "@api/admin";
 import { crashReporterMiddleware, loggingMiddleware } from "./middleware";
 
+import { adminApi } from "@api/admin/root"
 import { configureStore } from "@reduxjs/toolkit";
 
 const store = configureStore({
 	reducer: {
-		[categoryApi.reducerPath]: categoryApi.reducer,
-		[FAQItemApi.reducerPath]: FAQItemApi.reducer,
-		[filterGroupApi.reducerPath]: filterGroupApi.reducer,
-		[orderApi.reducerPath]: orderApi.reducer,
-		[productApi.reducerPath]: productApi.reducer,
-		[publicationApi.reducerPath]: publicationApi.reducer,
-		[userApi.reducerPath]: userApi.reducer,
+		[adminApi.reducerPath]: adminApi.reducer,
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware()
-			.concat(categoryApi.middleware)
-			.concat(FAQItemApi.middleware)
-			.concat(filterGroupApi.middleware)
-			.concat(orderApi.middleware)
-			.concat(productApi.middleware)
-			.concat(publicationApi.middleware)
-			.concat(userApi.middleware)
+			.concat(adminApi.middleware)
 			.concat(loggingMiddleware)
 			.concat(crashReporterMiddleware),
 });

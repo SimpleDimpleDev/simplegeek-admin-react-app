@@ -126,7 +126,7 @@ export default function PublicationInspect() {
 
 			<div className="h-100 d-f fd-c gap-2 px-3 py-4 pb-4" style={{ minHeight: "100vh" }}>
 				<Button
-					onClick={() => navigate("/catalog-item/table")}
+					onClick={() => navigate("/publication/table")}
 					sx={{ color: "warning.main", width: "fit-content" }}
 				>
 					<ChevronLeft />К списку товаров каталога

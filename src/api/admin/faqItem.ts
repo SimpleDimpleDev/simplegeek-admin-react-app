@@ -1,6 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
 import { FAQItemGetSchema } from "@schemas/FAQ";
+import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
 
@@ -8,15 +7,9 @@ const FAQItemListResponseSchema = z.object({
 	items: FAQItemGetSchema.array(),
 });
 
-export const FAQItemApi = createApi({
-	reducerPath: "FAQItemApi",
-	baseQuery: fetchBaseQuery({
-		baseUrl: import.meta.env.SHOP_API_URL,
-		credentials: "include",
-	}),
-	tagTypes: ["FAQItem"],
-	endpoints: (builder) => ({
-		createFAQItem: builder.mutation({
+export const FAQItemApi = adminApi.injectEndpoints({
+	endpoints: (build) => ({
+		createFAQItem: build.mutation({
 			query: (item) => ({
 				url: "/admin/faq",
 				method: "POST",
@@ -25,7 +18,7 @@ export const FAQItemApi = createApi({
 			invalidatesTags: ["FAQItem"],
 		}),
 
-		getFAQItemList: builder.query<z.infer<typeof FAQItemListResponseSchema>, void>({
+		getFAQItemList: build.query<z.infer<typeof FAQItemListResponseSchema>, void>({
 			query: () => ({
 				url: "/admin/faq-item-list",
 				method: "GET",
@@ -34,7 +27,7 @@ export const FAQItemApi = createApi({
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "FAQItem", id: item.id })),
 		}),
 
-		updateFAQItem: builder.mutation({
+		updateFAQItem: build.mutation({
 			query: (item) => ({
 				url: "/admin/faq",
 				method: "PUT",
@@ -43,7 +36,7 @@ export const FAQItemApi = createApi({
 			invalidatesTags: ["FAQItem"],
 		}),
 
-		deleteFAQItems: builder.mutation({
+		deleteFAQItems: build.mutation({
 			query: (ids: string[]) => ({
 				url: "/admin/faq",
 				method: "DELETE",

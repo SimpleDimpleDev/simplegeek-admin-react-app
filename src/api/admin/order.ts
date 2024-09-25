@@ -1,6 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-
 import { OrderGetSchema } from "@schemas/Order";
+import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
 
@@ -8,15 +7,9 @@ const OrderListGetResponseSchema = z.object({
 	items: OrderGetSchema.array(),
 });
 
-export const orderApi = createApi({
-	reducerPath: "orderApi",
-	baseQuery: fetchBaseQuery({
-		baseUrl: import.meta.env.SHOP_API_URL,
-		credentials: "include",
-	}),
-	tagTypes: ["Order"],
-	endpoints: (builder) => ({
-		getOrder: builder.query<z.infer<typeof OrderGetSchema>, { orderId: string }>({
+export const orderApi = adminApi.injectEndpoints({
+	endpoints: (build) => ({
+		getOrder: build.query<z.infer<typeof OrderGetSchema>, { orderId: string }>({
 			query: ({ orderId }) => ({
 				url: `/admin/order`,
 				params: { id: orderId },
@@ -26,7 +19,7 @@ export const orderApi = createApi({
 			providesTags: (_result, _error, { orderId }) => [{ type: "Order", id: orderId }],
 		}),
 
-		getOrderList: builder.query<z.infer<typeof OrderListGetResponseSchema>, void>({
+		getOrderList: build.query<z.infer<typeof OrderListGetResponseSchema>, void>({
 			query: () => ({
 				url: "/admin/order-list",
 				method: "GET",

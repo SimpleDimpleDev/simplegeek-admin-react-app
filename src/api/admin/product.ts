@@ -1,7 +1,7 @@
 import { ProductAddImageSchema, ProductCreateSchema, ProductGetSchema, ProductUpdateSchema } from "@schemas/Product";
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { CreateResponseSchema } from "@schemas/Api";
+import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
 
@@ -31,15 +31,9 @@ const productAddImageFormDataMapper = (data: z.infer<typeof ProductAddImageSchem
 	return formData;
 };
 
-export const productApi = createApi({
-	reducerPath: "productApi",
-	baseQuery: fetchBaseQuery({
-		baseUrl: import.meta.env.SHOP_API_URL,
-		credentials: "include",
-	}),
-	tagTypes: ["Product"],
-	endpoints: (builder) => ({
-		createProduct: builder.mutation<z.infer<typeof CreateResponseSchema>, z.infer<typeof ProductCreateSchema>>({
+export const productApi = adminApi.injectEndpoints({
+	endpoints: (build) => ({
+		createProduct: build.mutation<z.infer<typeof CreateResponseSchema>, z.infer<typeof ProductCreateSchema>>({
 			query: (data) => {
 				const formData = productCreateFormDataMapper(data);
 				return {
@@ -52,7 +46,7 @@ export const productApi = createApi({
 			invalidatesTags: ["Product"],
 		}),
 
-		getProduct: builder.query<z.infer<typeof ProductGetSchema>, { productId: string }>({
+		getProduct: build.query<z.infer<typeof ProductGetSchema>, { productId: string }>({
 			query: ({ productId }) => ({
 				url: `/admin/product`,
 				params: { id: productId },
@@ -62,7 +56,7 @@ export const productApi = createApi({
 			providesTags: (_result, _error, { productId }) => [{ type: "Product", id: productId }],
 		}),
 
-		getProductList: builder.query<z.infer<typeof ProductListGetResponseSchema>, void>({
+		getProductList: build.query<z.infer<typeof ProductListGetResponseSchema>, void>({
 			query: () => ({
 				url: "/admin/product-list",
 				method: "GET",
@@ -71,7 +65,7 @@ export const productApi = createApi({
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Product", id: item.id })),
 		}),
 
-		updateProduct: builder.mutation<void, z.infer<typeof ProductUpdateSchema>>({
+		updateProduct: build.mutation<void, z.infer<typeof ProductUpdateSchema>>({
 			query: (data) => {
 				return {
 					url: "/admin/product",
@@ -79,10 +73,10 @@ export const productApi = createApi({
 					body: data,
 				};
 			},
-			invalidatesTags: (_result, _error, data) => [{ type: "Product", id: data.id }],
+			invalidatesTags: (_result, _error, data) => [{ type: "Product", id: data.id }, { type: "Publication" }],
 		}),
 
-		addImageProduct: builder.mutation<void, z.infer<typeof ProductAddImageSchema>>({
+		addImageProduct: build.mutation<void, z.infer<typeof ProductAddImageSchema>>({
 			query: (data) => {
 				const formData = productAddImageFormDataMapper(data);
 				return {
@@ -94,7 +88,7 @@ export const productApi = createApi({
 			invalidatesTags: (_result, _error, data) => [{ type: "Product", id: data.productId }],
 		}),
 
-		deleteProduct: builder.mutation<void, { productId: string }>({
+		deleteProduct: build.mutation<void, { productId: string }>({
 			query: ({ productId }) => ({
 				url: `/admin/product`,
 				method: "DELETE",
