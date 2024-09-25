@@ -15,20 +15,17 @@ import { useEffect, useState } from "react";
 
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { PreorderGet } from "@appTypes/Preorder";
+import { ProductIdsToPublish } from "./action";
 import { PublicationCreatePreorderForm } from "./preorderForm";
 import { PublicationCreateStockForm } from "./stockForm";
 import { useCreatePublicationMutation } from "@api/admin/publication";
 import { useGetCategoryListQuery } from "@api/admin/category";
 import { useGetProductListQuery } from "@api/admin/product";
 
-interface ProductIdsToPublish {
-	productIds: string;
-}
-
 export default function PublicationCreate() {
 	const navigate = useNavigate();
 	const actionData = useActionData() as ProductIdsToPublish;
-	const productIds = actionData?.productIds ? JSON.parse(actionData.productIds) : undefined;
+	const productIds = actionData?.productIds;
 
 	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();

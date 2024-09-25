@@ -20,6 +20,7 @@ import { StrictMode } from "react";
 import UserInspect from "@routes/user/inspect.$id/_route.tsx";
 import UserTable from "@routes/user/table/_route.tsx";
 import { createRoot } from "react-dom/client";
+import { publicationCreateAction } from "@routes/publication/create/action.ts";
 import { store } from "./state/store";
 import theme from "./theme.ts";
 
@@ -83,6 +84,7 @@ const router = createBrowserRouter([
 				children: [
 					{
 						path: "create",
+						action: publicationCreateAction,
 						element: <PublicationCreate />,
 					},
 					{
