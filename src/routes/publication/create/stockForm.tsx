@@ -225,14 +225,13 @@ interface getDefaultFormValuesArgs {
 }
 
 const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs) => {
-	console.log("Form", "productIds", productIds, "products", products);
 	const defaultValues: PublicationCreateStockFormData = {
 		link: null,
 		categoryId: null,
 		deliveryCostIncluded: null,
 		items: [],
 	};
-	
+
 	if (productIds) {
 		let categoryId;
 		const productsToAdd: ProductGet[] = [];
@@ -265,7 +264,6 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 			quantity: null,
 		});
 	}
-	console.log("Form", "defaultValues", defaultValues);
 	return defaultValues;
 };
 
@@ -319,9 +317,6 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 		defaultValues: getDefaultFormValues({ products: productList?.items || [], productIds }),
 	});
 
-	const watchItems = watch("items");
-	console.log("Form", "watchItems", watchItems);
-
 	const {
 		fields: variations,
 		append: appendVariation,
@@ -348,9 +343,13 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 
 	useEffect(() => {
 		for (let i = 0; i < variations.length; i++) {
-			setValue(`items.${i}.product`, null);
+			const item = watch(`items.${i}`);
+
+			if (item.product && item.product.category.id !== currentCategoryId) {
+				setValue(`items.${i}.product`, null);
+			}
 		}
-	}, [currentCategoryId, setValue, variations]);
+	}, [currentCategoryId, setValue, variations, watch]);
 
 	const handleDragItemVariation = ({ source, destination }: DropResult) => {
 		if (destination) {

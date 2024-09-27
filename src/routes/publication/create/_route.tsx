@@ -26,8 +26,6 @@ export default function PublicationCreate() {
 	const navigate = useNavigate();
 	const actionData = useActionData() as ProductIdsToPublish;
 	const productIds = actionData?.productIds;
-	console.log("route data", actionData)
-	console.log("route ids", productIds)
 
 	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
