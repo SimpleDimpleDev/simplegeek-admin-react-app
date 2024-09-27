@@ -319,8 +319,11 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 		defaultValues: getDefaultFormValues({ products: productList?.items || [], productIds }),
 	});
 
+	const watchItems = watch("items");
+	console.log("Form", "watchItems", watchItems);
+
 	const {
-		fields: items,
+		fields: variations,
 		append: appendVariation,
 		move: moveVariation,
 		remove: removeVariation,
@@ -344,10 +347,10 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 		.filter((item) => item !== null);
 
 	useEffect(() => {
-		for (let i = 0; i < items.length; i++) {
+		for (let i = 0; i < variations.length; i++) {
 			setValue(`items.${i}.product`, null);
 		}
-	}, [currentCategoryId, setValue, items]);
+	}, [currentCategoryId, setValue, variations]);
 
 	const handleDragItemVariation = ({ source, destination }: DropResult) => {
 		if (destination) {
@@ -414,7 +417,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 									{...provided.droppableProps}
 									ref={provided.innerRef}
 								>
-									{items.map((item, index) => (
+									{variations.map((item, index) => (
 										<Draggable
 											key={`itemVariation[${index}]`}
 											draggableId={`itemVariation-${index}`}
@@ -426,7 +429,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 														index={index}
 														control={control}
 														dragHandleProps={provided.dragHandleProps}
-														isSingle={items.length === 1}
+														isSingle={variations.length === 1}
 														onRemove={removeVariation}
 														availableProducts={availableProducts || []}
 														productsLoading={productListIsLoading}
