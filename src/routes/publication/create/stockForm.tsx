@@ -225,6 +225,7 @@ interface getDefaultFormValuesArgs {
 }
 
 const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs) => {
+	console.log("Form", "productIds", productIds, "products", products);
 	const defaultValues: PublicationCreateStockFormData = {
 		link: null,
 		categoryId: null,
@@ -233,14 +234,29 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 	};
 
 	if (productIds) {
-		defaultValues.items = products
-			.filter((product) => productIds.includes(product.id))
-			.map((product) => ({
-				product,
-				price: null,
-				discount: null,
-				quantity: null,
-			}));
+		let categoryId;
+		const productsToAdd: ProductGet[] = [];
+
+		for (const product of products) {
+			if (productIds.includes(product.id)) {
+				const productCategoryId = product.category.id;
+				if (categoryId) {
+					if (categoryId !== productCategoryId) {
+						break;
+					}
+				} else {
+					categoryId = productCategoryId;
+				}
+				productsToAdd.push(product);
+			}
+		}
+		defaultValues.categoryId = categoryId || null;
+		defaultValues.items = productsToAdd.map((product) => ({
+			product,
+			price: null,
+			discount: null,
+			quantity: null,
+		}));
 	} else {
 		defaultValues.items.push({
 			product: null,

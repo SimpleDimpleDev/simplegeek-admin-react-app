@@ -26,6 +26,8 @@ export default function PublicationCreate() {
 	const navigate = useNavigate();
 	const actionData = useActionData() as ProductIdsToPublish;
 	const productIds = actionData?.productIds;
+	console.log("route data", actionData)
+	console.log("route ids", productIds)
 
 	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
@@ -89,7 +91,7 @@ export default function PublicationCreate() {
 	};
 
 	return (
-		<div className="h-100 d-f fd-c px-3 pt-1 pb-4" style={{ minHeight: "100vh" }}>
+		<div className="px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar
 				open={snackbarOpened}
@@ -125,7 +127,7 @@ export default function PublicationCreate() {
 				</Select>
 			</FormControl>
 
-			<div className="w-100 d-f p-3 bg-secondary br-3">
+			<div className="bg-secondary p-3 w-100 br-3 d-f">
 				{publicationType === "STOCK" ? (
 					<PublicationCreateStockForm
 						productList={productList}
