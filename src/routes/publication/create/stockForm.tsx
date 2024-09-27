@@ -85,19 +85,19 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	selectedProducts,
 }) => {
 	return (
-		<div key={index} className="w-100 d-f fd-r gap-2">
+		<div key={index} className="gap-2 w-100 d-f fd-r">
 			<IconButton {...dragHandleProps}>
 				<DragIndicator />
 			</IconButton>
 
-			<div className="w-100 d-f fd-c gap-1">
-				<div className="d-f fd-r js-sb ai-c">
+			<div className="gap-1 w-100 d-f fd-c">
+				<div className="ai-c d-f fd-r js-sb">
 					<Typography variant="h6">{!isSingle ? `Вариация ${index + 1}` : "Товар"}</Typography>
 					<IconButton onClick={() => onRemove(index)}>
 						<Delete />
 					</IconButton>
 				</div>
-				<div className="d-f fd-c gap-2 pb-2">
+				<div className="gap-2 pb-2 d-f fd-c">
 					<Controller
 						name={`items.${index}.product`}
 						control={control}
@@ -112,7 +112,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								isOptionEqualToValue={(a, b) => a.id === b.id}
 								getOptionLabel={(option) => option.title}
 								renderOption={(props, option) => (
-									<li className="d-f fd-r gap-1" {...props}>
+									<li className="gap-1 d-f fd-r" {...props}>
 										<div
 											style={{
 												height: 40,
@@ -142,7 +142,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						)}
 					/>
 				</div>
-				<div className="d-f fd-r gap-2">
+				<div className="gap-2 d-f fd-r">
 					<Controller
 						name={`items.${index}.price`}
 						control={control}
@@ -232,7 +232,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 		deliveryCostIncluded: null,
 		items: [],
 	};
-
+	
 	if (productIds) {
 		let categoryId;
 		const productsToAdd: ProductGet[] = [];
@@ -265,7 +265,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 			quantity: null,
 		});
 	}
-
+	console.log("Form", "defaultValues", defaultValues);
 	return defaultValues;
 };
 
@@ -356,9 +356,9 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 	};
 
 	return (
-		<form className="w-100 d-f fd-c gap-2" onSubmit={handleSubmit(formattedOnSubmit)} noValidate>
-			<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
-				<div className="d-f fd-c gap-2">
+		<form className="gap-2 w-100 d-f fd-c" onSubmit={handleSubmit(formattedOnSubmit)} noValidate>
+			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
+				<div className="gap-2 d-f fd-c">
 					<Controller
 						name="link"
 						control={control}
@@ -404,13 +404,13 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 					/>
 				</div>
 			</div>
-			<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
+			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 				<DragDropContext onDragEnd={handleDragItemVariation}>
 					<ul style={{ margin: 0, padding: 0, listStyleType: "none" }}>
 						<Droppable droppableId="variations">
 							{(provided) => (
 								<div
-									className=" w-100d-f fd-c gap-1 "
+									className="gap-1 w-100d-f fd-c"
 									{...provided.droppableProps}
 									ref={provided.innerRef}
 								>
@@ -457,7 +457,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 					Добавить вариацию
 				</Button>
 			</div>
-			<div className="d-f fd-r gap-1 p-3 bg-primary br-3">
+			<div className="gap-1 bg-primary p-3 br-3 d-f fd-r">
 				<Button variant="outlined">Сохранить черновик</Button>
 				<Button type="submit" variant="contained">
 					Опубликовать
