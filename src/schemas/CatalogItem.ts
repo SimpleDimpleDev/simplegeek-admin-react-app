@@ -17,7 +17,17 @@ export const CatalogItemGetSchema = AdminGetBaseSchema.extend({
 	price: z.number(),
 	discount: z.number().nullable(),
 	quantity: z.number().nullable(),
+	orderedQuantity: z.number(),
 	creditInfo: CreditInfoSchema.nullable(),
 	variationIndex: z.number().nullable(),
 	isActive: z.boolean(),
+});
+
+export const CatalogItemUpdateSchema = z.object({
+	id: z.string(),
+	price: z.number(),
+	quantity: z.number().nullable(),
+
+	// TODO: Add credit info
+	// creditInfo: CreditInfoSchema.nullable(),
 });

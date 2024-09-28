@@ -1,5 +1,6 @@
 import { PublicationCreateSchema, PublicationGetSchema, PublicationUpdateSchema } from "@schemas/Publication";
 
+import { CatalogItemUpdateSchema } from "./../../schemas/CatalogItem";
 import { CreateResponseSchema } from "@schemas/Api";
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
@@ -42,11 +43,41 @@ export const publicationApi = adminApi.injectEndpoints({
 
 		updatePublication: build.mutation<void, z.infer<typeof PublicationUpdateSchema>>({
 			query: (data) => ({
-				url: "/admin/publication",
 				method: "PUT",
+				url: "/admin/publication",
 				body: data,
 			}),
 			invalidatesTags: (_result, _error, data) => [{ type: "Publication", id: data.id }],
+		}),
+
+		deletePublication: build.mutation<void, { publicationId: string }>({
+			query: ({ publicationId }) => ({
+				url: "/admin/publication",
+				method: "DELETE",
+				params: { id: publicationId },
+			}),
+			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
+		}),
+
+		updateCatalogItem: build.mutation<
+			void,
+			{ publicationId: string; data: z.infer<typeof CatalogItemUpdateSchema> }
+		>({
+			query: ({ data }) => ({
+				url: "/admin/publication/variation",
+				method: "PUT",
+				body: data,
+			}),
+			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
+		}),
+
+		deleteCatalogItem: build.mutation<void, { publicationId: string; variationId: string }>({
+			query: ({ variationId }) => ({
+				url: "/admin/publication/variation",
+				method: "DELETE",
+				params: { id: variationId },
+			}),
+			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),
 	}),
 });
@@ -56,4 +87,7 @@ export const {
 	useGetPublicationQuery,
 	useGetPublicationListQuery,
 	useUpdatePublicationMutation,
+	useDeletePublicationMutation,
+	useUpdateCatalogItemMutation,
+	useDeleteCatalogItemMutation,
 } = publicationApi;

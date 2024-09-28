@@ -17,6 +17,7 @@ import PublicationInspect from "@routes/publication/inspect.$id/_route.tsx";
 import PublicationTable from "@routes/publication/table/_route.tsx";
 import { Provider as ReduxProvider } from "react-redux";
 import { StrictMode } from "react";
+import Test from "@routes/test/_route.tsx";
 import UserInspect from "@routes/user/inspect.$id/_route.tsx";
 import UserTable from "@routes/user/table/_route.tsx";
 import { createRoot } from "react-dom/client";
@@ -112,6 +113,10 @@ const router = createBrowserRouter([
 			},
 		],
 	},
+	{
+		path: "test",
+		element: <Test />,
+	}
 ]);
 
 createRoot(document.getElementById("root")!).render(
