@@ -300,15 +300,15 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 				message="Не удается загрузить изображение. Минимальный размер - 630x630 px!"
 			/>
 			<form
-				className="w-100 d-f fd-c gap-2"
+				className="gap-2 w-100 d-f fd-c"
 				onSubmit={handleSubmit(resolvedOnSubmit)}
 				onKeyDown={handleKeyDown}
 				noValidate
 			>
 				{/* Base data */}
-				<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
+				<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 					<Typography variant="h5">О товаре</Typography>
-					<div className="d-f fd-c gap-2">
+					<div className="gap-2 d-f fd-c">
 						<Controller
 							name="title"
 							control={control}
@@ -358,9 +358,9 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 										) : (
 											categoryList.items.map((category) => (
 												<MenuItem key={category.id} value={category.id}>
-													<div className="d-f fd-r ai-c gap-1">
+													<div className="gap-1 ai-c d-f fd-r">
 														<div
-															className="d-f fd-c ai-c"
+															className="ai-c d-f fd-c"
 															style={{ width: 40, height: 40 }}
 														>
 															<img
@@ -382,9 +382,9 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 				</div>
 
 				{/* Physical Properties */}
-				<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
+				<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 					<Typography variant="h5">Физические свойства</Typography>
-					<div className="d-f fd-c gap-2">
+					<div className="gap-2 d-f fd-c">
 						<Controller
 							name="physicalProperties"
 							control={control}
@@ -418,7 +418,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 								Товар невозможно опубликовать в розницу без указания физических свойств
 							</Typography>
 						) : (
-							<div className="d-f fd-r gap-2">
+							<div className="gap-2 d-f fd-r">
 								<Controller
 									name="physicalProperties.width"
 									control={control}
@@ -432,6 +432,11 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 											onChange={handleIntChange(onChange)}
 											error={!!error}
 											helperText={error?.message}
+											slotProps={{
+												input: {
+													endAdornment: <Typography variant="body1">см</Typography>,
+												},
+											}}
 										/>
 									)}
 								/>
@@ -449,6 +454,11 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 											onChange={handleIntChange(onChange)}
 											error={!!error}
 											helperText={error?.message}
+											slotProps={{
+												input: {
+													endAdornment: <Typography variant="body1">см</Typography>,
+												}
+											}}
 										/>
 									)}
 								/>
@@ -466,6 +476,11 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 											onChange={handleIntChange(onChange)}
 											error={!!error}
 											helperText={error?.message}
+											slotProps={{
+												input: {
+													endAdornment: <Typography variant="body1">см</Typography>,
+												}
+											}}
 										/>
 									)}
 								/>
@@ -483,6 +498,11 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 											onChange={handleIntChange(onChange)}
 											error={!!error}
 											helperText={error?.message}
+											slotProps={{
+												input: {
+													endAdornment: <Typography variant="body1">г</Typography>,
+												}
+											}}
 										/>
 									)}
 								/>
@@ -492,7 +512,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 				</div>
 
 				{/* Images */}
-				<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
+				<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 					<Typography variant="h5">Фото</Typography>
 
 					<Dropzone
@@ -518,10 +538,10 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 							<Box
 								sx={{ border: "1px dashed" }}
 								{...getRootProps()}
-								className="d-f fd-c jc-sb ai-c py-5 br-2"
+								className="py-5 ai-c br-2 d-f fd-c jc-sb"
 							>
 								<input {...getInputProps()}></input>
-								<div className="d-f fd-c gap-2">
+								<div className="gap-2 d-f fd-c">
 									<Typography variant="subtitle0" sx={{ color: "typography.secondary" }}>
 										Перетащите сюда фото для загрузки
 									</Typography>
@@ -546,7 +566,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 							<Droppable droppableId="images">
 								{(provided) => (
 									<div
-										className="d-f fd-c gap-1"
+										className="gap-1 d-f fd-c"
 										{...provided.droppableProps}
 										ref={provided.innerRef}
 									>
@@ -564,7 +584,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 													>
 														<div
 															key={index}
-															className="d-f fd-r gap-1 py-1 px-2 br-2 bg-secondary"
+															className="gap-1 bg-secondary px-2 py-1 br-2 d-f fd-r"
 														>
 															<IconButton {...provided.dragHandleProps}>
 																<DragIndicator />
@@ -574,7 +594,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 																name={`images.${index}`}
 																control={control}
 																render={({ field: { value: image } }) => (
-																	<div className="w-100 d-f fd-r gap-1">
+																	<div className="gap-1 w-100 d-f fd-r">
 																		<div
 																			className="bg-primary"
 																			style={{ width: 96, height: 96 }}
@@ -587,8 +607,8 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 																				rotate={0}
 																			/>
 																		</div>
-																		<div className="d-f fd-c jc-c pl-1">
-																			<div className="d-f fd-c gap-05">
+																		<div className="pl-1 d-f fd-c jc-c">
+																			<div className="gap-05 d-f fd-c">
 																				<Typography variant="body2">
 																					{image.file.name}
 																				</Typography>
@@ -626,14 +646,14 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 
 				{/* Attributes */}
 				{selectedCategoryId && (
-					<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
+					<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 						<Typography variant="h5">Фильтры</Typography>
 						<DragDropContext onDragEnd={handleDragAttribute}>
 							<ul style={{ margin: 0, padding: 0, listStyleType: "none" }}>
 								<Droppable droppableId="attributes">
 									{(provided) => (
 										<div
-											className="d-f fd-c gap-1"
+											className="gap-1 d-f fd-c"
 											{...provided.droppableProps}
 											ref={provided.innerRef}
 										>
@@ -649,7 +669,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 															ref={provided.innerRef}
 															{...provided.draggableProps}
 														>
-															<div key={index} className="w-100 d-f fd-r gap-2">
+															<div key={index} className="gap-2 w-100 d-f fd-r">
 																<IconButton {...provided.dragHandleProps}>
 																	<DragIndicator />
 																</IconButton>

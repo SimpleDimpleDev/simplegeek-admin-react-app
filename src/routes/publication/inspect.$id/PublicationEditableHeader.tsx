@@ -6,6 +6,7 @@ import ActionDialog from "@components/ActionDialog";
 import { DateFormatter } from "@utils/format";
 import { PublicationGet } from "@appTypes/Publication";
 import { PublicationUpdateSchema } from "@schemas/Publication";
+import { SlugResolver } from "../utils";
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,7 +35,7 @@ type PublicationUpdateFormData = {
 
 const PublicationUpdateResolver = z.object({
 	id: z.string().min(1),
-	link: z.string().min(1, { message: "Укажите ссылку" }),
+	link: SlugResolver,
 });
 
 interface PublicationStockEditableHeaderProps {

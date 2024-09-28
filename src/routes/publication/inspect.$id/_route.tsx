@@ -51,6 +51,7 @@ export default function PublicationInspect() {
 			isLoading: deletePublicationIsLoading,
 			isSuccess: deletePublicationIsSuccess,
 			isError: deletePublicationIsError,
+			error: deletePublicationError,
 		},
 	] = useDeletePublicationMutation();
 	const [
@@ -59,7 +60,12 @@ export default function PublicationInspect() {
 	] = useUpdateCatalogItemMutation();
 	const [
 		deleteVariation,
-		{ isLoading: deleteVariationIsLoading, isSuccess: deleteVariationIsSuccess, isError: deleteVariationIsError },
+		{
+			isLoading: deleteVariationIsLoading,
+			isSuccess: deleteVariationIsSuccess,
+			isError: deleteVariationIsError,
+			error: deleteVariationError,
+		},
 	] = useDeleteCatalogItemMutation();
 
 	const [snackbarOpened, setSnackbarOpened] = useState<boolean>(false);
@@ -92,8 +98,11 @@ export default function PublicationInspect() {
 	useEffect(() => {
 		if (deletePublicationIsError) {
 			showSnackbarMessage("Произошла ошибка при удалении публикации");
+			if (deletePublicationError) {
+				console.log(deletePublicationError);
+			}
 		}
-	}, [deletePublicationIsError]);
+	}, [deletePublicationIsError, deletePublicationError]);
 
 	useEffect(() => {
 		if (updateVariationIsSuccess) {
@@ -116,9 +125,12 @@ export default function PublicationInspect() {
 
 	useEffect(() => {
 		if (deleteVariationIsError) {
+			if (deleteVariationError) {
+				console.log(deleteVariationError);
+			}
 			showSnackbarMessage("Произошла ошибка при удалении вариации");
 		}
-	}, [deleteVariationIsError]);
+	}, [deleteVariationIsError, deleteVariationError]);
 
 	const showLoadingOverlay =
 		updatePublicationIsLoading ||
@@ -153,11 +165,8 @@ export default function PublicationInspect() {
 					Назад
 				</Button>
 				<div className="p-2">
-					<Typography variant="h5">Публикация</Typography>
+					<Typography variant="h5">Публикация {publication?.link || ""}</Typography>
 				</div>
-				<Button onClick={() => navigate(`/publication/edit/${publicationId}`)} variant="contained">
-					Редактировать
-				</Button>
 
 				<LoadingSpinner isLoading={publicationIsLoading}>
 					{!publication ? (

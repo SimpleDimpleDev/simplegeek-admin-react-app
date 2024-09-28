@@ -25,6 +25,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { CategoryGet } from "@appTypes/Category";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
+import { SlugResolver } from "../utils";
 import { getImageUrl } from "@utils/image";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -53,9 +54,7 @@ type PublicationCreateStockFormData = {
 };
 
 const PublicationCreateStockResolver = z.object({
-	link: z
-		.string({ message: "Введите ссылку для отображения в каталоге" })
-		.min(1, { message: "Введите ссылку для отображения в каталоге" }),
+	link: SlugResolver,
 	categoryId: z.string({ message: "Выберите категорию" }).min(1, { message: "Выберите категорию" }),
 	deliveryCostIncluded: z.null(),
 	items: CatalogItemPublishStockResolver.array().nonempty({

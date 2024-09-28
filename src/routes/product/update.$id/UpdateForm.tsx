@@ -203,7 +203,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 
 	return (
 		<form
-			className="w-100 d-f fd-c gap-2"
+			className="gap-2 w-100 d-f fd-c"
 			onSubmit={handleSubmit(resolvedOnSubmit)}
 			onKeyDown={handleKeyDown}
 			noValidate
@@ -214,9 +214,9 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 				render={({ field }) => <input type="hidden" value={field.value} />}
 			/>
 			{/* Base data */}
-			<div className="d-f fd-c gap-2 p-3 bg-primary br-3">
+			<div className="gap-2 bg-primary p-3 br-3 d-f fd-c">
 				<Typography variant="h5">О товаре</Typography>
-				<div className="d-f fd-c gap-2">
+				<div className="gap-2 d-f fd-c">
 					<Controller
 						name="title"
 						control={control}
@@ -256,9 +256,9 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 			</div>
 
 			{/* Physical Properties */}
-			<div className="d-f fd-c gap-2 p-3 bg-primary br-3">
+			<div className="gap-2 bg-primary p-3 br-3 d-f fd-c">
 				<Typography variant="h5">Физические свойства</Typography>
-				<div className="d-f fd-c gap-2">
+				<div className="gap-2 d-f fd-c">
 					{!physicalPropertiesDefined && (
 						<Controller
 							name="physicalProperties"
@@ -294,7 +294,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 							Товар невозможно опубликовать в розницу без указания физических свойств
 						</Typography>
 					) : (
-						<div className="d-f fd-r gap-2">
+						<div className="gap-2 d-f fd-r">
 							<Controller
 								name="physicalProperties.width"
 								control={control}
@@ -308,6 +308,11 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 										onChange={handleIntChange(onChange)}
 										error={!!error}
 										helperText={error?.message}
+										slotProps={{
+											input: {
+												endAdornment: <Typography variant="body1">см</Typography>,
+											}
+										}}
 									/>
 								)}
 							/>
@@ -325,6 +330,11 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 										onChange={handleIntChange(onChange)}
 										error={!!error}
 										helperText={error?.message}
+										slotProps={{
+											input: {
+												endAdornment: <Typography variant="body1">см</Typography>,
+											}
+										}}
 									/>
 								)}
 							/>
@@ -342,6 +352,11 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 										onChange={handleIntChange(onChange)}
 										error={!!error}
 										helperText={error?.message}
+										slotProps={{
+											input: {
+												endAdornment: <Typography variant="body1">см</Typography>,
+											}
+										}}
 									/>
 								)}
 							/>
@@ -359,6 +374,11 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 										onChange={handleIntChange(onChange)}
 										error={!!error}
 										helperText={error?.message}
+										slotProps={{
+											input: {
+												endAdornment: <Typography variant="body1">г</Typography>,
+											}
+										}}
 									/>
 								)}
 							/>
@@ -368,7 +388,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 			</div>
 
 			{/* Images */}
-			<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
+			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 				<Typography variant="h5">Фото</Typography>
 
 				<div className="pt-1">
@@ -385,14 +405,14 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 					<ul style={{ margin: 0, padding: 0, listStyleType: "none" }}>
 						<Droppable droppableId="images">
 							{(provided) => (
-								<div className="d-f fd-c gap-1" {...provided.droppableProps} ref={provided.innerRef}>
+								<div className="gap-1 d-f fd-c" {...provided.droppableProps} ref={provided.innerRef}>
 									{imageFields.map((image, index) => (
 										<Draggable key={`image[${index}]`} draggableId={`image-${index}`} index={index}>
 											{(provided) => (
 												<li key={image.id} ref={provided.innerRef} {...provided.draggableProps}>
 													<div
 														key={index}
-														className="d-f fd-r gap-1 py-1 px-2 br-2 bg-secondary"
+														className="gap-1 bg-secondary px-2 py-1 br-2 d-f fd-r"
 													>
 														<IconButton {...provided.dragHandleProps}>
 															<DragIndicator />
@@ -402,7 +422,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 															name={`images.${index}`}
 															control={control}
 															render={({ field: { value: image } }) => (
-																<div className="w-100 d-f fd-r gap-1">
+																<div className="gap-1 w-100 d-f fd-r">
 																	<div
 																		className="bg-primary"
 																		style={{ width: 96, height: 96 }}
@@ -437,13 +457,13 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 
 			{/* Attributes */}
 
-			<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
+			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 				<Typography variant="h5">Фильтры</Typography>
 				<DragDropContext onDragEnd={handleDragAttribute}>
 					<ul style={{ margin: 0, padding: 0, listStyleType: "none" }}>
 						<Droppable droppableId="attributes">
 							{(provided) => (
-								<div className="d-f fd-c gap-1" {...provided.droppableProps} ref={provided.innerRef}>
+								<div className="gap-1 d-f fd-c" {...provided.droppableProps} ref={provided.innerRef}>
 									{filterGroupFields.map((attributeField, index) => (
 										<Draggable
 											key={`attribute[${index}]`}
@@ -456,7 +476,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 													ref={provided.innerRef}
 													{...provided.draggableProps}
 												>
-													<div key={index} className="w-100 d-f fd-r gap-2">
+													<div key={index} className="gap-2 w-100 d-f fd-r">
 														<IconButton {...provided.dragHandleProps}>
 															<DragIndicator />
 														</IconButton>
