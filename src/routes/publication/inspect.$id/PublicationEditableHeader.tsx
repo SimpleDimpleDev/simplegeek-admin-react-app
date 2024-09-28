@@ -1,6 +1,6 @@
 import { Check, Close, Delete, Edit } from "@mui/icons-material";
 import { Controller, useForm } from "react-hook-form";
-import { Divider, IconButton, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Divider, IconButton, Paper, Stack, TextField, Tooltip, Typography } from "@mui/material";
 
 import ActionDialog from "@components/ActionDialog";
 import { DateFormatter } from "@utils/format";
@@ -143,24 +143,32 @@ const PublicationStockEditableHeader: React.FC<PublicationStockEditableHeaderPro
 						<div className="gap-1 pl-2 d-f fd-r jc-c">
 							{!isEditing ? (
 								<>
-									<IconButton onClick={handleStartEditing}>
-										<Edit />
-									</IconButton>
-									<IconButton
-										sx={{ color: "error.main" }}
-										onClick={() => setDeletionDialogOpened(true)}
-									>
-										<Delete />
-									</IconButton>
+									<Tooltip title="Редактировать">
+										<IconButton onClick={handleStartEditing}>
+											<Edit />
+										</IconButton>
+									</Tooltip>
+									<Tooltip title="Удалить">
+										<IconButton
+											sx={{ color: "error.main" }}
+											onClick={() => setDeletionDialogOpened(true)}
+										>
+											<Delete />
+										</IconButton>
+									</Tooltip>
 								</>
 							) : (
 								<>
-									<IconButton sx={{ color: "error.main" }} onClick={handleStopEditing}>
-										<Close />
-									</IconButton>
-									<IconButton sx={{ color: "success.main" }} disabled={!isDirty} type="submit">
-										<Check />
-									</IconButton>
+									<Tooltip title="Отменить">
+										<IconButton sx={{ color: "error.main" }} onClick={handleStopEditing}>
+											<Close />
+										</IconButton>
+									</Tooltip>
+									<Tooltip title="Сохранить">
+										<IconButton sx={{ color: "success.main" }} disabled={!isDirty} type="submit">
+											<Check />
+										</IconButton>
+									</Tooltip>
 								</>
 							)}
 						</div>

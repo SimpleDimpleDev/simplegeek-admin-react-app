@@ -79,6 +79,24 @@ export const publicationApi = adminApi.injectEndpoints({
 			}),
 			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),
+
+		activateCatalogItem: build.mutation<void, { publicationId: string; variationId: string }>({
+			query: ({ variationId }) => ({
+				url: "/admin/publication/variation/activate",
+				method: "POST",
+				params: { id: variationId },
+			}),
+			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
+		}),
+
+		deactivateCatalogItem: build.mutation<void, { publicationId: string; variationId: string }>({
+			query: ({ variationId }) => ({
+				url: "/admin/publication/variation/deactivate",
+				method: "POST",
+				params: { id: variationId },
+			}),
+			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
+		}),
 	}),
 });
 
@@ -90,4 +108,6 @@ export const {
 	useDeletePublicationMutation,
 	useUpdateCatalogItemMutation,
 	useDeleteCatalogItemMutation,
+	useActivateCatalogItemMutation,
+	useDeactivateCatalogItemMutation,
 } = publicationApi;

@@ -1,5 +1,7 @@
 import { Button, CircularProgress, Modal, Snackbar, Typography } from "@mui/material";
 import {
+	useActivateCatalogItemMutation,
+	useDeactivateCatalogItemMutation,
 	useDeleteCatalogItemMutation,
 	useDeletePublicationMutation,
 	useGetPublicationQuery,
@@ -67,6 +69,23 @@ export default function PublicationInspect() {
 			error: deleteVariationError,
 		},
 	] = useDeleteCatalogItemMutation();
+	const [
+		activateVariation,
+		{
+			isLoading: activateVariationIsLoading,
+			isSuccess: activateVariationIsSuccess,
+			isError: activateVariationIsError,
+		},
+	] = useActivateCatalogItemMutation();
+
+	const [
+		deactivateVariation,
+		{
+			isLoading: deactivateVariationIsLoading,
+			isSuccess: deactivateVariationIsSuccess,
+			isError: deactivateVariationIsError,
+		},
+	] = useDeactivateCatalogItemMutation();
 
 	const [snackbarOpened, setSnackbarOpened] = useState<boolean>(false);
 	const [snackbarMessage, setSnackbarMessage] = useState<string>("");
@@ -132,11 +151,37 @@ export default function PublicationInspect() {
 		}
 	}, [deleteVariationIsError, deleteVariationError]);
 
+	useEffect(() => {
+		if (activateVariationIsSuccess) {
+			showSnackbarMessage("Вариация успешно активирована");
+		}
+	}, [activateVariationIsSuccess]);
+
+	useEffect(() => {
+		if (activateVariationIsError) {
+			showSnackbarMessage("Произошла ошибка при активации вариации");
+		}
+	}, [activateVariationIsError]);
+
+	useEffect(() => {
+		if (deactivateVariationIsSuccess) {
+			showSnackbarMessage("Вариация успешно деактивирована");
+		}
+	}, [deactivateVariationIsSuccess]);
+
+	useEffect(() => {
+		if (deactivateVariationIsError) {
+			showSnackbarMessage("Произошла ошибка при деактивации вариации");
+		}
+	}, [deactivateVariationIsError]);
+
 	const showLoadingOverlay =
 		updatePublicationIsLoading ||
 		deletePublicationIsLoading ||
 		updateVariationIsLoading ||
-		deleteVariationIsLoading;
+		deleteVariationIsLoading ||
+		activateVariationIsLoading ||
+		deactivateVariationIsLoading;
 
 	const handleUpdateVariation = (data: z.infer<typeof CatalogItemUpdateSchema>) => {
 		updateVariation({ publicationId: publicationId, data: data });
@@ -144,6 +189,14 @@ export default function PublicationInspect() {
 
 	const handleDeleteVariation = ({ variationId }: { variationId: string }) => {
 		deleteVariation({ publicationId: publicationId, variationId: variationId });
+	};
+
+	const handleActivateVariation = ({ variationId }: { variationId: string }) => {
+		activateVariation({ publicationId: publicationId, variationId: variationId });
+	};
+
+	const handleDeactivateVariation = ({ variationId }: { variationId: string }) => {
+		deactivateVariation({ publicationId: publicationId, variationId: variationId });
 	};
 
 	return (
@@ -186,6 +239,8 @@ export default function PublicationInspect() {
 									variation={variation}
 									onUpdate={handleUpdateVariation}
 									onDelete={handleDeleteVariation}
+									onActivate={handleActivateVariation}
+									onDeactivate={handleDeactivateVariation}
 								/>
 							))}
 						</>

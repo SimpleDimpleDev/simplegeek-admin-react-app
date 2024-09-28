@@ -33,7 +33,7 @@ const variation: CatalogItemGet = {
 	updatedAt: new Date(),
 	product: {
 		id: "1",
-		title: "Тестовая вариация",
+		title: "Тестовая вариация Тестовая вариация Тестовая вариация Тестовая вариация",
 		description: "Тестовая вари",
 		isPublished: true,
 		physicalProperties: {
@@ -152,9 +152,6 @@ export default function Test() {
 					<div className="p-2">
 						<Typography variant="h5">Публикация</Typography>
 					</div>
-					<Button onClick={() => {}} variant="contained">
-						Редактировать
-					</Button>
 					<PublicationStockEditableHeader
 						onUpdate={(data) => console.log(data)}
 						onDelete={(data) => console.log(data)}
@@ -164,11 +161,15 @@ export default function Test() {
 						variation={variation}
 						onUpdate={(data) => console.log(data)}
 						onDelete={(data) => console.log(data)}
+						onActivate={(data) => console.log(data)}
+						onDeactivate={(data) => console.log(data)}
 					/>
 					<VariationStockEditableCard
 						variation={variation}
 						onUpdate={(data) => console.log(data)}
 						onDelete={(data) => console.log(data)}
+						onActivate={(data) => console.log(data)}
+						onDeactivate={(data) => console.log(data)}
 					/>
 				</div>
 			</div>
