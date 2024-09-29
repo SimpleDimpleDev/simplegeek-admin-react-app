@@ -16,6 +16,7 @@ import ActionDialog from "@components/ActionDialog";
 import { CatalogItemGet } from "@appTypes/CatalogItem";
 import { CatalogItemUpdateSchema } from "@schemas/CatalogItem";
 import { getImageUrl } from "@utils/image";
+import { handleIntChange } from "@utils/forms";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { z } from "zod";
@@ -204,17 +205,17 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 								<Controller
 									name="price"
 									control={control}
-									render={({ field, fieldState: { error } }) => (
+									render={({ field: { value, onChange}, fieldState: { error } }) => (
 										<TextField
 											{...textFieldProps}
-											{...field}
+											value={value}
+											onChange={handleIntChange(onChange)}
 											variant={"standard"}
 											disabled={!isEditing}
 											error={!!error}
 											helperText={error?.message}
 											slotProps={{
 												input: {
-													type: "number",
 													endAdornment: <Typography variant="subtitle0">₽</Typography>,
 												},
 											}}
@@ -229,19 +230,15 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 								<Controller
 									name="quantity"
 									control={control}
-									render={({ field, fieldState: { error } }) => (
+									render={({ field: { value, onChange}, fieldState: { error } }) => (
 										<TextField
 											{...textFieldProps}
-											{...field}
+											value={value}
+											onChange={handleIntChange(onChange)}
 											variant={"standard"}
 											disabled={!isEditing}
 											error={!!error}
 											helperText={error?.message}
-											slotProps={{
-												input: {
-													type: "number",
-												},
-											}}
 										/>
 									)}
 								/>

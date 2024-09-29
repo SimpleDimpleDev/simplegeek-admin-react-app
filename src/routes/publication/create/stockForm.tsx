@@ -27,6 +27,7 @@ import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
 import { SlugResolver } from "../utils";
 import { getImageUrl } from "@utils/image";
+import { handleIntChange } from "@utils/forms";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -152,13 +153,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								type="text"
 								required
 								value={value?.toString() || ""}
-								onChange={(e) => {
-									const newValue = e.target.value;
-									if (newValue === "" || /^\d+$/.test(newValue)) {
-										const parsedValue = newValue === "" ? null : parseInt(newValue, 10);
-										onChange(parsedValue);
-									}
-								}}
+								onChange={handleIntChange(onChange)}
 								variant="outlined"
 								error={!!error}
 								helperText={error?.message}
@@ -176,13 +171,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								type="text"
 								required
 								value={value?.toString() || ""}
-								onChange={(e) => {
-									const newValue = e.target.value;
-									if (newValue === "" || /^\d+$/.test(newValue)) {
-										const parsedValue = newValue === "" ? null : parseInt(newValue, 10);
-										onChange(parsedValue);
-									}
-								}}
+								onChange={handleIntChange(onChange)}
 								variant="outlined"
 								error={!!error}
 								helperText={error?.message}

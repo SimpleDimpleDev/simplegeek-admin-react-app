@@ -17,6 +17,7 @@ import React, { useEffect, useMemo } from "react";
 import { FilterGroupGet } from "@appTypes/Filters";
 import { ProductUpdateSchema } from "@schemas/Product";
 import { getImageUrl } from "@utils/image";
+import { handleIntChange } from "@utils/forms";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -178,22 +179,6 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 			moveImage(source.index, destination.index);
 		}
 	};
-
-	const handleIntChange =
-		(onChange: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-			if (!onChange) return;
-			const { value } = e.target;
-			// Allow empty input
-			if (value === "") {
-				onChange("");
-				return;
-			}
-			// Validate the input value
-			const intRegex = /^-?\d*$/;
-			if (intRegex.test(value)) {
-				onChange(value);
-			}
-		};
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
 		if (event.key === "Enter") {

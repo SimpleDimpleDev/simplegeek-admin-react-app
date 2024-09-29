@@ -33,6 +33,7 @@ import { ImageEditor } from "@components/ImageEditor";
 import type { ProductCreate } from "@appTypes/Product";
 import { ProductCreateSchema } from "@schemas/Product";
 import { getImageUrl } from "@utils/image";
+import { handleIntChange } from "@utils/forms";
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -246,22 +247,6 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 			setImageEditor(null);
 		}
 	};
-
-	const handleIntChange =
-		(onChange: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-			if (!onChange) return;
-			const { value } = e.target;
-			// Allow empty input
-			if (value === "") {
-				onChange("");
-				return;
-			}
-			// Validate the input value
-			const intRegex = /^-?\d*$/;
-			if (intRegex.test(value)) {
-				onChange(value);
-			}
-		};
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
 		if (event.key === "Enter") {
