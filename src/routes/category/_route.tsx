@@ -12,14 +12,14 @@ import { useEffect, useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
-import AdminTable from "../table";
+import AdminTable from "../../components/ManagementTable";
 import { CategoryChangeImageForm } from "./ChangeImageForm";
 import { CategoryCreateForm } from "./CreateForm";
 import { CategoryGet } from "@appTypes/Category";
 import { CategoryUpdateForm } from "./UpdateForm";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import ManagementModal from "../managementModal";
+import ManagementModal from "../../components/ManagementModal";
 import { getImageUrl } from "@utils/image";
 
 const columns: GridColDef<CategoryGet>[] = [
@@ -27,7 +27,7 @@ const columns: GridColDef<CategoryGet>[] = [
 		field: "title",
 		headerName: "Название",
 		renderCell: (params) => (
-			<div className="d-f fd-r gap-1 ai-c">
+			<div className="gap-1 ai-c d-f fd-r">
 				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden" }}>
 					<img src={getImageUrl(params.row.icon.url, "small")} className="contain" />
 				</div>
@@ -40,7 +40,7 @@ const columns: GridColDef<CategoryGet>[] = [
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
 ];
 
-export default function Category() {
+export default function CategoryRoute() {
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
 	const [createCategory, { isLoading: createIsLoading, isSuccess: createSuccess, error: createError }] =
 		useCreateCategoryMutation();
@@ -117,7 +117,7 @@ export default function Category() {
 	}, [changeImageError]);
 
 	return (
-		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
+		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
 			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar
 				open={snackbarOpened}
@@ -172,7 +172,7 @@ export default function Category() {
 					text: "Отмена",
 				}}
 			/>
-			<div className="d-f fd-r jc-sb p-2">
+			<div className="p-2 d-f fd-r jc-sb">
 				<div>
 					<Typography variant="h5">Категории</Typography>
 					<Typography variant="body2" color="typography.secondary">
@@ -186,7 +186,7 @@ export default function Category() {
 			</div>
 			<LoadingSpinner isLoading={categoryListIsLoading}>
 				{!categoryList ? (
-					<div className="w-100 h-100v d-f ai-c jc-c">
+					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (

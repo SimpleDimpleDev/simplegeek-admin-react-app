@@ -1,14 +1,14 @@
 import { LineChart } from "@mui/x-charts";
 import { Typography } from "@mui/material";
 
-export default function Index() {
+export default function IndexRoute() {
 	return (
-		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
+		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
 			<Typography variant="h4" component="h1" sx={{ mb: 2 }}>
 				ADMIN
 			</Typography>
 
-			<div className="w-mc d-f fd-c	 bg-primary br-2 p-2">
+			<div className="bg-primary p-2 w-mc br-2 d-f fd-c">
 				<Typography variant="h5" component="h2" sx={{ mb: 2 }}>
 					Осмысленное качество кода ко дню релиза
 				</Typography>

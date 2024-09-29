@@ -5,7 +5,7 @@ import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { OrderGet, OrderStatus } from "@appTypes/Order";
 import { useMemo, useState } from "react";
 
-import AdminTable from "@routes/table";
+import AdminTable from "@components/ManagementTable";
 import { DeliveryService } from "@appTypes/Delivery";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { orderStatusBadges } from "@components/Badges";
@@ -44,7 +44,7 @@ const columns: GridColDef<OrderGet>[] = [
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
 ];
 
-export default function OrderTable() {
+export default function OrderTableRoute() {
 	const { data: orderList, isLoading: orderListIsLoading } = useGetOrderListQuery();
 
 	const [deliveryService, setDeliveryService] = useState<DeliveryService | "UNASSIGNED">("SELF_PICKUP");
@@ -71,7 +71,7 @@ export default function OrderTable() {
 	};
 
 	return (
-		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
+		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
 			{/* <Snackbar
 				open={successSnackBarOpened}
 				autoHideDuration={4000}
@@ -92,7 +92,7 @@ export default function OrderTable() {
 				}}
 			/> */}
 
-			<div className="d-f fd-r jc-sb p-2">
+			<div className="p-2 d-f fd-r jc-sb">
 				<div>
 					<Typography variant="h5">Заказы</Typography>
 					<Typography variant="body2" color="typography.secondary">
@@ -119,7 +119,7 @@ export default function OrderTable() {
 			</FormControl>
 			<LoadingSpinner isLoading={orderListIsLoading}>
 				{!deliveryServiceOrders ? (
-					<div className="w-100 h-100v d-f ai-c jc-c">
+					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (

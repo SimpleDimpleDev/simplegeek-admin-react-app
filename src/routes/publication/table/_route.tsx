@@ -3,7 +3,7 @@ import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
 
 import { Add } from "@mui/icons-material";
-import AdminTable from "@routes/table";
+import AdminTable from "@components/ManagementTable";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { PublicationGet } from "@appTypes/Publication";
 import { getImageUrl } from "@utils/image";
@@ -15,7 +15,7 @@ const columns: GridColDef[] = [
 		field: "productTitle",
 		headerName: "Товар",
 		renderCell: (params) => (
-			<div className="d-f fd-r gap-1 ai-c">
+			<div className="gap-1 ai-c d-f fd-r">
 				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden" }}>
 					<img className="contain" src={params.row.imageUrl} />
 				</div>
@@ -83,7 +83,8 @@ const formatPublications = (publications: PublicationGet[]): TableRowData[] => {
 	});
 };
 
-export default function PublicationTable() {
+
+export default function PublicationTableRoute() {
 	const navigate = useNavigate();
 
 	const { data: publicationsList, isLoading: publicationsListIsLoading } = useGetPublicationListQuery();
@@ -109,8 +110,8 @@ export default function PublicationTable() {
 	}, [selectedItemIds, publicationsList]);
 
 	return (
-		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
-			<div className="d-f fd-r jc-sb p-2">
+		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
+			<div className="p-2 d-f fd-r jc-sb">
 				<div>
 					<Typography variant="h5">Каталог</Typography>
 					<Typography variant="body2" color="typography.secondary">
@@ -124,7 +125,7 @@ export default function PublicationTable() {
 			</div>
 			<LoadingSpinner isLoading={publicationsListIsLoading}>
 				{!formattedPublications ? (
-					<div className="w-100 h-100v d-f ai-c jc-c">
+					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (

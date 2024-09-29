@@ -1,21 +1,21 @@
 import { Button, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
-import { useNavigate, useSubmit } from "react-router-dom";
 
 import { Add } from "@mui/icons-material";
-import AdminTable from "@routes/table";
+import AdminTable from "@components/ManagementTable";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { ProductGet } from "@appTypes/Product";
 import { getImageUrl } from "@utils/image";
 import { useGetProductListQuery } from "@api/admin/product";
+import { useNavigate } from "react-router-dom";
 
 const columns: GridColDef<ProductGet>[] = [
 	{
 		field: "title",
 		headerName: "Название",
 		renderCell: (params) => (
-			<div className="d-f fd-r gap-1 ai-c">
+			<div className="gap-1 ai-c d-f fd-r">
 				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden" }}>
 					<img src={getImageUrl(params.row.images[0].url, "small")} className="contain" />
 				</div>
@@ -29,8 +29,7 @@ const columns: GridColDef<ProductGet>[] = [
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
 ];
 
-export default function ProductTable() {
-	const submit = useSubmit();
+export default function ProductTableRoute() {
 	const navigate = useNavigate();
 
 	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
@@ -42,10 +41,10 @@ export default function ProductTable() {
 		const selectedItemId = selectedItemIds[0];
 		return productList?.items.find((product) => product.id === selectedItemId) || null;
 	}, [selectedItemIds, productList]);
-	 
+
 	return (
-		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
-			<div className="d-f fd-r jc-sb p-2">
+		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
+			<div className="p-2 d-f fd-r jc-sb">
 				<div>
 					<Typography variant="h5">Товары</Typography>
 					<Typography variant="body2" color="typography.secondary">
@@ -60,7 +59,7 @@ export default function ProductTable() {
 
 			<LoadingSpinner isLoading={productListIsLoading}>
 				{!productList ? (
-					<div className="w-100 h-100v d-f ai-c jc-c">
+					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
@@ -74,12 +73,12 @@ export default function ProductTable() {
 								<Button
 									variant="contained"
 									disabled={!selectedItemIds.length}
-									onClick={() =>
-										submit(
-											{ productIds: JSON.stringify(selectedItemIds) },
-											{ method: "post", action: "/publication/create" }
-										)
-									}
+									onClick={() => {
+										const productIdsParam = selectedItemIds
+											.map((id) => `productId[]=${id}`)
+											.join("&");
+										navigate(`/publication/create?${productIdsParam}`);
+									}}
 								>
 									{selectedItemIds.length > 1
 										? "Опубликовать вариативный товар"

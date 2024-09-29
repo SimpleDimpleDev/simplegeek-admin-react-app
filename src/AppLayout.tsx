@@ -15,10 +15,10 @@ import { Link, Outlet } from "react-router-dom";
 import NavButton from "@components/NavButton";
 import logo from "@assets/MainLogoBig.png";
 
-export default function AdminLayout() {
+export default function AppLayout() {
 	return (
-		<div className="w-100">
-			<div className="ps-f h-100v fs-0 d-f fd-c jc-sb" style={{ width: "calc(280 / 1920 * 100%)" }}>
+		<div className="bg-secondary w-100">
+			<div className="bg-primary h-100v d-f fd-c fs-0 jc-sb ps-f" style={{ width: "calc(280 / 1920 * 100%)" }}>
 				<Box
 					height={72}
 					paddingLeft={5}
@@ -62,14 +62,14 @@ export default function AdminLayout() {
 							>
 								<Logout />
 								<Typography color={"typography.primary"} variant="subtitle1">
-									Выход
+									В магазин
 								</Typography>
 							</ListItem>
 						</Link>
 					</Box>
 				</Box>
 			</div>
-			<div className="bg-secondary" style={{ marginLeft: "calc(280 / 1920 * 100%)" }}>
+			<div style={{ marginLeft: "calc(280 / 1920 * 100%)" }}>
 				<Outlet />
 			</div>
 		</div>

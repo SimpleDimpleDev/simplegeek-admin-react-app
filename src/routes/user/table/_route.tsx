@@ -2,7 +2,7 @@ import { Button, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
 
-import AdminTable from "@routes/table";
+import AdminTable from "@components/ManagementTable";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { UserGet } from "@appTypes/User";
 import { useGetUserListQuery } from "@api/admin/user";
@@ -16,7 +16,7 @@ const columns: GridColDef<UserGet>[] = [
 	{ field: "vkId", headerName: "Вконтакте", type: "boolean", valueGetter: (_value, row) => (row.vkId ? true : false) },
 ];
 
-export default function UserTable() {
+export default function UserTableRoute() {
 	const navigate = useNavigate();
 	const { data: userList, isLoading: userListIsLoading } = useGetUserListQuery();
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
@@ -28,8 +28,8 @@ export default function UserTable() {
 	}, [selectedItemIds, userList]);
 
 	return (
-		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
-			<div className="d-f fd-r jc-sb p-2">
+		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
+			<div className="p-2 d-f fd-r jc-sb">
 				<div>
 					<Typography variant="h5">Пользователи</Typography>
 					<Typography variant="body2" color="typography.secondary">
@@ -39,7 +39,7 @@ export default function UserTable() {
 			</div>
 			<LoadingSpinner isLoading={userListIsLoading}>
 				{!userList ? (
-					<div className="w-100 h-100v d-f ai-c jc-c">
+					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (

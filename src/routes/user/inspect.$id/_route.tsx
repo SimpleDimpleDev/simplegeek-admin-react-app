@@ -5,7 +5,7 @@ import { ChevronLeft } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { useGetUserQuery } from "@api/admin/user";
 
-export default function UserInspect() {
+export default function UserInspectRoute() {
 	const navigate = useNavigate();
 	const params = useParams();
 	const userId = params.id;
@@ -19,12 +19,12 @@ export default function UserInspect() {
 			</Button>
 			<LoadingSpinner isLoading={userIsLoading}>
 				{!user ? (
-					<div className="w-100 h-100v d-f ai-c jc-c">
+					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
 					<>
-						<div className="py-2 px-2">
+						<div className="px-2 py-2">
 							<Typography variant="h5">Пользователь {user.email} </Typography>
 						</div>
 						<div className="section">

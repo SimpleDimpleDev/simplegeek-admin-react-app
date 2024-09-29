@@ -7,7 +7,7 @@ import { useGetCategoryListQuery } from "@api/admin/category";
 import { useLazyGetFilterGroupListQuery } from "@api/admin/filterGroup";
 import { useNavigate } from "react-router-dom";
 
-export default function ProductCreate() {
+export default function ProductCreateRoute() {
 	const navigate = useNavigate();
 
 	const [createProduct, { isLoading: createIsLoading, isSuccess: createIsSuccess, isError: createIsError }] =
@@ -40,10 +40,10 @@ export default function ProductCreate() {
 	}, [createIsError]);
 
 	return (
-		<div className="h-100 d-f fd-c px-3 pt-1 pb-4" style={{ minHeight: "100vh" }}>
+		<div className="px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 			{createIsLoading && (
 				<Modal open={true}>
-					<div className="w-100v h-100v d-f ai-c jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+					<div className="w-100v h-100v ai-c d-f jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
 						<CircularProgress />
 					</div>
 				</Modal>

@@ -1,9 +1,9 @@
 import "./App.css";
 
-import AdminLayout from "@routes/_layout";
+import { AppRouter } from "./router";
 
 function App() {
-	return <AdminLayout />;
+	return <AppRouter />;
 }
 
 export default App;

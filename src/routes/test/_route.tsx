@@ -89,7 +89,7 @@ const publication: PublicationGet = {
 	items: [variation],
 };
 
-export default function Test() {
+export default function TestRoute() {
 	return (
 		<div className="w-100">
 			<div className="h-100v d-f fd-c fs-0 jc-sb ps-f" style={{ width: "calc(280 / 1920 * 100%)" }}>

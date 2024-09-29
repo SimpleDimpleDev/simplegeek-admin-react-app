@@ -10,12 +10,12 @@ import { useEffect, useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
-import AdminTable from "../table";
+import AdminTable from "../../components/ManagementTable";
 import { FilterGroupCreateForm } from "./CreateForm";
 import { FilterGroupGet } from "@appTypes/Filters";
 import { FilterGroupUpdateForm } from "./UpdateForm";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import ManagementModal from "../managementModal";
+import ManagementModal from "../../components/ManagementModal";
 import { useLazyGetCategoryListQuery } from "@api/admin/category";
 
 const columns: GridColDef<FilterGroupGet>[] = [
@@ -32,7 +32,7 @@ const columns: GridColDef<FilterGroupGet>[] = [
 		renderCell: (params) => {
 			const valuesString = params.row.filters.map(({ value }) => value).join(", ");
 			return (
-				<div className="d-f jc-c ai-c">
+				<div className="ai-c d-f jc-c">
 					<Tooltip title={valuesString}>
 						<Typography>{valuesString}</Typography>
 					</Tooltip>
@@ -44,7 +44,7 @@ const columns: GridColDef<FilterGroupGet>[] = [
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
 ];
 
-export default function Filter() {
+export default function FilterRoute() {
 	const { data: filterGroupList, isLoading: filterGroupListIsLoading } = useGetFilterGroupListQuery({
 		categoryId: undefined,
 	});
@@ -133,9 +133,9 @@ export default function Filter() {
 	};
 
 	return (
-		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
+		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
 			<Modal open={showLoadingOverlay}>
-				<div className="w-100v h-100v d-f ai-c jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+				<div className="w-100v h-100v ai-c d-f jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
 					<CircularProgress />
 				</div>
 			</Modal>
@@ -189,7 +189,7 @@ export default function Filter() {
 					text: "Отмена",
 				}}
 			/>
-			<div className="d-f fd-r jc-sb p-2">
+			<div className="p-2 d-f fd-r jc-sb">
 				<div>
 					<Typography variant="h5">Группы фильтров</Typography>
 					<Typography variant="body2" color="typography.secondary">
@@ -203,7 +203,7 @@ export default function Filter() {
 			</div>
 			<LoadingSpinner isLoading={filterGroupListIsLoading}>
 				{!filterGroupList ? (
-					<div className="w-100 h-100v d-f ai-c jc-c">
+					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (

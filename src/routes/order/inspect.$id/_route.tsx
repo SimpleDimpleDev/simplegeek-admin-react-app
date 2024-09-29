@@ -8,7 +8,7 @@ import { getImageUrl } from "@utils/image";
 import { orderStatusBadges } from "@components/Badges";
 import { useGetOrderQuery } from "@api/admin/order";
 
-export default function OrderInspect() {
+export default function OrderInspectRoute() {
 	const navigate = useNavigate();
 	const params = useParams();
 	const orderId = params.id;
@@ -21,7 +21,7 @@ export default function OrderInspect() {
 			</Button>
 			<LoadingSpinner isLoading={orderIsLoading}>
 				{!order ? (
-					<div className="w-100 h-100v d-f ai-c jc-c">
+					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
@@ -30,7 +30,7 @@ export default function OrderInspect() {
 							<Typography variant="h3">Заказ от {DateFormatter.DDMMYYYY(new Date())}</Typography>
 							<Typography variant="subtitle0">ID: Order id</Typography>
 						</div>
-						<div className="d-f fd-r gap-1 pb-4">{orderStatusBadges["ACCEPTED"]}</div>
+						<div className="gap-1 pb-4 d-f fd-r">{orderStatusBadges["ACCEPTED"]}</div>
 
 						<div className="section">
 							<Typography variant="h5">Платёж заказа</Typography>
@@ -47,9 +47,9 @@ export default function OrderInspect() {
 							</Typography>
 							<Stack divider={<Divider />}>
 								{order.items.map((item) => (
-									<div className="d-f fd-c gap-1 pt-1" key={item.id}>
+									<div className="gap-1 pt-1 d-f fd-c" key={item.id}>
 										<div className="w-100 d-f fd-r jc-sb">
-											<div className="w-100 d-f fd-r gap-1">
+											<div className="gap-1 w-100 d-f fd-r">
 												<div className="br-2" style={{ width: 96, height: 96 }}>
 													<img className="contain" src={getImageUrl(item.image, "small")} />
 												</div>

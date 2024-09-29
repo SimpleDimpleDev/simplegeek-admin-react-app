@@ -10,22 +10,21 @@ import {
 	Snackbar,
 	Typography,
 } from "@mui/material";
-import { useActionData, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { PreorderGet } from "@appTypes/Preorder";
-import { ProductIdsToPublish } from "./action";
 import { PublicationCreatePreorderForm } from "./preorderForm";
 import { PublicationCreateStockForm } from "./stockForm";
 import { useCreatePublicationMutation } from "@api/admin/publication";
 import { useGetCategoryListQuery } from "@api/admin/category";
 import { useGetProductListQuery } from "@api/admin/product";
 
-export default function PublicationCreate() {
+export default function PublicationCreateRoute() {
 	const navigate = useNavigate();
-	const actionData = useActionData() as ProductIdsToPublish;
-	const productIds = actionData?.productIds;
+	const [searchParams] = useSearchParams();
+	const productIds = useMemo(() => searchParams.getAll("productId[]"), [searchParams]);
 
 	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();

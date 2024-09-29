@@ -18,7 +18,7 @@ import { PublicationStockEditableHeader } from "./PublicationEditableHeader";
 import { VariationStockEditableCard } from "./VariationStockEditableCard";
 import { z } from "zod";
 
-export default function PublicationInspect() {
+export default function PublicationInspectRoute() {
 	const navigate = useNavigate();
 	const params = useParams();
 	const publicationId = params.id;

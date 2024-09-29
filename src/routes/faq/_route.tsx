@@ -6,18 +6,18 @@ import { useEffect, useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
-import AdminTable from "../table";
+import AdminTable from "../../components/ManagementTable";
 import { FAQItemGet } from "@appTypes/FAQ";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import ManagementModal from "../managementModal";
+import ManagementModal from "../../components/ManagementModal";
 
 const columns: GridColDef<FAQItemGet>[] = [
 	{ field: "question", headerName: "Вопрос" },
 	{ field: "answer", headerName: "Ответ" },
 ];
 
-export default function Faq() {
+export default function FaqRoute() {
 	const { data: FAQItemList, isLoading: FAQItemListIsLoading } = useGetFAQItemListQuery();
 	const [createFAQItem, { isLoading: createIsLoading, isSuccess: createSuccess, error: createError }] = useCreateFAQItemMutation();
 	const [updateFAQItem, { isLoading: updateIsLoading, isSuccess: updateSuccess, error: updateError }] = useCreateFAQItemMutation();
@@ -78,7 +78,7 @@ export default function Faq() {
 	}, [deleteError]);
 
 	return (
-		<div className="h-100v d-f fd-c px-3 pt-1 pb-4">
+		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
 			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar
 				open={snackbarOpened}
@@ -116,7 +116,7 @@ export default function Faq() {
 					text: "Отмена",
 				}}
 			/>
-			<div className="d-f fd-r jc-sb p-2">
+			<div className="p-2 d-f fd-r jc-sb">
 				<div>
 					<Typography variant="h5">FAQ</Typography>
 					<Typography variant="body2" color="typography.secondary">
@@ -130,7 +130,7 @@ export default function Faq() {
 			</div>
 			<LoadingSpinner isLoading={FAQItemListIsLoading}>
 				{!FAQItemList ? (
-					<div className="w-100 h-100v d-f ai-c jc-c">
+					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
