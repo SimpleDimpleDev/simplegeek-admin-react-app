@@ -25,6 +25,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { CategoryGet } from "@appTypes/Category";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
+import { PublicationCreateSchema } from "@schemas/Publication";
 import { SlugResolver } from "../utils";
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
@@ -33,15 +34,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 type CatalogItemPublishStockFormData = {
 	product: ProductGet | null;
-	price: number | null;
-	quantity: number | null;
+	price: string;
+	quantity: string;
 	discount: number | null;
 };
 
 const CatalogItemPublishStockResolver = z.object({
 	product: z.object({ id: z.string({ message: "Выберите продукт" }) }, { message: "Выберите продукт" }),
-	price: z.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
-	quantity: z
+	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
+	quantity: z.coerce
 		.number({ message: "Укажите количество" })
 		.positive({ message: "Количество должно быть положительным числом" }),
 	discount: z.number().positive({ message: "Скидка должна быть положительным числом" }).nullable(),
@@ -152,7 +153,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								label="Цена"
 								type="text"
 								required
-								value={value?.toString() || ""}
+								value={value}
 								onChange={handleIntChange(onChange)}
 								variant="outlined"
 								error={!!error}
@@ -170,7 +171,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								label="Количество"
 								type="text"
 								required
-								value={value?.toString() || ""}
+								value={value}
 								onChange={handleIntChange(onChange)}
 								variant="outlined"
 								error={!!error}
@@ -240,16 +241,16 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 		defaultValues.categoryId = categoryId || null;
 		defaultValues.items = productsToAdd.map((product) => ({
 			product,
-			price: null,
+			price: "",
 			discount: null,
-			quantity: null,
+			quantity: "",
 		}));
 	} else {
 		defaultValues.items.push({
 			product: null,
-			price: null,
+			price: "",
 			discount: null,
-			quantity: null,
+			quantity: "",
 		});
 	}
 	return defaultValues;
@@ -289,7 +290,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 					creditInfo: null,
 				})),
 			};
-			onSubmit(formattedData as PublicationCreate);
+			onSubmit(PublicationCreateSchema.parse(formattedData));
 		},
 		[onSubmit]
 	);
@@ -438,9 +439,9 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 					onClick={() =>
 						appendVariation({
 							product: null,
-							price: null,
+							price: "",
 							discount: null,
-							quantity: null,
+							quantity: "",
 						})
 					}
 				>
