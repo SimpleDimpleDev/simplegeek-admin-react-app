@@ -12,82 +12,86 @@ import {
 } from "@mui/icons-material";
 import { Box, Button, ListItem, Typography } from "@mui/material";
 
-import { CatalogItemGet } from "@appTypes/CatalogItem";
+import { DeliveryForm } from "@components/DeliveryForm";
 import { Link } from "react-router-dom";
 import NavButton from "@components/NavButton";
-import { PublicationGet } from "@appTypes/Publication";
-import { PublicationStockEditableHeader } from "@routes/publication/inspect.$id/PublicationEditableHeader";
-import { VariationStockEditableCard } from "@routes/publication/inspect.$id/VariationStockEditableCard";
 import logo from "@assets/MainLogoBig.png";
 
-const variation: CatalogItemGet = {
-	id: "1",
-	price: 1000,
-	quantity: 10,
-	orderedQuantity: 4,
-	discount: null,
-	isActive: true,
-	creditInfo: null,
-	variationIndex: null,
-	createdAt: new Date(),
-	updatedAt: new Date(),
-	product: {
-		id: "1",
-		title: "Тестовая вариация Тестовая вариация Тестовая вариация Тестовая вариация",
-		description: "Тестовая вари",
-		isPublished: true,
-		physicalProperties: {
-			width: 1,
-			height: 1,
-			length: 1,
-			mass: 1,
-		},
-		images: [
-			{
-				id: "1",
-				url: "https://i.ibb.co/0Cp7Y3T/IMG-20221109-125317-1.jpg",
-				index: 0,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			},
-		],
-		category: {
-			id: "1",
-			title: "Тестовая категория",
-			link: "test",
-			isActive: true,
-			icon: {
-				id: "1",
-				url: "https://i.ibb.co/0Cp7Y3T/IMG-20221109-125317-1.jpg",
-				index: 0,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			},
-			banner: {
-				id: "1",
-				url: "https://i.ibb.co/0Cp7Y3T/IMG-20221109-125317-1.jpg",
-				index: 0,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			},
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		},
-		filterGroups: [],
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	},
-};
+// import { CatalogItemGet } from "@appTypes/CatalogItem";
 
-const publication: PublicationGet = {
-	id: "1",
-	link: "test",
-	createdAt: new Date(),
-	updatedAt: new Date(),
-	preorder: null,
-	shippingCostIncluded: null,
-	items: [variation],
-};
+
+
+// import { PublicationGet } from "@appTypes/Publication";
+
+
+// const variation: CatalogItemGet = {
+// 	id: "1",
+// 	price: 1000,
+// 	quantity: 10,
+// 	orderedQuantity: 4,
+// 	discount: null,
+// 	isActive: true,
+// 	creditInfo: null,
+// 	variationIndex: null,
+// 	createdAt: new Date(),
+// 	updatedAt: new Date(),
+// 	product: {
+// 		id: "1",
+// 		title: "Тестовая вариация Тестовая вариация Тестовая вариация Тестовая вариация",
+// 		description: "Тестовая вари",
+// 		isPublished: true,
+// 		physicalProperties: {
+// 			width: 1,
+// 			height: 1,
+// 			length: 1,
+// 			mass: 1,
+// 		},
+// 		images: [
+// 			{
+// 				id: "1",
+// 				url: "https://i.ibb.co/0Cp7Y3T/IMG-20221109-125317-1.jpg",
+// 				index: 0,
+// 				createdAt: new Date(),
+// 				updatedAt: new Date(),
+// 			},
+// 		],
+// 		category: {
+// 			id: "1",
+// 			title: "Тестовая категория",
+// 			link: "test",
+// 			isActive: true,
+// 			icon: {
+// 				id: "1",
+// 				url: "https://i.ibb.co/0Cp7Y3T/IMG-20221109-125317-1.jpg",
+// 				index: 0,
+// 				createdAt: new Date(),
+// 				updatedAt: new Date(),
+// 			},
+// 			banner: {
+// 				id: "1",
+// 				url: "https://i.ibb.co/0Cp7Y3T/IMG-20221109-125317-1.jpg",
+// 				index: 0,
+// 				createdAt: new Date(),
+// 				updatedAt: new Date(),
+// 			},
+// 			createdAt: new Date(),
+// 			updatedAt: new Date(),
+// 		},
+// 		filterGroups: [],
+// 		createdAt: new Date(),
+// 		updatedAt: new Date(),
+// 	},
+// };
+
+// const publication: PublicationGet = {
+// 	id: "1",
+// 	link: "test",
+// 	createdAt: new Date(),
+// 	updatedAt: new Date(),
+// 	preorder: null,
+// 	shippingCostIncluded: null,
+// 	items: [variation],
+// };
 
 export default function TestRoute() {
 	return (
@@ -152,25 +156,7 @@ export default function TestRoute() {
 					<div className="p-2">
 						<Typography variant="h5">Публикация</Typography>
 					</div>
-					<PublicationStockEditableHeader
-						onUpdate={(data) => console.log(data)}
-						onDelete={(data) => console.log(data)}
-						publication={publication}
-					/>
-					<VariationStockEditableCard
-						variation={variation}
-						onUpdate={(data) => console.log(data)}
-						onDelete={(data) => console.log(data)}
-						onActivate={(data) => console.log(data)}
-						onDeactivate={(data) => console.log(data)}
-					/>
-					<VariationStockEditableCard
-						variation={variation}
-						onUpdate={(data) => console.log(data)}
-						onDelete={(data) => console.log(data)}
-						onActivate={(data) => console.log(data)}
-						onDeactivate={(data) => console.log(data)}
-					/>
+					<DeliveryForm delivery={undefined} onChange={(data) => {console.log(data)}} packages={[]} />
 				</div>
 			</div>
 		</div>

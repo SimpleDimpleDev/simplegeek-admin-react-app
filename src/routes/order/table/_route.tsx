@@ -2,7 +2,7 @@ import "react-image-crop/dist/ReactCrop.css";
 
 import { Button, FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
-import { OrderGet, OrderStatus } from "@appTypes/Order";
+import { OrderGet } from "@appTypes/Order";
 import { useMemo, useState } from "react";
 
 import AdminTable from "@components/ManagementTable";
@@ -12,32 +12,40 @@ import { orderStatusBadges } from "@components/Badges";
 import { useGetOrderListQuery } from "@api/admin/order";
 
 const deliveryServiceMapping: Record<DeliveryService | "UNASSIGNED", string> = {
-	UNASSIGNED: "Не назначено",
-	CDEK: "СДЕК",
+	UNASSIGNED: "Не оформлена",
 	SELF_PICKUP: "Самовывоз",
+	CDEK: "СДЕК",
 };
 
-const columns: GridColDef<OrderGet>[] = [
+const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
 		field: "user",
 		headerName: "Пользователь",
-		renderCell: ({ value: user }) => {
+		renderCell: ({ row: { user } }) => {
 			return user.email;
-		},
-	},
-	{
-		field: "delivery",
-		headerName: "Сервис доставки",
-		renderCell: ({ value: delivery }) => {
-			if (!delivery) return "-";
-			return deliveryServiceMapping[delivery.service as DeliveryService];
 		},
 	},
 	{
 		field: "status",
 		headerName: "Статус",
-		renderCell: ({ value: status }) => {
-			return orderStatusBadges[status as OrderStatus];
+		renderCell: ({ row: { status } }) => {
+			return <div className="d-f ai-c jc-c">{orderStatusBadges[status]}</div>;
+		},
+	},
+	{
+		field: "deliveryService",
+		headerName: "Сервис доставки",
+		renderCell: ({ row: { delivery } }) => {
+			if (!delivery) return deliveryServiceMapping["UNASSIGNED"];
+			return deliveryServiceMapping[delivery.service as DeliveryService];
+		},
+	},
+	{
+		field: "preorder",
+		headerName: "Тип заказа",
+		renderCell: ({ row: { preorder } }) => {
+			if (!preorder) return "Розница";
+			return `Предзаказ: ${preorder.title}`;
 		},
 	},
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
@@ -124,7 +132,7 @@ export default function OrderTableRoute() {
 					</div>
 				) : (
 					<AdminTable
-						columns={columns}
+						columns={selfPickupColumns}
 						data={deliveryServiceOrders}
 						onRowSelect={setSelectedItemIds}
 						selectedRows={selectedItemIds}

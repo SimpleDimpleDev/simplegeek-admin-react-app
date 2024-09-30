@@ -6,8 +6,8 @@ export const orderStatusBadges: Record<OrderStatus, JSX.Element> = {
 	CANCELLED: <StatusBadge color="icon.secondary">Отменен</StatusBadge>,
 	UNPAID: <StatusBadge color="icon.attention">Не оплачен</StatusBadge>,
 	ACCEPTED: <StatusBadge color="primary.main">Оформлен</StatusBadge>,
-	ASSEMBLY: <StatusBadge color="primary.main">Сборка</StatusBadge>,
 	DELIVERY: <StatusBadge color="typography.success">Передан в доставку</StatusBadge>,
+	READY_FOR_PICKUP: <StatusBadge color="primary.main">Готов к выдаче</StatusBadge>,
 	FINISHED: <StatusBadge color="typography.success">Доставлен</StatusBadge>,
 };
 

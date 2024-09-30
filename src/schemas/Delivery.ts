@@ -1,3 +1,4 @@
+import { PhysicalPropertiesSchema } from "./PhysicalProperties";
 import { z } from "zod";
 
 export const DeliveryServiceSchema = z.enum(["SELF_PICKUP", "CDEK"]);
@@ -17,6 +18,8 @@ export const DeliverySchema = z.object({
 	service: DeliveryServiceSchema,
 	point: DeliveryPointSchema.nullable(),
 });
+
+export const DeliveryPackageSchema = PhysicalPropertiesSchema;
 
 export const DeliveryOrderSchema = DeliverySchema.extend({
 	tracking: z

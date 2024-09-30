@@ -7,7 +7,14 @@ import { PreorderOrderGetSchema } from "./Preorder";
 import { UserGetSchema } from "./User";
 import { z } from "zod";
 
-export const OrderStatusSchema = z.enum(["CANCELLED", "UNPAID", "ACCEPTED", "ASSEMBLY", "DELIVERY", "FINISHED"]);
+export const OrderStatusSchema = z.enum([
+	"CANCELLED",
+	"UNPAID",
+	"ACCEPTED",
+	"DELIVERY",
+	"READY_FOR_PICKUP",
+	"FINISHED",
+]);
 
 export const OrderCreateSchema = z.object({
 	creditIds: IdSchema.array(),
@@ -30,4 +37,14 @@ export const OrderGetSchema = AdminGetBaseSchema.extend({
 	preorder: PreorderOrderGetSchema.nullable(),
 	items: OrderItemGetSchema.array(),
 	initialInvoice: InvoiceGetSchema,
+});
+
+export const OrderUpdateStatusSchema = z.object({
+	id: z.string(),
+	status: OrderStatusSchema,
+});
+
+export const OrderUpdateDeliverySchema = z.object({
+	id: z.string(),
+	delivery: DeliverySchema,
 });

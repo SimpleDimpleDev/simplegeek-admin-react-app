@@ -68,7 +68,7 @@ interface CdekWidgetProps {
 	packages: CDEKPackage[];
 }
 
-const CDEKWidget = ({ onReady, onCalculate, onChoose, packages }: CdekWidgetProps) => {
+const CDEKWidget = ({ onCalculate, onChoose, packages }: CdekWidgetProps) => {
 	React.useEffect(() => {
 		const script = document.createElement("script");
 		script.type = "text/javascript";
@@ -88,7 +88,7 @@ const CDEKWidget = ({ onReady, onCalculate, onChoose, packages }: CdekWidgetProp
 					office: [234, 136, 138],
 					door: [233, 137, 139],
 				},
-				onReady: onReady,
+				onReady: console.log("onReady"),
 				onCalculate: onCalculate,
 				onChoose: onChoose,
 			});
@@ -100,7 +100,7 @@ const CDEKWidget = ({ onReady, onCalculate, onChoose, packages }: CdekWidgetProp
 		return () => {
 			document.head.removeChild(script);
 		};
-	}, [onReady, onCalculate, onChoose, packages]);
+	}, [onCalculate, onChoose, packages]);
 
 	return <div id="cdek-map" style={{ width: "100%", height: "100%" }}></div>;
 };
@@ -136,7 +136,7 @@ const CDEKDeliveryInfo: React.FC<CDEKDeliveryData> = ({ deliveryType, tariff, ad
 
 	return (
 		<div>
-			<Typography variant={"h6"}>СДЕК {tariff.tariff_name}</Typography>
+			<Typography variant={"h6"}>СДЭК {tariff.tariff_name}</Typography>
 			<Typography variant={"body1"}>Стоимость доставки: {tariff.delivery_sum} ₽</Typography>
 			<AddressInfo />
 		</div>
