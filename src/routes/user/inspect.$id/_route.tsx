@@ -2,6 +2,7 @@ import { Button, Typography } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { ChevronLeft } from "@mui/icons-material";
+import { DateFormatter } from "@utils/format";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { useGetUserQuery } from "@api/admin/user";
 
@@ -30,6 +31,9 @@ export default function UserInspectRoute() {
 						<div className="section">
 							<Typography variant="h5">Информация</Typography>
 							<Typography variant="body1">Email: {user.email}</Typography>
+							<Typography variant="body1">VK ID: {user.vkId ?? "Не подключён"}</Typography>
+							<Typography variant="body1">Создан: {DateFormatter.DDMMYYYY(user.createdAt)}</Typography>
+							<Typography variant="body1">Обновлен: {DateFormatter.DDMMYYYY(user.updatedAt)}</Typography>
 						</div>
 					</>
 				)}

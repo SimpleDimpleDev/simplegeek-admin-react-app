@@ -2,14 +2,15 @@ import "react-image-crop/dist/ReactCrop.css";
 
 import { Button, FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
-import { OrderGet } from "@appTypes/Order";
 import { useMemo, useState } from "react";
 
 import AdminTable from "@components/ManagementTable";
 import { DeliveryService } from "@appTypes/Delivery";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import { OrderGet } from "@appTypes/Order";
 import { orderStatusBadges } from "@components/Badges";
 import { useGetOrderListQuery } from "@api/admin/order";
+import { useNavigate } from "react-router-dom";
 
 const deliveryServiceMapping: Record<DeliveryService | "UNASSIGNED", string> = {
 	UNASSIGNED: "Не оформлена",
@@ -29,7 +30,7 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		field: "status",
 		headerName: "Статус",
 		renderCell: ({ row: { status } }) => {
-			return <div className="d-f ai-c jc-c">{orderStatusBadges[status]}</div>;
+			return <div className="ai-c d-f jc-c">{orderStatusBadges[status]}</div>;
 		},
 	},
 	{
@@ -53,6 +54,8 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 ];
 
 export default function OrderTableRoute() {
+	const navigate = useNavigate();
+
 	const { data: orderList, isLoading: orderListIsLoading } = useGetOrderListQuery();
 
 	const [deliveryService, setDeliveryService] = useState<DeliveryService | "UNASSIGNED">("SELF_PICKUP");
@@ -141,7 +144,9 @@ export default function OrderTableRoute() {
 								<Button
 									variant="contained"
 									disabled={!selectedItemIds.length || deliveryService !== "CDEK"}
-									onClick={() => {}}
+									onClick={() => {
+										alert("Not implemented yet");
+									}}
 								>
 									Сформировать накладные
 								</Button>
@@ -149,10 +154,22 @@ export default function OrderTableRoute() {
 						}
 						leftHeaderButtons={
 							<>
-								<Button variant="contained" disabled={!selectedOrder} onClick={() => {}}>
+								<Button
+									variant="contained"
+									disabled={!selectedOrder}
+									onClick={() => {
+										navigate(`/order/inspect/${selectedOrder?.id}`);
+									}}
+								>
 									Подробнее
 								</Button>
-								<Button variant="contained" disabled={!selectedOrder} onClick={() => {}}>
+								<Button
+									variant="contained"
+									disabled={!selectedOrder}
+									onClick={() => {
+										navigate(`/user/inspect/${selectedOrder?.user.id}`);
+									}}
+								>
 									Перейти к пользователю
 								</Button>
 							</>
