@@ -24,6 +24,11 @@ export const CategoryGetSchema = AdminGetBaseSchema.extend({
 	isActive: z.boolean(),
 });
 
+export const CategoryListGetSchema = z.object({
+	items: CategoryGetSchema.array(),
+});
+
+
 export const CategoryChangeImageSchema = z.object({
 	categoryId: z.string(),
 	imageType: z.enum(["ICON", "BANNER"]),

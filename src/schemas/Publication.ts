@@ -20,6 +20,10 @@ export const PublicationGetSchema = AdminGetBaseSchema.extend({
 	items: CatalogItemGetSchema.array().nonempty(),
 });
 
+export const PublicationListGetSchema = z.object({
+	items: PublicationGetSchema.array(),
+});
+
 export const PublicationUpdateSchema = z.object({
 	id: IdSchema,
 	link: SlugScheme,

@@ -1,7 +1,7 @@
 import {
 	CategoryChangeImageSchema,
 	CategoryCreateSchema,
-	CategoryGetSchema,
+	CategoryListGetSchema,
 	CategoryUpdateSchema,
 } from "@schemas/Category";
 
@@ -9,10 +9,6 @@ import { CreateResponseSchema } from "@schemas/Api";
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
-
-const CategoryListResponseSchema = z.object({
-	items: CategoryGetSchema.array(),
-});
 
 const categoryCreateFormDataMapper = (data: z.infer<typeof CategoryCreateSchema>) => {
 	const formData = new FormData();
@@ -49,12 +45,12 @@ const categoryApi = adminApi.injectEndpoints({
 			invalidatesTags: ["Category"],
 		}),
 
-		getCategoryList: build.query<z.infer<typeof CategoryListResponseSchema>, void>({
+		getCategoryList: build.query<z.infer<typeof CategoryListGetSchema>, void>({
 			query: () => ({
 				url: "/admin/category-list",
 				method: "GET",
 			}),
-			transformResponse: (response) => validateData(CategoryListResponseSchema, response),
+			transformResponse: (response) => validateData(CategoryListGetSchema, response),
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Category", id: item.id })),
 		}),
 

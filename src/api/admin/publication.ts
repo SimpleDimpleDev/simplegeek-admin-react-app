@@ -1,14 +1,15 @@
-import { PublicationCreateSchema, PublicationGetSchema, PublicationUpdateSchema } from "@schemas/Publication";
+import {
+	PublicationCreateSchema,
+	PublicationGetSchema,
+	PublicationListGetSchema,
+	PublicationUpdateSchema,
+} from "@schemas/Publication";
 
 import { CatalogItemUpdateSchema } from "./../../schemas/CatalogItem";
 import { CreateResponseSchema } from "@schemas/Api";
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
-
-const PublicationListGetResponseSchema = z.object({
-	items: PublicationGetSchema.array(),
-});
 
 export const publicationApi = adminApi.injectEndpoints({
 	endpoints: (build) => ({
@@ -32,12 +33,12 @@ export const publicationApi = adminApi.injectEndpoints({
 			providesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),
 
-		getPublicationList: build.query<z.infer<typeof PublicationListGetResponseSchema>, void>({
+		getPublicationList: build.query<z.infer<typeof PublicationListGetSchema>, void>({
 			query: () => ({
 				url: "/admin/publication-list",
 				method: "GET",
 			}),
-			transformResponse: (response) => validateData(PublicationListGetResponseSchema, response),
+			transformResponse: (response) => validateData(PublicationListGetSchema, response),
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Publication", id: item.id })),
 		}),
 

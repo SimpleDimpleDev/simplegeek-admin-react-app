@@ -11,3 +11,7 @@ export const UserGetSchema = AdminGetBaseSchema.extend({
 	verified: z.boolean(),
 	vkId: z.string().nullable(),
 });
+
+export const UserListGetSchema = z.object({
+	items: UserGetSchema.array(),
+});

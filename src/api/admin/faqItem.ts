@@ -1,11 +1,7 @@
-import { FAQItemGetSchema } from "@schemas/FAQ";
+import { FAQItemListGetSchema } from "@schemas/FAQ";
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
-
-const FAQItemListResponseSchema = z.object({
-	items: FAQItemGetSchema.array(),
-});
 
 export const FAQItemApi = adminApi.injectEndpoints({
 	endpoints: (build) => ({
@@ -18,12 +14,12 @@ export const FAQItemApi = adminApi.injectEndpoints({
 			invalidatesTags: ["FAQItem"],
 		}),
 
-		getFAQItemList: build.query<z.infer<typeof FAQItemListResponseSchema>, void>({
+		getFAQItemList: build.query<z.infer<typeof FAQItemListGetSchema>, void>({
 			query: () => ({
 				url: "/admin/faq-item-list",
 				method: "GET",
 			}),
-			transformResponse: (response) => validateData(FAQItemListResponseSchema, response),
+			transformResponse: (response) => validateData(FAQItemListGetSchema, response),
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "FAQItem", id: item.id })),
 		}),
 

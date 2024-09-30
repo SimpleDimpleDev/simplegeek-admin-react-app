@@ -1,11 +1,8 @@
-import { UserGetSchema } from "@schemas/User";
+import { UserGetSchema, UserListGetSchema } from "@schemas/User";
+
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
-
-export const UserListGetResponseSchema = z.object({
-	items: UserGetSchema.array(),
-});
 
 export const userApi = adminApi.injectEndpoints({
 	endpoints: (build) => ({
@@ -19,12 +16,12 @@ export const userApi = adminApi.injectEndpoints({
 			providesTags: (_result, _error, { userId }) => [{ type: "User", id: userId }],
 		}),
 
-		getUserList: build.query<z.infer<typeof UserListGetResponseSchema>, void>({
+		getUserList: build.query<z.infer<typeof UserListGetSchema>, void>({
 			query: () => ({
 				url: "/admin/user-list",
 				method: "GET",
 			}),
-			transformResponse: (response) => validateData(UserListGetResponseSchema, response),
+			transformResponse: (response) => validateData(UserListGetSchema, response),
 			providesTags: ["User"],
 		}),
 	}),

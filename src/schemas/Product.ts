@@ -25,6 +25,10 @@ export const ProductGetSchema = AdminGetBaseSchema.extend({
 	images: AttachmentGetSchema.array(),
 });
 
+export const ProductListGetSchema = z.object({
+	items: ProductGetSchema.array(),
+});
+
 export const ProductAddImageSchema = z.object({
 	productId: z.string(),
 	image: z.object({ file: z.instanceof(File), properties: ImageEditPropsSchema }),

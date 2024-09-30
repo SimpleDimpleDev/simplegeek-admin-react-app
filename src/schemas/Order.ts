@@ -39,6 +39,15 @@ export const OrderGetSchema = AdminGetBaseSchema.extend({
 	initialInvoice: InvoiceGetSchema,
 });
 
+export const OrderListGetSchema = z.object({
+	items: OrderGetSchema.array(),
+});
+
+export const OrderEditablePropsGetSchema = z.object({
+	delivery: z.boolean(),
+	statuses: OrderStatusSchema.array(),
+});
+
 export const OrderUpdateStatusSchema = z.object({
 	id: z.string(),
 	status: OrderStatusSchema,

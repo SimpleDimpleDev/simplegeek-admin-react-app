@@ -51,3 +51,8 @@ export const FilterGroupGetSchema = z.object({
 		.array()
 		.nonempty(),
 });
+
+
+export const FilterGroupListGetSchema = z.object({
+	items: FilterGroupGetSchema.array(),
+});

@@ -9,3 +9,7 @@ export const FAQItemCreateSchema = z.object({
 export const FAQItemGetSchema = FAQItemCreateSchema.extend({
     id: IdSchema,
 });
+
+export const FAQItemListGetSchema = z.object({
+	items: FAQItemGetSchema.array(),
+});

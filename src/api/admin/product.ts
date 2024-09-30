@@ -1,13 +1,15 @@
-import { ProductAddImageSchema, ProductCreateSchema, ProductGetSchema, ProductUpdateSchema } from "@schemas/Product";
+import {
+	ProductAddImageSchema,
+	ProductCreateSchema,
+	ProductGetSchema,
+	ProductListGetSchema,
+	ProductUpdateSchema,
+} from "@schemas/Product";
 
 import { CreateResponseSchema } from "@schemas/Api";
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
-
-const ProductListGetResponseSchema = z.object({
-	items: ProductGetSchema.array(),
-});
 
 const productCreateFormDataMapper = (data: z.infer<typeof ProductCreateSchema>) => {
 	const formData = new FormData();
@@ -56,12 +58,12 @@ export const productApi = adminApi.injectEndpoints({
 			providesTags: (_result, _error, { productId }) => [{ type: "Product", id: productId }],
 		}),
 
-		getProductList: build.query<z.infer<typeof ProductListGetResponseSchema>, void>({
+		getProductList: build.query<z.infer<typeof ProductListGetSchema>, void>({
 			query: () => ({
 				url: "/admin/product-list",
 				method: "GET",
 			}),
-			transformResponse: (response) => validateData(ProductListGetResponseSchema, response),
+			transformResponse: (response) => validateData(ProductListGetSchema, response),
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Product", id: item.id })),
 		}),
 
