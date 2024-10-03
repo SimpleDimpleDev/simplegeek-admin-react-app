@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const useSnackbar = () => {
 	const [snackbarOpened, setSnackbarOpened] = useState(false);
 	const [snackbarMessage, setSnackbarMessage] = useState("");
 
-	const showSnackbarMessage = (message: string) => {
+	const showSnackbarMessage = useCallback((message: string) => {
 		setSnackbarMessage(message);
 		setSnackbarOpened(true);
-	};
+	}, []);
 
 	const closeSnackbar = () => {
 		setSnackbarOpened(false);
