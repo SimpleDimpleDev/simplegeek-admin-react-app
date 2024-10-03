@@ -16,7 +16,7 @@ import { LoadingSpinner } from "@components/LoadingSpinner";
 import { PublicationStockEditableHeader } from "./PublicationEditableHeader";
 import { VariationStockEditableCard } from "./VariationStockEditableCard";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
-import { useSnackbar } from "@hooks/useSnackbar";
+import { useState } from "react";
 import { z } from "zod";
 
 export default function PublicationInspectRoute() {
@@ -27,10 +27,7 @@ export default function PublicationInspectRoute() {
 		throw new Response("No publication id provided", { status: 404 });
 	}
 
-	const {
-		data: publication,
-		isLoading: publicationIsLoading,
-	} = useGetPublicationQuery({ publicationId });
+	const { data: publication, isLoading: publicationIsLoading } = useGetPublicationQuery({ publicationId });
 
 	const [
 		updatePublication,
@@ -88,7 +85,13 @@ export default function PublicationInspectRoute() {
 		},
 	] = useDeactivateCatalogItemMutation();
 
-	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
+	const [snackbarOpened, setSnackbarOpened] = useState(false);
+	const [snackbarMessage, setSnackbarMessage] = useState("");
+
+	const showSnackbarMessage = (message: string) => {
+		setSnackbarMessage(message);
+		setSnackbarOpened(true);
+	};
 
 	useMutationFeedback({
 		title: "Обновление публикации",
@@ -96,7 +99,7 @@ export default function PublicationInspectRoute() {
 		isError: updatePublicationIsError,
 		error: updatePublicationError,
 		feedbackFn: showSnackbarMessage,
-	})
+	});
 
 	useMutationFeedback({
 		title: "Удаление публикации",
@@ -104,7 +107,7 @@ export default function PublicationInspectRoute() {
 		isError: deletePublicationIsError,
 		error: deletePublicationError,
 		feedbackFn: showSnackbarMessage,
-	})
+	});
 
 	useMutationFeedback({
 		title: "Обновление вариации",
@@ -112,7 +115,7 @@ export default function PublicationInspectRoute() {
 		isError: updateVariationIsError,
 		error: updateVariationError,
 		feedbackFn: showSnackbarMessage,
-	})
+	});
 
 	useMutationFeedback({
 		title: "Удаление вариации",
@@ -120,7 +123,7 @@ export default function PublicationInspectRoute() {
 		isError: deleteVariationIsError,
 		error: deleteVariationError,
 		feedbackFn: showSnackbarMessage,
-	})
+	});
 
 	useMutationFeedback({
 		title: "Активация вариации",
@@ -128,7 +131,7 @@ export default function PublicationInspectRoute() {
 		isError: activateVariationIsError,
 		error: activateVariationError,
 		feedbackFn: showSnackbarMessage,
-	})
+	});
 
 	useMutationFeedback({
 		title: "Деактивация вариации",
@@ -136,7 +139,7 @@ export default function PublicationInspectRoute() {
 		isError: deactivateVariationIsError,
 		error: deactivateVariationError,
 		feedbackFn: showSnackbarMessage,
-	})
+	});
 
 	const showLoadingOverlay =
 		updatePublicationIsLoading ||
@@ -148,7 +151,6 @@ export default function PublicationInspectRoute() {
 
 	const handleUpdateVariation = (data: z.infer<typeof CatalogItemUpdateSchema>) => {
 		updateVariation({ publicationId: publicationId, data: data });
-		
 	};
 
 	const handleDeleteVariation = ({ variationId }: { variationId: string }) => {
@@ -168,7 +170,7 @@ export default function PublicationInspectRoute() {
 			<Snackbar
 				open={snackbarOpened}
 				autoHideDuration={2000}
-				onClose={() => closeSnackbar()}
+				onClose={() => setSnackbarOpened(false)}
 				message={snackbarMessage}
 			/>
 			<Modal open={showLoadingOverlay}>
