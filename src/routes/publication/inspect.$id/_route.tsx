@@ -168,7 +168,7 @@ export default function PublicationInspectRoute() {
 			<Snackbar
 				open={snackbarOpened}
 				autoHideDuration={2000}
-				onClose={closeSnackbar}
+				onClose={() => closeSnackbar()}
 				message={snackbarMessage}
 			/>
 			<Modal open={showLoadingOverlay}>

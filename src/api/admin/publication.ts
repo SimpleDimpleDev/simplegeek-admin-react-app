@@ -1,14 +1,14 @@
-import { ApiErrorSchema, CreateResponseSchema } from "@schemas/Api";
 import {
 	PublicationCreateSchema,
 	PublicationGetSchema,
 	PublicationListGetSchema,
 	PublicationUpdateSchema,
 } from "@schemas/Publication";
-import { safeParseError, validateData } from "@utils/validation";
 
 import { CatalogItemUpdateSchema } from "./../../schemas/CatalogItem";
+import { CreateResponseSchema } from "@schemas/Api";
 import { adminApi } from "./root";
+import { validateData } from "@utils/validation";
 import { z } from "zod";
 
 export const publicationApi = adminApi.injectEndpoints({
@@ -19,7 +19,6 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "POST",
 				body: data,
 			}),
-			transformErrorResponse: (error) => safeParseError(ApiErrorSchema, error),
 			transformResponse: (response) => validateData(CreateResponseSchema, response),
 			invalidatesTags: ["Publication"],
 		}),
@@ -49,7 +48,6 @@ export const publicationApi = adminApi.injectEndpoints({
 				url: "/admin/publication",
 				body: data,
 			}),
-			transformErrorResponse: (error) => safeParseError(ApiErrorSchema, error),
 			invalidatesTags: (_result, _error, data) => [{ type: "Publication", id: data.id }],
 		}),
 
@@ -59,7 +57,6 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "DELETE",
 				params: { id: publicationId },
 			}),
-			transformErrorResponse: (error) => safeParseError(ApiErrorSchema, error),
 			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),
 
@@ -72,7 +69,6 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "PUT",
 				body: data,
 			}),
-			transformErrorResponse: (error) => safeParseError(ApiErrorSchema, error),
 			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),
 
@@ -82,7 +78,6 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "DELETE",
 				params: { id: variationId },
 			}),
-			transformErrorResponse: (error) => safeParseError(ApiErrorSchema, error),
 			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),
 
@@ -92,7 +87,6 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				params: { id: variationId },
 			}),
-			transformErrorResponse: (error) => safeParseError(ApiErrorSchema, error),
 			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),
 
@@ -102,7 +96,6 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				params: { id: variationId },
 			}),
-			transformErrorResponse: (error) => safeParseError(ApiErrorSchema, error),
 			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),
 	}),
