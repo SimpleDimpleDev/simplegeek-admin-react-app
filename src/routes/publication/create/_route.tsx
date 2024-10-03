@@ -115,30 +115,28 @@ export default function PublicationCreateRoute() {
 				</FormControl>
 			</div>
 
-			<div className="bg-secondary p-3 w-100 br-3 d-f">
-				{publicationType === "STOCK" ? (
-					<PublicationCreateStockForm
-						productList={productList}
-						productListIsLoading={productListIsLoading}
-						categoryList={categoryList}
-						categoryListIsLoading={categoryListIsLoading}
-						productIds={productIds}
-						onDirty={() => setFormIsDirty(true)}
-						onSubmit={createPublication}
-					/>
-				) : (
-					<PublicationCreatePreorderForm
-						productList={productList}
-						productListIsLoading={productListIsLoading}
-						categoryList={categoryList}
-						categoryListIsLoading={categoryListIsLoading}
-						preorderList={preorderList}
-						preorderListIsLoading={preorderListIsLoading}
-						onDirty={() => setFormIsDirty(true)}
-						onSubmit={createPublication}
-					/>
-				)}
-			</div>
+			{publicationType === "STOCK" ? (
+				<PublicationCreateStockForm
+					productList={productList}
+					productListIsLoading={productListIsLoading}
+					categoryList={categoryList}
+					categoryListIsLoading={categoryListIsLoading}
+					productIds={productIds}
+					onDirty={() => setFormIsDirty(true)}
+					onSubmit={createPublication}
+				/>
+			) : (
+				<PublicationCreatePreorderForm
+					productList={productList}
+					productListIsLoading={productListIsLoading}
+					categoryList={categoryList}
+					categoryListIsLoading={categoryListIsLoading}
+					preorderList={preorderList}
+					preorderListIsLoading={preorderListIsLoading}
+					onDirty={() => setFormIsDirty(true)}
+					onSubmit={createPublication}
+				/>
+			)}
 		</div>
 	);
 }
