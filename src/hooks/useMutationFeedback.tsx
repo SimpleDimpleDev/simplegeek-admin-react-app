@@ -7,6 +7,7 @@ interface useMutationFeedBackParams {
 	isError: boolean;
 	error: unknown;
 	feedbackFn: (message: string) => void;
+    successAction?: () => void;
 }
 
 const useMutationFeedback = ({ title, isSuccess, isError, error, feedbackFn }: useMutationFeedBackParams) => {

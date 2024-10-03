@@ -10,7 +10,7 @@ import {
 	Snackbar,
 	Typography,
 } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { LoadingOverlay } from "@components/LoadingOverlay";
@@ -20,6 +20,8 @@ import { PublicationCreateStockForm } from "./stockForm";
 import { useCreatePublicationMutation } from "@api/admin/publication";
 import { useGetCategoryListQuery } from "@api/admin/category";
 import { useGetProductListQuery } from "@api/admin/product";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSnackbar } from "@hooks/useSnackbar";
 
 export default function PublicationCreateRoute() {
 	const navigate = useNavigate();
@@ -33,35 +35,27 @@ export default function PublicationCreateRoute() {
 		data: { items: [] as PreorderGet[] },
 		isLoading: true,
 	};
-	const [createPublication, { isSuccess, isLoading, isError }] = useCreatePublicationMutation();
+	const [createPublication, { isSuccess, isLoading, isError, error }] = useCreatePublicationMutation();
 
 	const [publicationType, setPublicationType] = useState<"STOCK" | "PREORDER">("STOCK");
 	const [publicationTypeChangeTo, setPublicationTypeChangeTo] = useState<"STOCK" | "PREORDER" | null>(null);
 	const [formIsDirty, setFormIsDirty] = useState(false);
 	const [confirmationIsOpen, setConfirmationIsOpen] = useState(false);
 
-	const [snackbarOpened, setSnackbarOpened] = useState(false);
-	const [snackbarMessage, setSnackbarMessage] = useState("");
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
 	const showLoadingOverlay = isLoading;
 
-	const showSnackBarMessage = (message: string) => {
-		setSnackbarMessage(message);
-		setSnackbarOpened(true);
-	};
-
-	useEffect(() => {
-		if (isSuccess) {
-			showSnackBarMessage("Публикация успешно создана!");
+	useMutationFeedback({
+		title: "Создание публикации",
+		isSuccess,
+		isError,
+		error,
+		feedbackFn: showSnackbarMessage,
+		successAction: () => {
 			setTimeout(() => navigate("/publication/table"), 1500);
-		}
-	}, [isSuccess, navigate]);
-
-	useEffect(() => {
-		if (isError) {
-			showSnackBarMessage("Произошла ошибка при создании публикации");
-		}
-	}, [isError]);
+		},
+	});
 
 	const handleChangePublicationType = (type: "STOCK" | "PREORDER") => {
 		if (formIsDirty) {
@@ -90,12 +84,7 @@ export default function PublicationCreateRoute() {
 	return (
 		<div className="px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 			<LoadingOverlay isOpened={showLoadingOverlay} />
-			<Snackbar
-				open={snackbarOpened}
-				autoHideDuration={1500}
-				onClose={() => setSnackbarOpened(false)}
-				message={snackbarMessage}
-			/>
+			<Snackbar open={snackbarOpened} autoHideDuration={1500} onClose={closeSnackbar} message={snackbarMessage} />
 
 			<Dialog open={confirmationIsOpen} onClose={() => handleRejectPublicationTypeChange()}>
 				<DialogTitle>Если вы измените тип публикации, то все связанные с ней данные будут удалены.</DialogTitle>
@@ -109,20 +98,22 @@ export default function PublicationCreateRoute() {
 				<Typography variant="h5">Публикация товара</Typography>
 			</div>
 
-			<FormControl fullWidth>
-				<InputLabel id="publication-type">Тип публикации</InputLabel>
-				<Select
-					labelId="publication-type"
-					label="Тип публикации"
-					variant="outlined"
-					fullWidth
-					value={publicationType}
-					onChange={(e) => handleChangePublicationType(e.target.value as "STOCK" | "PREORDER")}
-				>
-					<MenuItem value="STOCK">Розница</MenuItem>
-					<MenuItem value="PREORDER">Предзаказ</MenuItem>
-				</Select>
-			</FormControl>
+			<div className="section">
+				<FormControl fullWidth>
+					<InputLabel id="publication-type">Тип публикации</InputLabel>
+					<Select
+						labelId="publication-type"
+						label="Тип публикации"
+						variant="outlined"
+						fullWidth
+						value={publicationType}
+						onChange={(e) => handleChangePublicationType(e.target.value as "STOCK" | "PREORDER")}
+					>
+						<MenuItem value="STOCK">Розница</MenuItem>
+						<MenuItem value="PREORDER">Предзаказ</MenuItem>
+					</Select>
+				</FormControl>
+			</div>
 
 			<div className="bg-secondary p-3 w-100 br-3 d-f">
 				{publicationType === "STOCK" ? (
