@@ -90,6 +90,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 
 	const resolvedOnSubmit = (data: VariationStockUpdateFormData) => {
 		onUpdate(CatalogItemUpdateSchema.parse(data));
+		setIsEditing(false);
 	};
 
 	const handleStartEditing = (event: React.MouseEvent<HTMLButtonElement>) => {

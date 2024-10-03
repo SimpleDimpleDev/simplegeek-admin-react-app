@@ -8,7 +8,6 @@ import {
 	useUpdateCatalogItemMutation,
 	useUpdatePublicationMutation,
 } from "@api/admin/publication";
-import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { CatalogItemUpdateSchema } from "@schemas/CatalogItem";
@@ -16,6 +15,8 @@ import { ChevronLeft } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { PublicationStockEditableHeader } from "./PublicationEditableHeader";
 import { VariationStockEditableCard } from "./VariationStockEditableCard";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSnackbar } from "@hooks/useSnackbar";
 import { z } from "zod";
 
 export default function PublicationInspectRoute() {
@@ -29,15 +30,7 @@ export default function PublicationInspectRoute() {
 	const {
 		data: publication,
 		isLoading: publicationIsLoading,
-		isError: publicationGetIsError,
-		error: publicationGetError,
 	} = useGetPublicationQuery({ publicationId });
-
-	useEffect(() => {
-		if (publicationGetIsError && publicationGetError) {
-			console.log(publicationGetError);
-		}
-	}, [publicationGetIsError, publicationGetError]);
 
 	const [
 		updatePublication,
@@ -45,6 +38,7 @@ export default function PublicationInspectRoute() {
 			isLoading: updatePublicationIsLoading,
 			isSuccess: updatePublicationIsSuccess,
 			isError: updatePublicationIsError,
+			error: updatePublicationError,
 		},
 	] = useUpdatePublicationMutation();
 	const [
@@ -58,7 +52,12 @@ export default function PublicationInspectRoute() {
 	] = useDeletePublicationMutation();
 	const [
 		updateVariation,
-		{ isLoading: updateVariationIsLoading, isSuccess: updateVariationIsSuccess, isError: updateVariationIsError },
+		{
+			isLoading: updateVariationIsLoading,
+			isSuccess: updateVariationIsSuccess,
+			isError: updateVariationIsError,
+			error: updateVariationError,
+		},
 	] = useUpdateCatalogItemMutation();
 	const [
 		deleteVariation,
@@ -75,6 +74,7 @@ export default function PublicationInspectRoute() {
 			isLoading: activateVariationIsLoading,
 			isSuccess: activateVariationIsSuccess,
 			isError: activateVariationIsError,
+			error: activateVariationError,
 		},
 	] = useActivateCatalogItemMutation();
 
@@ -84,96 +84,59 @@ export default function PublicationInspectRoute() {
 			isLoading: deactivateVariationIsLoading,
 			isSuccess: deactivateVariationIsSuccess,
 			isError: deactivateVariationIsError,
+			error: deactivateVariationError,
 		},
 	] = useDeactivateCatalogItemMutation();
 
-	const [snackbarOpened, setSnackbarOpened] = useState<boolean>(false);
-	const [snackbarMessage, setSnackbarMessage] = useState<string>("");
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
-	const showSnackbarMessage = (message: string) => {
-		setSnackbarMessage(message);
-		setSnackbarOpened(true);
-	};
+	useMutationFeedback({
+		title: "Обновление публикации",
+		isSuccess: updatePublicationIsSuccess,
+		isError: updatePublicationIsError,
+		error: updatePublicationError,
+		feedbackFn: showSnackbarMessage,
+	})
 
-	useEffect(() => {
-		if (updatePublicationIsSuccess) {
-			showSnackbarMessage("Публикация успешно обновлена");
-		}
-	}, [updatePublicationIsSuccess]);
+	useMutationFeedback({
+		title: "Удаление публикации",
+		isSuccess: deletePublicationIsSuccess,
+		isError: deletePublicationIsError,
+		error: deletePublicationError,
+		feedbackFn: showSnackbarMessage,
+	})
 
-	useEffect(() => {
-		if (updatePublicationIsError) {
-			showSnackbarMessage("Произошла ошибка при обновлении публикации");
-		}
-	}, [updatePublicationIsError]);
+	useMutationFeedback({
+		title: "Обновление вариации",
+		isSuccess: updateVariationIsSuccess,
+		isError: updateVariationIsError,
+		error: updateVariationError,
+		feedbackFn: showSnackbarMessage,
+	})
 
-	useEffect(() => {
-		if (deletePublicationIsSuccess) {
-			showSnackbarMessage("Публикация успешно удалена");
-			setSnackbarOpened(true);
-		}
-	}, [deletePublicationIsSuccess]);
+	useMutationFeedback({
+		title: "Удаление вариации",
+		isSuccess: deleteVariationIsSuccess,
+		isError: deleteVariationIsError,
+		error: deleteVariationError,
+		feedbackFn: showSnackbarMessage,
+	})
 
-	useEffect(() => {
-		if (deletePublicationIsError) {
-			showSnackbarMessage("Произошла ошибка при удалении публикации");
-			if (deletePublicationError) {
-				console.log(deletePublicationError);
-			}
-		}
-	}, [deletePublicationIsError, deletePublicationError]);
+	useMutationFeedback({
+		title: "Активация вариации",
+		isSuccess: activateVariationIsSuccess,
+		isError: activateVariationIsError,
+		error: activateVariationError,
+		feedbackFn: showSnackbarMessage,
+	})
 
-	useEffect(() => {
-		if (updateVariationIsSuccess) {
-			showSnackbarMessage("Вариация успешно обновлена");
-		}
-	}, [updateVariationIsSuccess]);
-
-	useEffect(() => {
-		if (updateVariationIsError) {
-			showSnackbarMessage("Произошла ошибка при обновлении вариации");
-		}
-	}, [updateVariationIsError]);
-
-	useEffect(() => {
-		if (deleteVariationIsSuccess) {
-			showSnackbarMessage("Вариация успешно удалена");
-			setSnackbarOpened(true);
-		}
-	}, [deleteVariationIsSuccess]);
-
-	useEffect(() => {
-		if (deleteVariationIsError) {
-			if (deleteVariationError) {
-				console.log(deleteVariationError);
-			}
-			showSnackbarMessage("Произошла ошибка при удалении вариации");
-		}
-	}, [deleteVariationIsError, deleteVariationError]);
-
-	useEffect(() => {
-		if (activateVariationIsSuccess) {
-			showSnackbarMessage("Вариация успешно активирована");
-		}
-	}, [activateVariationIsSuccess]);
-
-	useEffect(() => {
-		if (activateVariationIsError) {
-			showSnackbarMessage("Произошла ошибка при активации вариации");
-		}
-	}, [activateVariationIsError]);
-
-	useEffect(() => {
-		if (deactivateVariationIsSuccess) {
-			showSnackbarMessage("Вариация успешно деактивирована");
-		}
-	}, [deactivateVariationIsSuccess]);
-
-	useEffect(() => {
-		if (deactivateVariationIsError) {
-			showSnackbarMessage("Произошла ошибка при деактивации вариации");
-		}
-	}, [deactivateVariationIsError]);
+	useMutationFeedback({
+		title: "Деактивация вариации",
+		isSuccess: deactivateVariationIsSuccess,
+		isError: deactivateVariationIsError,
+		error: deactivateVariationError,
+		feedbackFn: showSnackbarMessage,
+	})
 
 	const showLoadingOverlay =
 		updatePublicationIsLoading ||
@@ -185,6 +148,7 @@ export default function PublicationInspectRoute() {
 
 	const handleUpdateVariation = (data: z.infer<typeof CatalogItemUpdateSchema>) => {
 		updateVariation({ publicationId: publicationId, data: data });
+		
 	};
 
 	const handleDeleteVariation = ({ variationId }: { variationId: string }) => {
@@ -204,7 +168,7 @@ export default function PublicationInspectRoute() {
 			<Snackbar
 				open={snackbarOpened}
 				autoHideDuration={2000}
-				onClose={() => setSnackbarOpened(false)}
+				onClose={closeSnackbar}
 				message={snackbarMessage}
 			/>
 			<Modal open={showLoadingOverlay}>
