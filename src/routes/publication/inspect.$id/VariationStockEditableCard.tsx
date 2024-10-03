@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { Check, Close, Delete, Edit, ExpandMore, Visibility, VisibilityOff } from "@mui/icons-material";
 import { Controller, useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { CatalogItemGet } from "@appTypes/CatalogItem";
@@ -18,7 +19,6 @@ import { CatalogItemUpdateSchema } from "@schemas/CatalogItem";
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -87,6 +87,14 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 	const [isEditing, setIsEditing] = useState(false);
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState(false);
+
+	useEffect(() => {
+		reset({
+			id: variation.id,
+			price: variation.price,
+			quantity: variation.quantity || 0,
+		})
+	}, [variation, reset]);
 
 	const resolvedOnSubmit = (data: VariationStockUpdateFormData) => {
 		onUpdate(CatalogItemUpdateSchema.parse(data));

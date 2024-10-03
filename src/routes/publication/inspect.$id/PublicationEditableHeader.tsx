@@ -1,13 +1,13 @@
 import { Check, Close, Delete, Edit } from "@mui/icons-material";
 import { Controller, useForm } from "react-hook-form";
 import { Divider, IconButton, Paper, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { DateFormatter } from "@utils/format";
 import { PublicationGet } from "@appTypes/Publication";
 import { PublicationUpdateSchema } from "@schemas/Publication";
 import { SlugResolver } from "../utils";
-import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -64,6 +64,13 @@ const PublicationStockEditableHeader: React.FC<PublicationStockEditableHeaderPro
 	});
 
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState(false);
+
+	useEffect(() => {
+		reset({
+			id: publication.id,
+			link: publication.link,
+		});
+	}, [publication, reset]);
 
 	const resolvedOnSubmit = (data: PublicationUpdateFormData) => {
 		onUpdate(PublicationUpdateSchema.parse(data));
