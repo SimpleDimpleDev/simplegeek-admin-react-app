@@ -41,12 +41,14 @@ const PublicationUpdateResolver = z.object({
 interface PublicationStockEditableHeaderProps {
 	publication: PublicationGet;
 	onUpdate: (data: z.infer<typeof PublicationUpdateSchema>) => void;
+	updateSuccess: boolean;
 	onDelete: ({ publicationId }: { publicationId: string }) => void;
 }
 
 const PublicationStockEditableHeader: React.FC<PublicationStockEditableHeaderProps> = ({
 	publication,
 	onUpdate,
+	updateSuccess,
 	onDelete,
 }) => {
 	const [isEditing, setIsEditing] = useState(false);
@@ -66,11 +68,13 @@ const PublicationStockEditableHeader: React.FC<PublicationStockEditableHeaderPro
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState(false);
 
 	useEffect(() => {
-		reset({
-			id: publication.id,
-			link: publication.link,
-		});
-	}, [publication, reset]);
+		if (updateSuccess) {
+			reset({
+				id: publication.id,
+				link: publication.link,
+			});
+		}
+	}, [publication, reset, updateSuccess]);
 
 	const resolvedOnSubmit = (data: PublicationUpdateFormData) => {
 		onUpdate(PublicationUpdateSchema.parse(data));

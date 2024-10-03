@@ -191,6 +191,7 @@ export default function PublicationInspectRoute() {
 							<PublicationStockEditableHeader
 								publication={publication}
 								onUpdate={updatePublication}
+								updateSuccess={updatePublicationIsSuccess}
 								onDelete={deletePublication}
 							/>
 							{publication.items.map((variation) => (
@@ -198,6 +199,8 @@ export default function PublicationInspectRoute() {
 									key={variation.id}
 									variation={variation}
 									onUpdate={handleUpdateVariation}
+									updateSuccess={updateVariationIsSuccess}
+									updateError={updateVariationIsError}
 									onDelete={handleDeleteVariation}
 									onActivate={handleActivateVariation}
 									onDeactivate={handleDeactivateVariation}

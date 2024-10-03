@@ -56,6 +56,8 @@ const VariationStockUpdateResolver = z.object({
 interface VariationStockEditableCardProps {
 	variation: CatalogItemGet;
 	onUpdate: (data: z.infer<typeof CatalogItemUpdateSchema>) => void;
+	updateSuccess: boolean;
+	updateError: boolean;
 	onDelete: ({ variationId }: { variationId: string }) => void;
 	onActivate: ({ variationId }: { variationId: string }) => void;
 	onDeactivate: ({ variationId }: { variationId: string }) => void;
@@ -64,6 +66,8 @@ interface VariationStockEditableCardProps {
 const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 	variation,
 	onUpdate,
+	updateSuccess,
+	updateError,
 	onDelete,
 	onActivate,
 	onDeactivate,
@@ -89,12 +93,14 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState(false);
 
 	useEffect(() => {
-		reset({
-			id: variation.id,
-			price: variation.price,
-			quantity: variation.quantity || 0,
-		})
-	}, [variation, reset]);
+		if (updateSuccess || updateError) {
+			reset({
+				id: variation.id,
+				price: variation.price,
+				quantity: variation.quantity || 0,
+			});
+		}
+	}, [variation, reset, updateSuccess, updateError]);
 
 	const resolvedOnSubmit = (data: VariationStockUpdateFormData) => {
 		onUpdate(CatalogItemUpdateSchema.parse(data));
@@ -214,7 +220,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 								<Controller
 									name="price"
 									control={control}
-									render={({ field: { value, onChange}, fieldState: { error } }) => (
+									render={({ field: { value, onChange }, fieldState: { error } }) => (
 										<TextField
 											{...textFieldProps}
 											value={value}
@@ -239,7 +245,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 								<Controller
 									name="quantity"
 									control={control}
-									render={({ field: { value, onChange}, fieldState: { error } }) => (
+									render={({ field: { value, onChange }, fieldState: { error } }) => (
 										<TextField
 											{...textFieldProps}
 											value={value}
