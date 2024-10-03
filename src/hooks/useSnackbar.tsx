@@ -9,9 +9,9 @@ const useSnackbar = () => {
 		setSnackbarOpened(true);
 	}, []);
 
-	const closeSnackbar = () => {
+	const closeSnackbar = useCallback(() => {
 		setSnackbarOpened(false);
-	};
+	}, []);
 
 	return { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar };
 };
