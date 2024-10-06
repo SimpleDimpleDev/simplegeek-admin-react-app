@@ -2,13 +2,13 @@ import "react-image-crop/dist/ReactCrop.css";
 
 import { Button, Divider, Snackbar, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
+import { useCallback, useMemo, useState } from "react";
 import {
 	useChangeImageCategoryMutation,
 	useCreateCategoryMutation,
 	useGetCategoryListQuery,
 	useUpdateCategoryMutation,
 } from "@api/admin/category";
-import { useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
@@ -53,9 +53,21 @@ export default function CategoryRoute() {
 		{ isLoading: changeImageIsLoading, isSuccess: changeImageSuccess, isError: changeImageIsError, error: changeImageError },
 	] = useChangeImageCategoryMutation();
 
-	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
+	
 	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
+	const closeCreateModal = useCallback(() => {
+		setCreateModalOpened(false);
+	}, [])
+
 	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
+	const closeUpdateModal = useCallback(() => {
+		setUpdateModalOpened(false);
+	}, [])
+	
+	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
+	const closeDeletionDialog = useCallback(() => {
+		setDeletionDialogOpened(false);
+	}, []);
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
@@ -76,8 +88,7 @@ export default function CategoryRoute() {
 		isError: createIsError,
 		error: createError,
 		feedbackFn: showSnackbarMessage,
-		successAction: () => setCreateModalOpened(false),
-		errorAction: () => setCreateModalOpened(false),
+		successAction: closeCreateModal,
 	})
 	
 	useMutationFeedback({
@@ -86,8 +97,7 @@ export default function CategoryRoute() {
 		isError: updateIsError,
 		error: updateError,
 		feedbackFn: showSnackbarMessage,
-		successAction: () => setUpdateModalOpened(false),
-		errorAction: () => setUpdateModalOpened(false),
+		successAction: closeUpdateModal,
 	})
 
 	useMutationFeedback({
@@ -96,8 +106,7 @@ export default function CategoryRoute() {
 		isError: changeImageIsError,
 		error: changeImageError,
 		feedbackFn: showSnackbarMessage,
-		successAction: () => setUpdateModalOpened(false),
-		errorAction: () => setUpdateModalOpened(false),
+		successAction: closeUpdateModal,
 	})
 
 	return (
@@ -112,14 +121,14 @@ export default function CategoryRoute() {
 			<ManagementModal
 				title="Создать категорию"
 				opened={createModalOpened}
-				onClose={() => setCreateModalOpened(false)}
+				onClose={closeCreateModal}
 			>
 				<CategoryCreateForm onSubmit={createCategory} />
 			</ManagementModal>
 			<ManagementModal
 				title="Изменить категорию"
 				opened={updateModalOpened}
-				onClose={() => setUpdateModalOpened(false)}
+				onClose={closeUpdateModal}
 			>
 				<LoadingSpinner isLoading={categoryListIsLoading}>
 					{!selectedCategory ? (
@@ -147,7 +156,7 @@ export default function CategoryRoute() {
 				title="Удалить выбранные категории?"
 				helperText="После удаления отменить действие будет невозможно"
 				opened={deletionDialogOpened}
-				onClose={() => setDeletionDialogOpened(false)}
+				onClose={closeDeletionDialog}
 				confirmButton={{
 					text: "Удалить",
 					onClick: () => console.log("Submit deletion", selectedItemIds),

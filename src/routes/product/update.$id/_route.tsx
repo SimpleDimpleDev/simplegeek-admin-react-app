@@ -1,6 +1,5 @@
 import { Button, Divider, Snackbar, Typography } from "@mui/material";
 import { useAddImageProductMutation, useGetProductQuery, useUpdateProductMutation } from "@api/admin/product";
-import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { ChevronLeft } from "@mui/icons-material";
@@ -8,7 +7,10 @@ import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { ProductAddImageForm } from "./AddImageForm";
 import { ProductUpdateForm } from "./UpdateForm";
+import { useEffect } from "react";
 import { useLazyGetFilterGroupListQuery } from "@api/admin/filterGroup";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSnackbar } from "@hooks/useSnackbar";
 
 export default function ProductUpdateRoute() {
 	const params = useParams();
@@ -22,23 +24,27 @@ export default function ProductUpdateRoute() {
 
 	const [
 		updateProduct,
-		{ isSuccess: updateProductIsSuccess, isLoading: updateProductIsLoading, isError: updateProductIsError },
+		{
+			isSuccess: updateProductIsSuccess,
+			isLoading: updateProductIsLoading,
+			isError: updateProductIsError,
+			error: updateProductError,
+		},
 	] = useUpdateProductMutation();
 
 	const [
 		addImageProduct,
-		{ isLoading: addImageProductIsLoading, isSuccess: addImageProductIsSuccess, isError: addImageProductIsError },
+		{
+			isLoading: addImageProductIsLoading,
+			isSuccess: addImageProductIsSuccess,
+			isError: addImageProductIsError,
+			error: addImageProductError,
+		},
 	] = useAddImageProductMutation();
-
-	const [snackbarOpened, setSuccessSnackBarOpened] = useState(false);
-	const [snackbarMessage, setSnackbarMessage] = useState("");
 
 	const showLoadingOverlay = updateProductIsLoading || addImageProductIsLoading;
 
-	const showSnackbarMessage = (message: string) => {
-		setSnackbarMessage(message);
-		setSuccessSnackBarOpened(true);
-	};
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
 	useEffect(() => {
 		if (product) {
@@ -46,47 +52,34 @@ export default function ProductUpdateRoute() {
 		}
 	}, [product, fetchFilterGroupList]);
 
-	useEffect(() => {
-		if (updateProductIsSuccess) {
-			showSnackbarMessage("Продукт успешно обновлен");
-		}
-	}, [updateProductIsSuccess]);
+	useMutationFeedback({
+		title: "Обновление продукта",
+		isSuccess: updateProductIsSuccess,
+		isError: updateProductIsError,
+		error: updateProductError,
+		feedbackFn: showSnackbarMessage,
+	});
 
-	useEffect(() => {
-		if (updateProductIsError) {
-			showSnackbarMessage("Произошла ошибка при обновлении продукта");
-		}
-	}, [updateProductIsError]);
-
-	useEffect(() => {
-		if (addImageProductIsSuccess) {
-			showSnackbarMessage("Изображение успешно добавлено");
-		}
-	}, [addImageProductIsSuccess]);
-
-	useEffect(() => {
-		if (addImageProductIsError) {
-			showSnackbarMessage("Произошла ошибка при добавлении изображения");
-		}
-	}, [addImageProductIsError]);
+	useMutationFeedback({
+		title: "Добавление изображения",
+		isSuccess: addImageProductIsSuccess,
+		isError: addImageProductIsError,
+		error: addImageProductError,
+		feedbackFn: showSnackbarMessage,
+	});
 
 	return (
 		<>
 			<LoadingOverlay isOpened={showLoadingOverlay} />
-			<Snackbar
-				open={snackbarOpened}
-				autoHideDuration={3000}
-				onClose={() => setSuccessSnackBarOpened(false)}
-				message={snackbarMessage}
-			/>
+			<Snackbar open={snackbarOpened} autoHideDuration={3000} onClose={closeSnackbar} message={snackbarMessage} />
 			<LoadingSpinner isLoading={productIsLoading}>
-				<div className="h-100 d-f fd-c gap-2 px-3 pt-1 pb-4" style={{ minHeight: "100vh" }}>
+				<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 					<Button onClick={() => navigate(-1)} sx={{ color: "warning.main", width: "fit-content" }}>
 						<ChevronLeft />
 						Назад
 					</Button>
 					{!product ? (
-						<div className="w-100 h-100v d-f ai-c jc-c">
+						<div className="w-100 h-100v ai-c d-f jc-c">
 							<Typography variant="h5">Что-то пошло не так</Typography>
 						</div>
 					) : (

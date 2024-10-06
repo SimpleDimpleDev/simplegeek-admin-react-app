@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { Check, ChevronLeft, Close, Edit } from "@mui/icons-material";
 import { DateFormatter, getRuGoodsWord } from "@utils/format";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
 	useGetOrderEditablePropsQuery,
 	useGetOrderQuery,
@@ -108,10 +108,10 @@ export default function OrderInspectRoute() {
 		setStatusEditing(false);
 	};
 
-	const handleCancelEditStatus = () => {
+	const handleCancelEditStatus = useCallback(() => {
 		setSelectedStatus(order?.status ?? "UNDEFINED");
 		setStatusEditing(false);
-	};
+	}, [order?.status]);
 
 	useMutationFeedback({
 		title: "Обновление статуса",

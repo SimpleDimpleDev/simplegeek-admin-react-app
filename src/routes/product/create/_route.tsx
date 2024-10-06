@@ -1,6 +1,7 @@
 import { CircularProgress, Modal, Snackbar, Typography } from "@mui/material";
 
 import { ProductCreateForm } from "./CreateForm";
+import { useCallback } from "react";
 import { useCreateProductMutation } from "@api/admin/product";
 import { useGetCategoryListQuery } from "@api/admin/category";
 import { useLazyGetFilterGroupListQuery } from "@api/admin/filterGroup";
@@ -23,13 +24,17 @@ export default function ProductCreateRoute() {
 
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
+	const successNavigate = useCallback(() => {
+		setTimeout(() => navigate("/product/table"), 1500);
+	}, [navigate]);
+
 	useMutationFeedback({
 		title: "Создание товара",
 		isSuccess: createIsSuccess,
 		isError: createIsError,
 		error: createError,
 		feedbackFn: showSnackbarMessage,
-		successAction: () => setTimeout(() => navigate("/product/table"), 1500),
+		successAction: successNavigate,
 	});
 
 	return (

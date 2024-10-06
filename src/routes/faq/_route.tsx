@@ -1,8 +1,8 @@
 import { Button, Snackbar, Typography } from "@mui/material";
 import { FAQItemCreateForm, FAQItemUpdateForm } from "./forms";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
+import { useCallback, useMemo, useState } from "react";
 import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemListQuery } from "@api/admin/faqItem";
-import { useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
@@ -37,8 +37,19 @@ export default function FaqRoute() {
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
 	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
+	const closeCreateModal = useCallback(() => {
+		setCreateModalOpened(false);
+	}, []);
+
 	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
+	const closeUpdateModal = useCallback(() => {
+		setUpdateModalOpened(false);
+	}, []);
+
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
+	const closeDeletionDialog = useCallback(() => {
+		setDeletionDialogOpened(false);
+	}, []);
 
 	const showLoadingOverlay = useMemo(() => {
 		return createIsLoading || updateIsLoading || deleteIsLoading;
@@ -52,6 +63,7 @@ export default function FaqRoute() {
 		isError: createIsError,
 		error: createError,
 		feedbackFn: showSnackbarMessage,
+		successAction: closeCreateModal,
 	});
 
 	useMutationFeedback({
@@ -60,6 +72,7 @@ export default function FaqRoute() {
 		isError: updateIsError,
 		error: updateError,
 		feedbackFn: showSnackbarMessage,
+		successAction: closeUpdateModal,
 	});
 
 	useMutationFeedback({
@@ -68,24 +81,18 @@ export default function FaqRoute() {
 		isError: deleteIsError,
 		error: deleteError,
 		feedbackFn: showSnackbarMessage,
+		successAction: closeDeletionDialog,
+		errorAction: closeDeletionDialog,
 	});
 
 	return (
 		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
 			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar open={snackbarOpened} autoHideDuration={2000} onClose={closeSnackbar} message={snackbarMessage} />
-			<ManagementModal
-				title="Создать вопрос"
-				opened={createModalOpened}
-				onClose={() => setCreateModalOpened(false)}
-			>
+			<ManagementModal title="Создать вопрос" opened={createModalOpened} onClose={closeCreateModal}>
 				<FAQItemCreateForm onSubmit={createFAQItem} />
 			</ManagementModal>
-			<ManagementModal
-				title="Редактировать вопрос"
-				opened={updateModalOpened}
-				onClose={() => setUpdateModalOpened(false)}
-			>
+			<ManagementModal title="Редактировать вопрос" opened={updateModalOpened} onClose={closeUpdateModal}>
 				<FAQItemUpdateForm
 					itemToUpdate={FAQItemList?.items.find((item) => item.id === selectedItemIds.at(0))}
 					onSubmit={updateFAQItem}
@@ -95,7 +102,7 @@ export default function FaqRoute() {
 				title="Удалить выбранные вопросы?"
 				helperText="После удаления отменить действие будет невозможно"
 				opened={deletionDialogOpened}
-				onClose={() => setDeletionDialogOpened(false)}
+				onClose={closeDeletionDialog}
 				confirmButton={{
 					text: "Удалить",
 					onClick: () => deleteFAQItems(selectedItemIds.map(String)),
