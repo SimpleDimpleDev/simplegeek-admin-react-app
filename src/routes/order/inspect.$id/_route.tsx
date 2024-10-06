@@ -141,10 +141,10 @@ export default function OrderInspectRoute() {
 					) : (
 						<div className="gap-2 d-f fd-c">
 							{/* Main info */}
-							<div className="gap-1 py-2 d-f df-c">
+							<div className="gap-1 py-2 d-f fd-c">
 								<Typography variant="h3">Заказ от {DateFormatter.DDMMYYYY(new Date())}</Typography>
 								<Typography variant="subtitle0">ID: {order.id}</Typography>
-								<Button onClick={() => navigate(`/user/inspect/${order.user.id}`)}>
+								<Button variant="outlined" onClick={() => navigate(`/user/inspect/${order.user.id}`)}>
 									<Typography variant="subtitle0">Пользователь: {order.user.email}</Typography>
 								</Button>
 							</div>
