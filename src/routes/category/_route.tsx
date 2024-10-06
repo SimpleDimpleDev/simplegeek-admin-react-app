@@ -8,7 +8,7 @@ import {
 	useGetCategoryListQuery,
 	useUpdateCategoryMutation,
 } from "@api/admin/category";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
@@ -21,6 +21,8 @@ import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../../components/ManagementModal";
 import { getImageUrl } from "@utils/image";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSnackbar } from "@hooks/useSnackbar";
 
 const columns: GridColDef<CategoryGet>[] = [
 	{
@@ -42,21 +44,18 @@ const columns: GridColDef<CategoryGet>[] = [
 
 export default function CategoryRoute() {
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
-	const [createCategory, { isLoading: createIsLoading, isSuccess: createSuccess, error: createError }] =
+	const [createCategory, { isLoading: createIsLoading, isSuccess: createSuccess, isError: createIsError, error: createError }] =
 		useCreateCategoryMutation();
-	const [updateCategory, { isLoading: updateIsLoading, isSuccess: updateSuccess, error: updateError }] =
+	const [updateCategory, { isLoading: updateIsLoading, isSuccess: updateSuccess, isError: updateIsError, error: updateError }] =
 		useUpdateCategoryMutation();
 	const [
 		changeImageCategory,
-		{ isLoading: changeImageIsLoading, isSuccess: changeImageSuccess, error: changeImageError },
+		{ isLoading: changeImageIsLoading, isSuccess: changeImageSuccess, isError: changeImageIsError, error: changeImageError },
 	] = useChangeImageCategoryMutation();
 
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
 	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
 	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
-
-	const [snackbarOpened, setSnackbarOpened] = useState(false);
-	const [snackbarMessage, setSnackbarMessage] = useState("");
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
@@ -69,52 +68,37 @@ export default function CategoryRoute() {
 		return createIsLoading || updateIsLoading || changeImageIsLoading;
 	}, [createIsLoading, updateIsLoading, changeImageIsLoading]);
 
-	const showSnackBarMessage = (message: string) => {
-		setSnackbarMessage(message);
-		setSnackbarOpened(true);
-	}
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
-	useEffect(() => {
-		if (createSuccess) {
-			showSnackBarMessage("Категория успешно создана!");
-			setCreateModalOpened(false);
-		}
-	}, [createSuccess]);
+	useMutationFeedback({
+		title: "Создание категории",
+		isSuccess: createSuccess,
+		isError: createIsError,
+		error: createError,
+		feedbackFn: showSnackbarMessage,
+		successAction: () => setCreateModalOpened(false),
+		errorAction: () => setCreateModalOpened(false),
+	})
+	
+	useMutationFeedback({
+		title: "Обновление категории",
+		isSuccess: updateSuccess,
+		isError: updateIsError,
+		error: updateError,
+		feedbackFn: showSnackbarMessage,
+		successAction: () => setUpdateModalOpened(false),
+		errorAction: () => setUpdateModalOpened(false),
+	})
 
-	useEffect(() => {
-		if (createError) {
-			showSnackBarMessage("Произошла ошибка при создании категории!");
-			setCreateModalOpened(false);
-		}
-	}, [createError]);
-
-	useEffect(() => {
-		if (updateSuccess) {
-			showSnackBarMessage("Категория успешно обновлена!");
-			setUpdateModalOpened(false);
-		}
-	}, [updateSuccess]);
-
-	useEffect(() => {
-		if (updateError) {
-			showSnackBarMessage("Произошла ошибка при обновлении категории!");
-			setUpdateModalOpened(false);
-		}
-	}, [updateError]);
-
-	useEffect(() => {
-		if (changeImageSuccess) {
-			showSnackBarMessage("Картинка категории успешно обновлена!");
-			setUpdateModalOpened(false);
-		}
-	}, [changeImageSuccess]);
-
-	useEffect(() => {
-		if (changeImageError) {
-			showSnackBarMessage("Произошла ошибка при обновлении картинки категории!");
-			setUpdateModalOpened(false);
-		}
-	}, [changeImageError]);
+	useMutationFeedback({
+		title: "Изменение картинки категории",
+		isSuccess: changeImageSuccess,
+		isError: changeImageIsError,
+		error: changeImageError,
+		feedbackFn: showSnackbarMessage,
+		successAction: () => setUpdateModalOpened(false),
+		errorAction: () => setUpdateModalOpened(false),
+	})
 
 	return (
 		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
@@ -122,7 +106,7 @@ export default function CategoryRoute() {
 			<Snackbar
 				open={snackbarOpened}
 				autoHideDuration={2000}
-				onClose={() => setSnackbarOpened(false)}
+				onClose={closeSnackbar}
 				message={snackbarMessage}
 			/>
 			<ManagementModal

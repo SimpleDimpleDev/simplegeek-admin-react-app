@@ -6,7 +6,7 @@ import {
 	useGetFilterGroupListQuery,
 	useUpdateFilterGroupMutation,
 } from "@api/admin/filterGroup";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
@@ -17,6 +17,8 @@ import { FilterGroupUpdateForm } from "./UpdateForm";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../../components/ManagementModal";
 import { useLazyGetCategoryListQuery } from "@api/admin/category";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSnackbar } from "@hooks/useSnackbar";
 
 const columns: GridColDef<FilterGroupGet>[] = [
 	{ field: "title", headerName: "Название" },
@@ -49,21 +51,28 @@ export default function FilterRoute() {
 		categoryId: undefined,
 	});
 	const [fetchCategoryList, { data: categoryList, isLoading: categoryListIsLoading }] = useLazyGetCategoryListQuery();
-	const [createFilterGroup, { isSuccess: createIsSuccess, isLoading: createIsLoading, isError: createIsError }] =
-		useCreateFilterGroupMutation();
-	const [updateFilterGroup, { isSuccess: updateIsSuccess, isLoading: updateIsLoading, isError: updateIsError }] =
-		useUpdateFilterGroupMutation();
+
+	const [
+		createFilterGroup,
+		{ isSuccess: createIsSuccess, isLoading: createIsLoading, isError: createIsError, error: createError },
+	] = useCreateFilterGroupMutation();
+	const [
+		updateFilterGroup,
+		{ isSuccess: updateIsSuccess, isLoading: updateIsLoading, isError: updateIsError, error: updateError },
+	] = useUpdateFilterGroupMutation();
 	const [
 		deleteFilterGroups,
-		{ isSuccess: deleteFilterGroupsIsSuccess, isLoading: deleteIsLoading, isError: deleteFilterGroupsIsError },
+		{
+			isSuccess: deleteFilterGroupsIsSuccess,
+			isLoading: deleteIsLoading,
+			isError: deleteFilterGroupsIsError,
+			error: deleteError,
+		},
 	] = useDeleteFilterGroupsMutation();
 
 	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
 	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
-
-	const [snackbarOpened, setSnackbarOpened] = useState<boolean>(false);
-	const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
@@ -74,49 +83,33 @@ export default function FilterRoute() {
 
 	const showLoadingOverlay = createIsLoading || updateIsLoading || deleteIsLoading;
 
-	const showSnackbarMessage = (message: string) => {
-		setSnackbarMessage(message);
-		setSnackbarOpened(true);
-	};
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
-	useEffect(() => {
-		if (createIsSuccess) {
-			showSnackbarMessage("Группа фильтров успешно создана");
-			setCreateModalOpened(false);
-		}
-	}, [createIsSuccess]);
+	useMutationFeedback({
+		title: "Создание группы фильтров",
+		isSuccess: createIsSuccess,
+		isError: createIsError,
+		error: createError,
+		feedbackFn: showSnackbarMessage,
+		successAction: () => setCreateModalOpened(false),
+	});
 
-	useEffect(() => {
-		if (updateIsSuccess) {
-			showSnackbarMessage("Группа фильтров успешно обновлена");
-			setUpdateModalOpened(false);
-		}
-	}, [updateIsSuccess]);
+	useMutationFeedback({
+		title: "Обновление группы фильтров",
+		isSuccess: updateIsSuccess,
+		isError: updateIsError,
+		error: updateError,
+		feedbackFn: showSnackbarMessage,
+		successAction: () => setUpdateModalOpened(false),
+	});
 
-	useEffect(() => {
-		if (deleteFilterGroupsIsSuccess) {
-			showSnackbarMessage("Группа фильтров успешно удалена");
-			setDeletionDialogOpened(false);
-		}
-	}, [deleteFilterGroupsIsSuccess]);
-
-	useEffect(() => {
-		if (createIsError) {
-			showSnackbarMessage("Произошла ошибка при создании группы фильтров");
-		}
-	}, [createIsError]);
-
-	useEffect(() => {
-		if (updateIsError) {
-			showSnackbarMessage("Произошла ошибка при обновлении группы фильтров");
-		}
-	}, [updateIsError]);
-
-	useEffect(() => {
-		if (deleteFilterGroupsIsError) {
-			showSnackbarMessage("Произошла ошибка при удалении группы фильтров");
-		}
-	}, [deleteFilterGroupsIsError]);
+	useMutationFeedback({
+		title: "Удаление группы фильтров",
+		isSuccess: deleteFilterGroupsIsSuccess,
+		isError: deleteFilterGroupsIsError,
+		error: deleteError,
+		feedbackFn: showSnackbarMessage,
+	});
 
 	const handleStartCreate = () => {
 		fetchCategoryList();
@@ -140,12 +133,7 @@ export default function FilterRoute() {
 				</div>
 			</Modal>
 
-			<Snackbar
-				open={snackbarOpened}
-				autoHideDuration={2000}
-				onClose={() => setSnackbarOpened(false)}
-				message={snackbarMessage}
-			/>
+			<Snackbar open={snackbarOpened} autoHideDuration={2000} onClose={closeSnackbar} message={snackbarMessage} />
 
 			<ManagementModal
 				title="Создать группу фильтров"

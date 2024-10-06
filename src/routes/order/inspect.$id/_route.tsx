@@ -30,6 +30,8 @@ import { LoadingSpinner } from "@components/LoadingSpinner";
 import { OrderStatus } from "@appTypes/Order";
 import { getImageUrl } from "@utils/image";
 import { orderStatusBadges } from "@components/Badges";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSnackbar } from "@hooks/useSnackbar";
 
 const deliveryServiceMapping: Record<DeliveryService, string> = {
 	CDEK: "СДЕК",
@@ -51,17 +53,31 @@ export default function OrderInspectRoute() {
 
 	const [
 		updateStatus,
-		{ isLoading: statusUpdateIsLoading, isSuccess: statusUpdateIsSuccess, isError: statusUpdateIsError },
+		{
+			isLoading: statusUpdateIsLoading,
+			isSuccess: statusUpdateIsSuccess,
+			isError: statusUpdateIsError,
+			error: statusUpdateError,
+		},
 	] = useUpdateOrderStatusMutation();
 	const [
 		updateDelivery,
-		{ isLoading: deliveryUpdateIsLoading, isSuccess: deliveryUpdateIsSuccess, isError: deliveryUpdateIsError },
+		{
+			isLoading: deliveryUpdateIsLoading,
+			isSuccess: deliveryUpdateIsSuccess,
+			isError: deliveryUpdateIsError,
+			error: deliveryUpdateError,
+		},
 	] = useUpdateOrderDeliveryMutation();
 
 	const showLoadingOverlay = statusUpdateIsLoading || deliveryUpdateIsLoading;
 
-	const [snackbarOpened, setSnackbarOpened] = useState<boolean>(false);
-	const [snackbarMessage, setSnackbarMessage] = useState<string>("");
+	const {
+		snackbarOpened,
+		snackbarMessage,
+		showSnackbarMessage,
+		closeSnackbar
+	} = useSnackbar();
 
 	const [statusEditing, setStatusEditing] = useState(false);
 	const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "UNDEFINED">("UNDEFINED");
@@ -71,29 +87,6 @@ export default function OrderInspectRoute() {
 			setSelectedStatus(order.status);
 		}
 	}, [order]);
-
-	useEffect(() => {
-		if (statusUpdateIsSuccess) {
-			showSnackbarMessage("Статус успешно обновлен");
-		}
-		if (statusUpdateIsError) {
-			showSnackbarMessage("Произошла ошибка при обновлении статуса");
-		}
-	}, [statusUpdateIsSuccess, statusUpdateIsError]);
-
-	useEffect(() => {
-		if (deliveryUpdateIsSuccess) {
-			showSnackbarMessage("Доставка успешно обновлена");
-		}
-		if (deliveryUpdateIsError) {
-			showSnackbarMessage("Произошла ошибка при обновлении доставки");
-		}
-	}, [deliveryUpdateIsSuccess, deliveryUpdateIsError]);
-
-	const showSnackbarMessage = (message: string) => {
-		setSnackbarMessage(message);
-		setSnackbarOpened(true);
-	};
 
 	const handleStartEditStatus = () => {
 		setStatusEditing(true);
@@ -120,13 +113,30 @@ export default function OrderInspectRoute() {
 		setStatusEditing(false);
 	};
 
+	useMutationFeedback({
+		title: "Обновление статуса",
+		isSuccess: statusUpdateIsSuccess,
+		isError: statusUpdateIsError,
+		error: statusUpdateError,
+		feedbackFn: showSnackbarMessage,
+		errorAction: handleCancelEditStatus,
+	});
+
+	useMutationFeedback({
+		title: "Обновление адреса доставки",
+		isSuccess: deliveryUpdateIsSuccess,
+		isError: deliveryUpdateIsError,
+		error: deliveryUpdateError,
+		feedbackFn: showSnackbarMessage,
+	});
+
 	return (
 		<>
 			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar
 				open={snackbarOpened}
 				autoHideDuration={2000}
-				onClose={() => setSnackbarOpened(false)}
+				onClose={closeSnackbar}
 				message={snackbarMessage}
 			/>
 			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>

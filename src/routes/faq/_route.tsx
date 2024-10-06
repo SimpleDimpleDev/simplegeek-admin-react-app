@@ -2,7 +2,7 @@ import { Button, Snackbar, Typography } from "@mui/material";
 import { FAQItemCreateForm, FAQItemUpdateForm } from "./forms";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemListQuery } from "@api/admin/faqItem";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
@@ -11,6 +11,8 @@ import { FAQItemGet } from "@appTypes/FAQ";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../../components/ManagementModal";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSnackbar } from "@hooks/useSnackbar";
 
 const columns: GridColDef<FAQItemGet>[] = [
 	{ field: "question", headerName: "Вопрос" },
@@ -19,9 +21,18 @@ const columns: GridColDef<FAQItemGet>[] = [
 
 export default function FaqRoute() {
 	const { data: FAQItemList, isLoading: FAQItemListIsLoading } = useGetFAQItemListQuery();
-	const [createFAQItem, { isLoading: createIsLoading, isSuccess: createSuccess, error: createError }] = useCreateFAQItemMutation();
-	const [updateFAQItem, { isLoading: updateIsLoading, isSuccess: updateSuccess, error: updateError }] = useCreateFAQItemMutation();
-	const [deleteFAQItems, { isLoading: deleteIsLoading, isSuccess: deleteSuccess, error: deleteError }] = useDeleteFAQItemsMutation();
+	const [
+		createFAQItem,
+		{ isLoading: createIsLoading, isSuccess: createSuccess, isError: createIsError, error: createError },
+	] = useCreateFAQItemMutation();
+	const [
+		updateFAQItem,
+		{ isLoading: updateIsLoading, isSuccess: updateSuccess, isError: updateIsError, error: updateError },
+	] = useCreateFAQItemMutation();
+	const [
+		deleteFAQItems,
+		{ isLoading: deleteIsLoading, isSuccess: deleteSuccess, isError: deleteIsError, error: deleteError },
+	] = useDeleteFAQItemsMutation();
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
@@ -29,63 +40,40 @@ export default function FaqRoute() {
 	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
 
-	const [snackbarOpened, setSnackbarOpened] = useState<boolean>(false);
-	const [snackbarMessage, setSnackbarMessage] = useState<string>("");
-
 	const showLoadingOverlay = useMemo(() => {
 		return createIsLoading || updateIsLoading || deleteIsLoading;
 	}, [createIsLoading, updateIsLoading, deleteIsLoading]);
 
-	const showSnackbarMessage = (message: string) => {
-		setSnackbarMessage(message);
-		setSnackbarOpened(true);
-	}
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
-	useEffect(() => {
-		if (createSuccess) {
-			showSnackbarMessage("Вопрос успешно создан");
-		}
-	}, [createSuccess]);
+	useMutationFeedback({
+		title: "Создание вопроса",
+		isSuccess: createSuccess,
+		isError: createIsError,
+		error: createError,
+		feedbackFn: showSnackbarMessage,
+	});
 
-	useEffect(() => {
-		if (createError) {
-			showSnackbarMessage("Произошла ошибка при создании вопроса");
-		}
-	}, [createError]);
+	useMutationFeedback({
+		title: "Обновление вопроса",
+		isSuccess: updateSuccess,
+		isError: updateIsError,
+		error: updateError,
+		feedbackFn: showSnackbarMessage,
+	});
 
-	useEffect(() => {
-		if (updateSuccess) {
-			showSnackbarMessage("Вопрос успешно обновлен");
-		}
-	}, [updateSuccess]);
-
-	useEffect(() => {
-		if (updateError) {
-			showSnackbarMessage("Произошла ошибка при обновлении вопроса");
-		}
-	}, [updateError]);
-
-	useEffect(() => {
-		if (deleteSuccess) {
-			showSnackbarMessage("Вопрос успешно удален");
-		}
-	}, [deleteSuccess]);
-
-	useEffect(() => {
-		if (deleteError) {
-			showSnackbarMessage("Произошла ошибка при удалении вопроса");
-		}
-	}, [deleteError]);
+	useMutationFeedback({
+		title: "Удаление вопроса",
+		isSuccess: deleteSuccess,
+		isError: deleteIsError,
+		error: deleteError,
+		feedbackFn: showSnackbarMessage,
+	});
 
 	return (
 		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
 			<LoadingOverlay isOpened={showLoadingOverlay} />
-			<Snackbar
-				open={snackbarOpened}
-				autoHideDuration={2000}
-				onClose={() => setSnackbarOpened(false)}
-				message={snackbarMessage}
-			/>
+			<Snackbar open={snackbarOpened} autoHideDuration={2000} onClose={closeSnackbar} message={snackbarMessage} />
 			<ManagementModal
 				title="Создать вопрос"
 				opened={createModalOpened}

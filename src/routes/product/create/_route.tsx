@@ -1,43 +1,36 @@
 import { CircularProgress, Modal, Snackbar, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
 
 import { ProductCreateForm } from "./CreateForm";
 import { useCreateProductMutation } from "@api/admin/product";
 import { useGetCategoryListQuery } from "@api/admin/category";
 import { useLazyGetFilterGroupListQuery } from "@api/admin/filterGroup";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "@hooks/useSnackbar";
 
 export default function ProductCreateRoute() {
 	const navigate = useNavigate();
 
-	const [createProduct, { isLoading: createIsLoading, isSuccess: createIsSuccess, isError: createIsError }] =
-		useCreateProductMutation();
+	const [
+		createProduct,
+		{ isLoading: createIsLoading, isSuccess: createIsSuccess, isError: createIsError, error: createError },
+	] = useCreateProductMutation();
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
 	const [
 		fetchFilterGroupList,
 		{ data: filterGroupList, isLoading: filterGroupListIsLoading, isFetching: filterGroupListIsFetching },
 	] = useLazyGetFilterGroupListQuery();
 
-	const [snackbarOpened, setSnackbarOpened] = useState(false);
-	const [snackbarMessage, setSnackbarMessage] = useState("");
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
-	const showSnackBarMessage = (message: string) => {
-		setSnackbarMessage(message);
-		setSnackbarOpened(true);
-	};
-
-	useEffect(() => {
-		if (createIsSuccess) {
-			showSnackBarMessage("Товар создан!");
-			setTimeout(() => navigate("/product/table"), 1500);
-		}
-	}, [createIsSuccess, navigate]);
-
-	useEffect(() => {
-		if (createIsError) {
-			showSnackBarMessage("Произошла ошибка при создании товара");
-		}
-	}, [createIsError]);
+	useMutationFeedback({
+		title: "Создание товара",
+		isSuccess: createIsSuccess,
+		isError: createIsError,
+		error: createError,
+		feedbackFn: showSnackbarMessage,
+		successAction: () => setTimeout(() => navigate("/product/table"), 1500),
+	});
 
 	return (
 		<div className="px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
@@ -48,12 +41,7 @@ export default function ProductCreateRoute() {
 					</div>
 				</Modal>
 			)}
-			<Snackbar
-				open={snackbarOpened}
-				autoHideDuration={1500}
-				onClose={() => setSnackbarOpened(false)}
-				message={snackbarMessage}
-			/>
+			<Snackbar open={snackbarOpened} autoHideDuration={1500} onClose={closeSnackbar} message={snackbarMessage} />
 			<div className="p-2">
 				<Typography variant="h5">Создать товар</Typography>
 			</div>
