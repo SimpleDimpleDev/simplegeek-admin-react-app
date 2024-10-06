@@ -36,7 +36,6 @@ export default function ActionDialog({ title, helperText, opened, onClose, confi
                 <Button
                     onClick={() => {
                         confirmButton.onClick();
-                        onClose();
                     }}
                     sx={{ borderRadius: "8px" }}
                     fullWidth

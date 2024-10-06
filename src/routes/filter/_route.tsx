@@ -10,12 +10,12 @@ import {
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
-import AdminTable from "../../components/ManagementTable";
+import AdminTable from "@components/ManagementTable";
 import { FilterGroupCreateForm } from "./CreateForm";
 import { FilterGroupGet } from "@appTypes/Filters";
 import { FilterGroupUpdateForm } from "./UpdateForm";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import ManagementModal from "../../components/ManagementModal";
+import ManagementModal from "@components/ManagementModal";
 import { useLazyGetCategoryListQuery } from "@api/admin/category";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
@@ -71,8 +71,19 @@ export default function FilterRoute() {
 	] = useDeleteFilterGroupsMutation();
 
 	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
+	const closeCreateModal = useCallback(() => {
+		setCreateModalOpened(false);
+	}, []);
+
 	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
+	const closeUpdateModal = useCallback(() => {
+		setUpdateModalOpened(false);
+	}, []);
+
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
+	const closeDeletionDialog = useCallback(() => {
+		setDeletionDialogOpened(false);
+	}, []);
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
@@ -88,21 +99,13 @@ export default function FilterRoute() {
 
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
-	const closeCreateModalCallback = useCallback(() => {
-		setCreateModalOpened(false);
-	}, []);
-
-	const closeUpdateModalCallback = useCallback(() => {
-		setUpdateModalOpened(false);
-	}, []);
-
 	useMutationFeedback({
 		title: "Создание группы фильтров",
 		isSuccess: createIsSuccess,
 		isError: createIsError,
 		error: createError,
 		feedbackFn: showSnackbarMessage,
-		successAction: closeCreateModalCallback,
+		successAction: closeCreateModal,
 	});
 
 	useMutationFeedback({
@@ -111,7 +114,7 @@ export default function FilterRoute() {
 		isError: updateIsError,
 		error: updateError,
 		feedbackFn: showSnackbarMessage,
-		successAction: closeUpdateModalCallback,
+		successAction: closeUpdateModal,
 	});
 
 	useMutationFeedback({
@@ -120,6 +123,8 @@ export default function FilterRoute() {
 		isError: deleteFilterGroupsIsError,
 		error: deleteError,
 		feedbackFn: showSnackbarMessage,
+		successAction: closeDeletionDialog,
+		errorAction: closeDeletionDialog,
 	});
 
 	const handleStartCreate = () => {
@@ -146,11 +151,7 @@ export default function FilterRoute() {
 
 			<Snackbar open={snackbarOpened} autoHideDuration={2000} onClose={closeSnackbar} message={snackbarMessage} />
 
-			<ManagementModal
-				title="Создать группу фильтров"
-				opened={createModalOpened}
-				onClose={() => setCreateModalOpened(false)}
-			>
+			<ManagementModal title="Создать группу фильтров" opened={createModalOpened} onClose={closeCreateModal}>
 				<FilterGroupCreateForm
 					categoryList={categoryList}
 					categoryListIsLoading={categoryListIsLoading}
@@ -160,7 +161,7 @@ export default function FilterRoute() {
 			<ManagementModal
 				title="Редактировать группу фильтров"
 				opened={updateModalOpened}
-				onClose={() => setUpdateModalOpened(false)}
+				onClose={closeUpdateModal}
 			>
 				{!selectedFilterGroup ? (
 					<Typography variant="body2">Выберите группу</Typography>
@@ -177,7 +178,7 @@ export default function FilterRoute() {
 				title="Удалить выбранные группы?"
 				helperText="После удаления отменить действие будет невозможно"
 				opened={deletionDialogOpened}
-				onClose={() => setDeletionDialogOpened(false)}
+				onClose={closeDeletionDialog}
 				confirmButton={{
 					text: "Удалить",
 					onClick: () => {
