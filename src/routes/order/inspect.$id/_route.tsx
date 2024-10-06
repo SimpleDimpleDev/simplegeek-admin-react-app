@@ -141,48 +141,46 @@ export default function OrderInspectRoute() {
 					) : (
 						<div className="gap-2 d-f fd-c">
 							{/* Main info */}
-							<div className="py-2">
+							<div className="gap-1 py-2 d-f df-c">
 								<Typography variant="h3">Заказ от {DateFormatter.DDMMYYYY(new Date())}</Typography>
-								<Typography variant="subtitle0">ID: Order id</Typography>
+								<Typography variant="subtitle0">ID: {order.id}</Typography>
 								<Button onClick={() => navigate(`/user/inspect/${order.user.id}`)}>
-									<Typography variant="subtitle0">Пользователь {order.user.email}</Typography>
+									<Typography variant="subtitle0">Пользователь: {order.user.email}</Typography>
 								</Button>
 							</div>
 
-							{/* Status */}
-							<div className="gap-2 ai-c d-f fd-r">
-								<FormControl>
-									<InputLabel id="demo-simple-select-label">Статус заказа</InputLabel>
-									<Select
-										sx={{backgroundColor: "white"}}
-										readOnly={!statusEditing}
-										variant="standard"
-										labelId="demo-simple-select-label"
-										id="demo-simple-select"
-										value={selectedStatus}
-										label="Статус заказа"
-										onChange={handleSelectStatus}
-									>
-										{editableProps.statuses.map((status) => (
-											<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
-										))}
-									</Select>
-								</FormControl>
-								{statusEditing ? (
-									<>
-										<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
-											<Check />
+							<Paper sx={{ p: 2 }}>
+								<div className="gap-2 ai-c d-f fd-r">
+									<FormControl disabled={!statusEditing}>
+										<InputLabel id="demo-simple-select-label">Статус заказа</InputLabel>
+										<Select
+											labelId="demo-simple-select-label"
+											id="demo-simple-select"
+											value={selectedStatus}
+											label="Статус заказа"
+											onChange={handleSelectStatus}
+										>
+											{editableProps.statuses.map((status) => (
+												<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
+											))}
+										</Select>
+									</FormControl>
+									{statusEditing ? (
+										<>
+											<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
+												<Check />
+											</IconButton>
+											<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditStatus}>
+												<Close />
+											</IconButton>
+										</>
+									) : (
+										<IconButton onClick={handleStartEditStatus}>
+											<Edit />
 										</IconButton>
-										<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditStatus}>
-											<Close />
-										</IconButton>
-									</>
-								) : (
-									<IconButton onClick={handleStartEditStatus}>
-										<Edit />
-									</IconButton>
-								)}
-							</div>
+									)}
+								</div>
+							</Paper>
 
 							{/* Delivery */}
 							<Paper>
