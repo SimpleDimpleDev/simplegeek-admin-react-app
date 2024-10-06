@@ -150,38 +150,36 @@ export default function OrderInspectRoute() {
 							</div>
 
 							{/* Status */}
-							<Paper>
-								<div className="gap-2 ai-c d-f fd-r">
-									<FormControl disabled={!statusEditing}>
-										<InputLabel id="demo-simple-select-label">Статус заказа</InputLabel>
-										<Select
-											labelId="demo-simple-select-label"
-											id="demo-simple-select"
-											value={selectedStatus}
-											label="Статус заказа"
-											onChange={handleSelectStatus}
-										>
-											{editableProps.statuses.map((status) => (
-												<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
-											))}
-										</Select>
-									</FormControl>
-									{statusEditing ? (
-										<>
-											<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
-												<Check />
-											</IconButton>
-											<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditStatus}>
-												<Close />
-											</IconButton>
-										</>
-									) : (
-										<IconButton onClick={handleStartEditStatus}>
-											<Edit />
+							<div className="gap-2 ai-c d-f fd-r">
+								<FormControl disabled={!statusEditing}>
+									<InputLabel id="demo-simple-select-label">Статус заказа</InputLabel>
+									<Select
+										labelId="demo-simple-select-label"
+										id="demo-simple-select"
+										value={selectedStatus}
+										label="Статус заказа"
+										onChange={handleSelectStatus}
+									>
+										{editableProps.statuses.map((status) => (
+											<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
+										))}
+									</Select>
+								</FormControl>
+								{statusEditing ? (
+									<>
+										<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
+											<Check />
 										</IconButton>
-									)}
-								</div>
-							</Paper>
+										<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditStatus}>
+											<Close />
+										</IconButton>
+									</>
+								) : (
+									<IconButton onClick={handleStartEditStatus}>
+										<Edit />
+									</IconButton>
+								)}
+							</div>
 
 							{/* Delivery */}
 							<Paper>
@@ -289,7 +287,7 @@ export default function OrderInspectRoute() {
 							</Paper>
 
 							{/* Initial Payment */}
-							<Paper>
+							<Paper sx={{ p: 2 }}>
 								<Typography variant="h5">Платёж</Typography>
 								<Typography variant="body1">Сумма: {order.initialInvoice.amount}</Typography>
 								<Typography variant="body1">
@@ -301,7 +299,7 @@ export default function OrderInspectRoute() {
 							</Paper>
 
 							{/* Items */}
-							<Paper>
+							<Paper sx={{ p: 2 }}>
 								<Typography variant="h5">
 									{order.items.length} {getRuGoodsWord(order.items.length)}
 								</Typography>
