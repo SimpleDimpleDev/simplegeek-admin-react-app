@@ -5,6 +5,7 @@ import {
 	IconButton,
 	InputLabel,
 	MenuItem,
+	Paper,
 	Select,
 	SelectChangeEvent,
 	Snackbar,
@@ -128,7 +129,7 @@ export default function OrderInspectRoute() {
 				onClose={() => setSnackbarOpened(false)}
 				message={snackbarMessage}
 			/>
-			<div className="pt-4">
+			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 				<Button onClick={() => navigate("/order/table")} sx={{ width: "fit-content", color: "warning.main" }}>
 					<ChevronLeft />К списку всех заказов
 				</Button>
@@ -138,7 +139,7 @@ export default function OrderInspectRoute() {
 							<Typography variant="h5">Что-то пошло не так</Typography>
 						</div>
 					) : (
-						<>
+						<div className="gap-2 d-f fd-c">
 							{/* Main info */}
 							<div className="py-2">
 								<Typography variant="h3">Заказ от {DateFormatter.DDMMYYYY(new Date())}</Typography>
@@ -149,9 +150,9 @@ export default function OrderInspectRoute() {
 							</div>
 
 							{/* Status */}
-							<div className="section">
+							<Paper>
 								<div className="gap-2 ai-c d-f fd-r">
-									<FormControl disabled={!statusEditing} fullWidth>
+									<FormControl disabled={!statusEditing}>
 										<InputLabel id="demo-simple-select-label">Статус заказа</InputLabel>
 										<Select
 											labelId="demo-simple-select-label"
@@ -180,10 +181,10 @@ export default function OrderInspectRoute() {
 										</IconButton>
 									)}
 								</div>
-							</div>
+							</Paper>
 
 							{/* Delivery */}
-							<div className="section">
+							<Paper>
 								{order.delivery ? (
 									editableProps.delivery ? (
 										<DeliveryForm
@@ -285,20 +286,22 @@ export default function OrderInspectRoute() {
 										</div>
 									</div>
 								)}
-							</div>
+							</Paper>
 
 							{/* Initial Payment */}
-							<div className="section">
+							<Paper>
 								<Typography variant="h5">Платёж</Typography>
 								<Typography variant="body1">Сумма: {order.initialInvoice.amount}</Typography>
 								<Typography variant="body1">
 									Создан: {DateFormatter.DDMMYYYY(order.initialInvoice.createdAt)}
 								</Typography>
-								<Typography variant="body1">Оплачено: {order.initialInvoice.isPaid}</Typography>
-							</div>
+								<Typography variant="body1">
+									Оплачено: {order.initialInvoice.isPaid ? <Check /> : <Close />}
+								</Typography>
+							</Paper>
 
 							{/* Items */}
-							<div className="section">
+							<Paper>
 								<Typography variant="h5">
 									{order.items.length} {getRuGoodsWord(order.items.length)}
 								</Typography>
@@ -327,8 +330,8 @@ export default function OrderInspectRoute() {
 										</div>
 									))}
 								</Stack>
-							</div>
-						</>
+							</Paper>
+						</div>
 					)}
 				</LoadingSpinner>
 			</div>
