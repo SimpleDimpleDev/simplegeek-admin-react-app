@@ -1,12 +1,12 @@
 import { Button, CircularProgress, Modal, Snackbar, Tooltip, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
+import { useCallback, useMemo, useState } from "react";
 import {
 	useCreateFilterGroupMutation,
 	useDeleteFilterGroupsMutation,
 	useGetFilterGroupListQuery,
 	useUpdateFilterGroupMutation,
 } from "@api/admin/filterGroup";
-import { useMemo, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
@@ -81,9 +81,20 @@ export default function FilterRoute() {
 		return filterGroupList.items.find((filterGroup) => filterGroup.id === selectedItemIds[0]);
 	}, [filterGroupList, selectedItemIds]);
 
-	const showLoadingOverlay = createIsLoading || updateIsLoading || deleteIsLoading;
+	const showLoadingOverlay = useMemo(
+		() => createIsLoading || updateIsLoading || deleteIsLoading,
+		[createIsLoading, updateIsLoading, deleteIsLoading]
+	);
 
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
+
+	const closeCreateModalCallback = useCallback(() => {
+		setCreateModalOpened(false);
+	}, []);
+
+	const closeUpdateModalCallback = useCallback(() => {
+		setUpdateModalOpened(false);
+	}, []);
 
 	useMutationFeedback({
 		title: "Создание группы фильтров",
@@ -91,7 +102,7 @@ export default function FilterRoute() {
 		isError: createIsError,
 		error: createError,
 		feedbackFn: showSnackbarMessage,
-		successAction: () => setCreateModalOpened(false),
+		successAction: closeCreateModalCallback,
 	});
 
 	useMutationFeedback({
@@ -100,7 +111,7 @@ export default function FilterRoute() {
 		isError: updateIsError,
 		error: updateError,
 		feedbackFn: showSnackbarMessage,
-		successAction: () => setUpdateModalOpened(false),
+		successAction: closeUpdateModalCallback,
 	});
 
 	useMutationFeedback({
