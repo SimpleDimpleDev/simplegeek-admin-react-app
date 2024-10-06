@@ -151,9 +151,12 @@ export default function OrderInspectRoute() {
 
 							{/* Status */}
 							<div className="gap-2 ai-c d-f fd-r">
-								<FormControl disabled={!statusEditing}>
+								<FormControl>
 									<InputLabel id="demo-simple-select-label">Статус заказа</InputLabel>
 									<Select
+										sx={{backgroundColor: "white"}}
+										readOnly={!statusEditing}
+										variant="standard"
 										labelId="demo-simple-select-label"
 										id="demo-simple-select"
 										value={selectedStatus}
