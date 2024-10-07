@@ -34,7 +34,7 @@ const PreorderCreateForm: React.FC<PreorderCreateFormProps> = ({ onSubmit }) => 
 		resolver: zodResolver(PreorderCreateResolver),
 		defaultValues: {
 			title: "",
-			expectedArrival: null,
+			expectedArrival: "",
 		},
 	});
 	return (
