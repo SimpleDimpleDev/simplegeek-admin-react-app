@@ -245,7 +245,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						</div>
 					</div>
 				</div>
-				<div className="gap-2 d-f fd-r">
+				<div className="gap-2 ai-c d-f fd-r">
 					<Controller
 						name={`items.${index}.price`}
 						control={control}
