@@ -1,4 +1,4 @@
-import 'dayjs/locale/ru';
+import "dayjs/locale/ru";
 
 import { AllInclusive, Delete, DragIndicator } from "@mui/icons-material";
 import {
@@ -196,51 +196,54 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						)}
 					/>
 
-					<FormControlLabel
-						control={
-							<Checkbox
-								checked={quantityIsUnlimited}
-								onChange={(_, value) => {
-									if (value) {
-										setValue(`items.${index}.unlimitedQuantity`, true);
-										setValue(`items.${index}.quantity`, null);
-									} else {
-										setValue(`items.${index}.unlimitedQuantity`, false);
-										setValue(`items.${index}.quantity`, "0");
-									}
-								}}
-								inputProps={{ "aria-label": "controlled" }}
+					<div className="gap-1 d-f fd-r">
+						<Controller
+							name={`items.${index}.quantity`}
+							control={control}
+							render={({ field: { value, onChange }, fieldState: { error } }) => (
+								<TextField
+									fullWidth
+									disabled={quantityIsUnlimited}
+									label="Количество"
+									type="text"
+									value={value === null ? "" : value}
+									slotProps={{
+										input: {
+											endAdornment: quantityIsUnlimited ? (
+												<AllInclusive />
+											) : (
+												<InputAdornment position="end">шт.</InputAdornment>
+											),
+										},
+									}}
+									onChange={handleIntChange(onChange)}
+									variant="outlined"
+									error={!!error}
+									helperText={error?.message}
+								/>
+							)}
+						/>
+						<div className="w-100">
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={quantityIsUnlimited}
+										onChange={(_, value) => {
+											if (value) {
+												setValue(`items.${index}.unlimitedQuantity`, true);
+												setValue(`items.${index}.quantity`, null);
+											} else {
+												setValue(`items.${index}.unlimitedQuantity`, false);
+												setValue(`items.${index}.quantity`, "0");
+											}
+										}}
+										inputProps={{ "aria-label": "controlled" }}
+									/>
+								}
+								label="Количество не ограничено"
 							/>
-						}
-						label="Количество не ограничено"
-					/>
-
-					<Controller
-						name={`items.${index}.quantity`}
-						control={control}
-						render={({ field: { value, onChange }, fieldState: { error } }) => (
-							<TextField
-								fullWidth
-								disabled={quantityIsUnlimited}
-								label="Ограничение по количеству"
-								type="text"
-								value={value === null ? "" : value}
-								slotProps={{
-									input: {
-										endAdornment: quantityIsUnlimited ? (
-											<AllInclusive />
-										) : (
-											<InputAdornment position="end">шт.</InputAdornment>
-										),
-									},
-								}}
-								onChange={handleIntChange(onChange)}
-								variant="outlined"
-								error={!!error}
-								helperText={error?.message}
-							/>
-						)}
-					/>
+						</div>
+					</div>
 				</div>
 				<div className="gap-2 d-f fd-r">
 					<Controller

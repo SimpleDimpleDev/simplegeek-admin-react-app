@@ -1,6 +1,6 @@
 import "dayjs/locale/ru";
 
-import { Button, Checkbox, Divider, FormControlLabel, Stack, TextField, Typography } from "@mui/material";
+import { Button, Checkbox, Divider, FormControlLabel, Stack, TextField } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 
 import { PreorderCreateSchema } from "@schemas/Preorder";
@@ -57,8 +57,17 @@ const PreorderCreateForm: React.FC<PreorderCreateFormProps> = ({ onSubmit }) => 
 					name="expectedArrival"
 					control={control}
 					render={({ field: { value, onChange }, fieldState }) => (
-						<div className="gap-1 d-f fd-c">
-							<Typography variant="body1">Примерная дата доставки</Typography>
+						<div className="gap-05 d-f fd-c">
+							<TextField
+								label="Примерная дата доставки"
+								type="text"
+								disabled={value === null}
+								value={value ?? "-"}
+								onChange={onChange}
+								error={!!fieldState.error}
+								helperText={fieldState.error?.message}
+								fullWidth
+							/>
 							<FormControlLabel
 								control={
 									<Checkbox
@@ -74,16 +83,6 @@ const PreorderCreateForm: React.FC<PreorderCreateFormProps> = ({ onSubmit }) => 
 									/>
 								}
 								label="Неизвестно"
-							/>
-							<TextField
-								label="Примерная дата доставки"
-								type="text"
-								disabled={value === null}
-								value={value ?? "-"}
-								onChange={onChange}
-								error={!!fieldState.error}
-								helperText={fieldState.error?.message}
-								fullWidth
 							/>
 						</div>
 					)}
