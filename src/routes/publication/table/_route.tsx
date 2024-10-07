@@ -83,7 +83,6 @@ const formatPublications = (publications: PublicationGet[]): TableRowData[] => {
 	});
 };
 
-
 export default function PublicationTableRoute() {
 	const navigate = useNavigate();
 
@@ -120,7 +119,7 @@ export default function PublicationTableRoute() {
 				</div>
 				<Button variant="contained" onClick={() => navigate("/publication/create")}>
 					<Add />
-					Опубликовать товар в розницу.
+					Добавить публикацию
 				</Button>
 			</div>
 			<LoadingSpinner isLoading={publicationsListIsLoading}>

@@ -196,7 +196,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						)}
 					/>
 
-					<div className="gap-1 w-100 d-f fd-r">
+					<div className="gap-1 w-100 ai-c d-f fd-r">
 						<Controller
 							name={`items.${index}.quantity`}
 							control={control}
@@ -234,7 +234,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 												setValue(`items.${index}.quantity`, null);
 											} else {
 												setValue(`items.${index}.unlimitedQuantity`, false);
-												setValue(`items.${index}.quantity`, "0");
+												setValue(`items.${index}.quantity`, "");
 											}
 										}}
 										inputProps={{ "aria-label": "controlled" }}
@@ -245,7 +245,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						</div>
 					</div>
 				</div>
-				<div className="gap-2 ai-c d-f fd-r">
+				<div className="gap-2 d-f fd-r">
 					<Controller
 						name={`items.${index}.price`}
 						control={control}
