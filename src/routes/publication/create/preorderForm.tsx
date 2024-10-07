@@ -1,10 +1,16 @@
+import 'dayjs/locale/ru';
+
+import { AllInclusive, Delete, DragIndicator } from "@mui/icons-material";
 import {
 	Autocomplete,
 	Button,
+	Checkbox,
 	Divider,
 	FormControl,
+	FormControlLabel,
 	FormHelperText,
 	IconButton,
+	InputAdornment,
 	InputLabel,
 	MenuItem,
 	Select,
@@ -13,7 +19,6 @@ import {
 	Typography,
 } from "@mui/material";
 import { Control, Controller, UseFormSetValue, UseFormWatch, useFieldArray, useForm } from "react-hook-form";
-import { Delete, DragIndicator } from "@mui/icons-material";
 import {
 	DragDropContext,
 	Draggable,
@@ -31,8 +36,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { PreorderGet } from "@appTypes/Preorder";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
+import { PublicationCreateSchema } from "@schemas/Publication";
+import { SlugResolver } from "../utils";
 import dayjs from "dayjs";
 import { getImageUrl } from "@utils/image";
+import { handleIntChange } from "@utils/forms";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -40,23 +48,24 @@ type ShippingCostIncluded = "FOREIGN" | "FULL" | "NOT";
 
 type CatalogItemPublishPreorderFormData = {
 	product: ProductGet | null;
-	price: number | null;
-	quantity: number | null;
-	discount: number | null;
+	price: string;
+	quantity: string | null;
+	unlimitedQuantity: boolean;
+	discount: string | null;
 	creditPayments: {
-		sum: number | null;
+		sum: string;
 		deadline: Date | null;
 	}[];
 };
 
 const CatalogItemPublishPreorderResolver = z.object({
 	product: z.object({ id: z.string({ message: "Выберите продукт" }) }, { message: "Выберите продукт" }),
-	price: z.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
-	quantity: z.number().positive({ message: "Количество должно быть положительным числом" }).nullable(),
+	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
+	quantity: z.coerce.number().positive({ message: "Количество должно быть положительным числом" }).nullable(),
 	discount: z.number().positive({ message: "Скидка должна быть положительным числом" }).nullable(),
 	creditPayments: z
 		.object({
-			sum: z
+			sum: z.coerce
 				.number({ message: "Укажите сумму кредитного платежа" })
 				.positive({ message: "Сумма должна быть положительным числом" }),
 			deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
@@ -73,15 +82,15 @@ type PublicationCreatePreorderFormData = {
 };
 
 const PublicationCreatePreorderResolver = z.object({
-	link: z
-		.string({ message: "Введите ссылку для отображения в каталоге" })
-		.min(1, { message: "Введите ссылку для отображения в каталоге" }),
+	link: SlugResolver,
 	preorderId: z.string({ message: "Выберите предзаказ" }).min(1, { message: "Выберите предзаказ" }),
 	categoryId: z.string({ message: "Выберите категорию" }).min(1, { message: "Выберите категорию" }),
 	items: CatalogItemPublishPreorderResolver.array().nonempty({
 		message: "У публикации должен быть хотя бы один товар",
 	}),
-	shippingCostIncluded: z.enum(["FOREIGN", "FULL", "NOT"]).nullable(),
+	shippingCostIncluded: z.enum(["FOREIGN", "FULL", "NOT"], {
+		message: "Укажите, включена ли стоимость доставки в цену товаров",
+	}),
 });
 
 interface ItemFormProps {
@@ -119,28 +128,30 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	});
 
 	const creditPayments = watch(`items.${index}.creditPayments`);
-	const creditPaymentsTotal = creditPayments.reduce((acc, { sum }) => acc + (sum ?? 0), 0);
+	const creditPaymentsTotal = creditPayments.reduce((acc, { sum }) => acc + (parseInt(sum) ?? 0), 0);
+
+	const quantityIsUnlimited = watch(`items.${index}.unlimitedQuantity`);
 
 	useEffect(() => {
 		if (creditPayments.length > 0) {
-			setValue(`items.${index}.price`, creditPaymentsTotal);
+			setValue(`items.${index}.price`, creditPaymentsTotal.toString());
 		}
 	}, [creditPaymentsTotal, index, setValue, creditPayments.length]);
 
 	return (
-		<div key={index} className="w-100 d-f fd-r gap-2 py-2">
+		<div key={index} className="gap-2 py-2 w-100 d-f fd-r">
 			<IconButton {...dragHandleProps}>
 				<DragIndicator />
 			</IconButton>
 
-			<div className="w-100 d-f fd-c gap-1">
-				<div className="d-f fd-r js-sb ai-c">
+			<div className="gap-1 w-100 d-f fd-c">
+				<div className="ai-c d-f fd-r js-sb">
 					<Typography variant="h6">{!isSingle ? `Вариация ${index + 1}` : "Товар"}</Typography>
-					<IconButton onClick={() => onRemove(index)}>
+					<IconButton disabled={isSingle} onClick={() => onRemove(index)}>
 						<Delete />
 					</IconButton>
 				</div>
-				<div className="d-f fd-r gap-2 pb-2">
+				<div className="gap-2 pb-2 d-f fd-r">
 					<Controller
 						name={`items.${index}.product`}
 						control={control}
@@ -155,7 +166,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								isOptionEqualToValue={(a, b) => a.id === b.id}
 								getOptionLabel={(option) => option.title}
 								renderOption={(props, option) => (
-									<li className="d-f fd-r gap-1" {...props}>
+									<li className="gap-1 d-f fd-r" {...props}>
 										<div
 											style={{
 												height: 40,
@@ -185,22 +196,45 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						)}
 					/>
 
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={quantityIsUnlimited}
+								onChange={(_, value) => {
+									if (value) {
+										setValue(`items.${index}.unlimitedQuantity`, true);
+										setValue(`items.${index}.quantity`, null);
+									} else {
+										setValue(`items.${index}.unlimitedQuantity`, false);
+										setValue(`items.${index}.quantity`, "0");
+									}
+								}}
+								inputProps={{ "aria-label": "controlled" }}
+							/>
+						}
+						label="Количество не ограничено"
+					/>
+
 					<Controller
 						name={`items.${index}.quantity`}
 						control={control}
 						render={({ field: { value, onChange }, fieldState: { error } }) => (
 							<TextField
 								fullWidth
+								disabled={quantityIsUnlimited}
 								label="Ограничение по количеству"
 								type="text"
-								value={value?.toString() || ""}
-								onChange={(e) => {
-									const newValue = e.target.value;
-									if (newValue === "" || /^\d+$/.test(newValue)) {
-										const parsedValue = newValue === "" ? null : parseInt(newValue, 10);
-										onChange(parsedValue);
-									}
+								value={value === null ? "" : value}
+								slotProps={{
+									input: {
+										endAdornment: quantityIsUnlimited ? (
+											<AllInclusive />
+										) : (
+											<InputAdornment position="end">шт.</InputAdornment>
+										),
+									},
 								}}
+								onChange={handleIntChange(onChange)}
 								variant="outlined"
 								error={!!error}
 								helperText={error?.message}
@@ -208,7 +242,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						)}
 					/>
 				</div>
-				<div className="d-f fd-r gap-2">
+				<div className="gap-2 d-f fd-r">
 					<Controller
 						name={`items.${index}.price`}
 						control={control}
@@ -219,14 +253,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								type="text"
 								required
 								disabled={creditPayments?.length > 0}
-								value={value?.toString() || ""}
-								onChange={(e) => {
-									const newValue = e.target.value;
-									if (newValue === "" || /^\d+$/.test(newValue)) {
-										const parsedValue = newValue === "" ? null : parseInt(newValue, 10);
-										onChange(parsedValue);
-									}
-								}}
+								value={value}
+								onChange={handleIntChange(onChange)}
 								variant="outlined"
 								error={!!error}
 								helperText={error?.message}
@@ -257,14 +285,14 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						)}
 					/>
 				</div>
-				<div className="d-f fd-c gap-2">
-					<div className="d-f fd-c gap-2">
+				<div className="gap-2 d-f fd-c">
+					<div className="gap-2 d-f fd-c">
 						{creditPaymentsFields.length > 0 && (
 							<>
 								<Typography>Платежи рассрочки</Typography>
-								<div className="d-f fd-c gap-1">
+								<div className="gap-1 d-f fd-c">
 									{creditPaymentsFields.map((field, paymentIndex) => (
-										<div className="d-f fd-r gap-1" key={field.id}>
+										<div className="gap-1 d-f fd-r" key={field.id}>
 											<Controller
 												key={field.id}
 												name={`items.${index}.creditPayments.${paymentIndex}.sum`}
@@ -273,15 +301,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 													<TextField
 														label="Сумма"
 														type="text"
-														value={value?.toString() || ""}
-														onChange={(e) => {
-															const newValue = e.target.value;
-															if (newValue === "" || /^\d+$/.test(newValue)) {
-																const parsedValue =
-																	newValue === "" ? null : parseInt(newValue, 10);
-																onChange(parsedValue);
-															}
-														}}
+														value={value}
+														onChange={handleIntChange(onChange)}
 														variant="outlined"
 														error={!!error}
 														helperText={error?.message}
@@ -294,7 +315,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 												name={`items.${index}.creditPayments.${paymentIndex}.deadline`}
 												control={control}
 												render={({ field: { value, onChange } }) => (
-													<LocalizationProvider dateAdapter={AdapterDayjs}>
+													<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
 														<DatePicker
 															value={dayjs(value)}
 															onChange={(newValue) => {
@@ -321,7 +342,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						<Button
 							sx={{ color: "success.main" }}
 							style={{ width: "fit-content" }}
-							onClick={() => appendCreditPayment({ sum: null, deadline: null })}
+							onClick={() => appendCreditPayment({ sum: "", deadline: null })}
 						>
 							{creditPaymentsFields.length === 0 ? "Товар в рассрочку" : "Добавить платеж"}
 						</Button>
@@ -349,21 +370,38 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 	};
 
 	if (productIds) {
-		defaultValues.items = products
-			.filter((product) => productIds.includes(product.id))
-			.map((product) => ({
-				product,
-				price: null,
-				discount: null,
-				quantity: null,
-				creditPayments: [],
-			}));
+		let categoryId;
+		const productsToAdd: ProductGet[] = [];
+
+		for (const product of products) {
+			if (productIds.includes(product.id)) {
+				const productCategoryId = product.category.id;
+				if (categoryId) {
+					if (categoryId !== productCategoryId) {
+						break;
+					}
+				} else {
+					categoryId = productCategoryId;
+				}
+				productsToAdd.push(product);
+			}
+		}
+		defaultValues.categoryId = categoryId || null;
+		defaultValues.items = productsToAdd.map((product) => ({
+			product,
+			price: "",
+			discount: null,
+			unlimitedQuantity: false,
+			quantity: "",
+			creditPayments: [],
+		}));
 	} else {
 		defaultValues.items.push({
 			product: null,
-			price: null,
+			price: "",
 			discount: null,
-			quantity: null,
+			unlimitedQuantity: false,
+			quantity: "",
 			creditPayments: [],
 		});
 	}
@@ -420,7 +458,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 					},
 				})),
 			};
-			onSubmit(formattedData as PublicationCreate);
+			onSubmit(PublicationCreateSchema.parse(formattedData));
 		},
 		[onSubmit]
 	);
@@ -473,9 +511,9 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 	};
 
 	return (
-		<form className="w-100 d-f fd-c gap-2" onSubmit={handleSubmit(formattedOnSubmit)} noValidate>
-			<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
-				<div className="d-f fd-r gap-2">
+		<form className="gap-2 w-100 d-f fd-c" onSubmit={handleSubmit(formattedOnSubmit)} noValidate>
+			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
+				<div className="gap-2 d-f fd-r">
 					<Controller
 						name="link"
 						control={control}
@@ -519,7 +557,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 						)}
 					/>
 				</div>
-				<div className="d-f fd-r gap-2">
+				<div className="gap-2 d-f fd-r">
 					<Controller
 						name="preorderId"
 						control={control}
@@ -579,7 +617,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 					/>
 				</div>
 			</div>
-			<div className="d-f fd-c gap-1 p-3 bg-primary br-3">
+			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 				<DragDropContext onDragEnd={handleDragItemVariation}>
 					<ul style={{ margin: 0, padding: 0, listStyleType: "none" }}>
 						<Droppable droppableId="variations">
@@ -621,9 +659,10 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 					onClick={() =>
 						appendVariation({
 							product: null,
-							price: null,
+							price: "",
 							discount: null,
-							quantity: null,
+							unlimitedQuantity: false,
+							quantity: "",
 							creditPayments: [],
 						})
 					}
@@ -631,7 +670,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 					Добавить вариацию
 				</Button>
 			</div>
-			<div className="d-f fd-r gap-1 p-3 bg-primary br-3">
+			<div className="gap-1 bg-primary p-3 br-3 d-f fd-r">
 				<Button variant="outlined">Сохранить черновик</Button>
 				<Button type="submit" variant="contained">
 					Опубликовать

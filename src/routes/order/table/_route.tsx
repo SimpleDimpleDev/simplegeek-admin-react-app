@@ -30,7 +30,7 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		field: "status",
 		headerName: "Статус",
 		renderCell: ({ row: { status } }) => {
-			return <div className="ai-c d-f jc-c">{orderStatusBadges[status]}</div>;
+			return <div className="w-100 h-100 ai-c d-f jc-c">{orderStatusBadges[status]}</div>;
 		},
 	},
 	{

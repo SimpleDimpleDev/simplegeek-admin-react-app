@@ -8,6 +8,7 @@ import { IndexRouteLazy } from "@routes/_index/_lazy.tsx";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { OrderInspectRouteLazy } from "@routes/order/inspect.$id/_lazy.tsx";
 import { OrderTableRouteLazy } from "@routes/order/table/_lazy.tsx";
+import { PreorderTableRouteLazy } from "@routes/preorder/table/_lazy";
 import { ProductCreateRouteLazy } from "@routes/product/create/_lazy.tsx";
 import { ProductInspectRouteLazy } from "@routes/product/inspect.$id/_lazy.tsx";
 import { ProductTableRouteLazy } from "@routes/product/table/_lazy.tsx";
@@ -48,6 +49,9 @@ const AppRouter: React.FC = () => (
 					<Route path="user">
 						<Route path="table" element={<UserTableRouteLazy />} />
 						<Route path="inspect/:id" element={<UserInspectRouteLazy />} />
+					</Route>
+					<Route path="preorder">
+						<Route path="table" element={<PreorderTableRouteLazy />} />
 					</Route>
 				</Route>
 				<Route path="test" element={<TestRouteLazy />} />

@@ -6,6 +6,6 @@ export const adminApi = createApi({
 		baseUrl: import.meta.env.SHOP_API_URL,
 		credentials: "include",
 	}),
-	tagTypes: ["Category", "Product", "User", "Order", "FAQItem", "Publication", "FilterGroup"],
+	tagTypes: ["Category", "Product", "User", "Order", "FAQItem", "Publication", "FilterGroup", "Preorder"],
 	endpoints: () => ({}),
 });

@@ -94,7 +94,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 			<div className="gap-1 w-100 d-f fd-c">
 				<div className="ai-c d-f fd-r js-sb">
 					<Typography variant="h6">{!isSingle ? `Вариация ${index + 1}` : "Товар"}</Typography>
-					<IconButton onClick={() => onRemove(index)}>
+					<IconButton disabled={isSingle} onClick={() => onRemove(index)}>
 						<Delete />
 					</IconButton>
 				</div>
