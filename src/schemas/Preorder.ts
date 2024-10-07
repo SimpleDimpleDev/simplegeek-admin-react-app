@@ -15,7 +15,7 @@ export const ShippingCostIncludedSchema = z.enum(["FOREIGN", "FULL", "NOT"]);
 
 export const PreorderCreateSchema = z.object({
 	title: z.string(),
-	expectedArrival: z.date().nullable(),
+	expectedArrival: z.string().nullable(),
 });
 
 export const PreorderGetSchema = AdminGetBaseSchema.extend({
