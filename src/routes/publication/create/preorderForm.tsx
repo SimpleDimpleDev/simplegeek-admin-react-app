@@ -196,7 +196,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						)}
 					/>
 
-					<div className="gap-1 d-f fd-r">
+					<div className="gap-1 w-100 d-f fd-r">
 						<Controller
 							name={`items.${index}.quantity`}
 							control={control}
