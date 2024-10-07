@@ -78,7 +78,8 @@ const PreorderCreateForm: React.FC<PreorderCreateFormProps> = ({ onSubmit }) => 
 							<TextField
 								label="Примерная дата доставки"
 								type="text"
-								value={value === null ? "Неизвестно" : value}
+								disabled={value === null}
+								value={value ?? "-"}
 								onChange={onChange}
 								error={!!fieldState.error}
 								helperText={fieldState.error?.message}
