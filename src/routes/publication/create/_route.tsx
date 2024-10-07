@@ -82,7 +82,7 @@ export default function PublicationCreateRoute() {
 	};
 
 	return (
-		<div className="px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
+		<>
 			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar open={snackbarOpened} autoHideDuration={1500} onClose={closeSnackbar} message={snackbarMessage} />
 
@@ -94,49 +94,51 @@ export default function PublicationCreateRoute() {
 				</DialogActions>
 			</Dialog>
 
-			<div className="p-2">
-				<Typography variant="h5">Публикация товара</Typography>
-			</div>
+			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
+				<div className="p-2">
+					<Typography variant="h5">Публикация товара</Typography>
+				</div>
 
-			<div className="section">
-				<FormControl fullWidth>
-					<InputLabel id="publication-type">Тип публикации</InputLabel>
-					<Select
-						labelId="publication-type"
-						label="Тип публикации"
-						variant="outlined"
-						fullWidth
-						value={publicationType}
-						onChange={(e) => handleChangePublicationType(e.target.value as "STOCK" | "PREORDER")}
-					>
-						<MenuItem value="STOCK">Розница</MenuItem>
-						<MenuItem value="PREORDER">Предзаказ</MenuItem>
-					</Select>
-				</FormControl>
-			</div>
+				<div className="section">
+					<FormControl fullWidth>
+						<InputLabel id="publication-type">Тип публикации</InputLabel>
+						<Select
+							labelId="publication-type"
+							label="Тип публикации"
+							variant="outlined"
+							fullWidth
+							value={publicationType}
+							onChange={(e) => handleChangePublicationType(e.target.value as "STOCK" | "PREORDER")}
+						>
+							<MenuItem value="STOCK">Розница</MenuItem>
+							<MenuItem value="PREORDER">Предзаказ</MenuItem>
+						</Select>
+					</FormControl>
+				</div>
 
-			{publicationType === "STOCK" ? (
-				<PublicationCreateStockForm
-					productList={productList}
-					productListIsLoading={productListIsLoading}
-					categoryList={categoryList}
-					categoryListIsLoading={categoryListIsLoading}
-					productIds={productIds}
-					onDirty={() => setFormIsDirty(true)}
-					onSubmit={createPublication}
-				/>
-			) : (
-				<PublicationCreatePreorderForm
-					productList={productList}
-					productListIsLoading={productListIsLoading}
-					categoryList={categoryList}
-					categoryListIsLoading={categoryListIsLoading}
-					preorderList={preorderList}
-					preorderListIsLoading={preorderListIsLoading}
-					onDirty={() => setFormIsDirty(true)}
-					onSubmit={createPublication}
-				/>
-			)}
-		</div>
+				{publicationType === "STOCK" ? (
+					<PublicationCreateStockForm
+						productList={productList}
+						productListIsLoading={productListIsLoading}
+						categoryList={categoryList}
+						categoryListIsLoading={categoryListIsLoading}
+						productIds={productIds}
+						onDirty={() => setFormIsDirty(true)}
+						onSubmit={createPublication}
+					/>
+				) : (
+					<PublicationCreatePreorderForm
+						productList={productList}
+						productListIsLoading={productListIsLoading}
+						categoryList={categoryList}
+						categoryListIsLoading={categoryListIsLoading}
+						preorderList={preorderList}
+						preorderListIsLoading={preorderListIsLoading}
+						onDirty={() => setFormIsDirty(true)}
+						onSubmit={createPublication}
+					/>
+				)}
+			</div>
+		</>
 	);
 }
