@@ -1,23 +1,20 @@
 import "dayjs/locale/ru";
 
-import { Button, Divider, Stack, TextField } from "@mui/material";
+import { Button, Checkbox, Divider, FormControlLabel, Stack, TextField, Typography } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { PreorderCreateSchema } from "@schemas/Preorder";
-import dayjs from "dayjs";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 type PreorderCreateFormData = {
 	title: string;
-	expectedArrival: Date | null;
+	expectedArrival: string | null;
 };
 
 const PreorderCreateResolver = z.object({
 	title: z.string().min(1, { message: "Укажите название" }),
-	expectedArrival: z.date().nullable(),
+	expectedArrival: z.string().min(1, { message: "Укажите примерную дату доставки" }).nullable(),
 });
 
 interface PreorderCreateFormProps {
@@ -59,15 +56,35 @@ const PreorderCreateForm: React.FC<PreorderCreateFormProps> = ({ onSubmit }) => 
 				<Controller
 					name="expectedArrival"
 					control={control}
-					render={({ field: { value, onChange } }) => (
-						<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
-							<DatePicker
-								value={dayjs(value)}
-								onChange={(newValue) => {
-									onChange(newValue?.toDate());
-								}}
+					render={({ field: { value, onChange }, fieldState }) => (
+						<div className="gap-1 d-f fd-c">
+							<Typography variant="body1">Примерная дата доставки</Typography>
+							<FormControlLabel
+								control={
+									<Checkbox
+										checked={value === null}
+										onChange={(_, value) => {
+											if (value) {
+												onChange(null);
+											} else {
+												onChange("");
+											}
+										}}
+										inputProps={{ "aria-label": "controlled" }}
+									/>
+								}
+								label="Неизвестно"
 							/>
-						</LocalizationProvider>
+							<TextField
+								label="Примерная дата доставки"
+								type="text"
+								value={value === null ? "Неизвестно" : value}
+								onChange={onChange}
+								error={!!fieldState.error}
+								helperText={fieldState.error?.message}
+								fullWidth
+							/>
+						</div>
 					)}
 				/>
 			</Stack>

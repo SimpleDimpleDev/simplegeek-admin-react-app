@@ -1,5 +1,4 @@
 import { AdminGetBaseSchema } from "./Admin";
-import { ISOToDateSchema } from "./Primitives";
 import { InvoiceGetSchema } from "./Payment";
 import { z } from "zod";
 
@@ -22,7 +21,7 @@ export const PreorderCreateSchema = z.object({
 export const PreorderGetSchema = AdminGetBaseSchema.extend({
 	title: z.string(),
 	status: PreorderStatusSchema,
-	expectedArrival: ISOToDateSchema.nullable(),
+	expectedArrival: z.string().nullable(),
 });
 
 export const PreorderListGetSchema = z.object({
@@ -32,7 +31,7 @@ export const PreorderListGetSchema = z.object({
 export const PreorderUpdateSchema = z.object({
 	id: z.string(),
 	title: z.string(),
-	expectedArrival: z.date().nullable(),
+	expectedArrival: z.string().nullable(),
 });
 
 export const PreorderOrderGetSchema = PreorderGetSchema.extend({

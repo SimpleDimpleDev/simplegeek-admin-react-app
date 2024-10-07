@@ -24,7 +24,7 @@ const columns: GridColDef<PreorderGet>[] = [
 			return <div className="w-100 h-100 ai-c d-f jc-c">{preorderStatusBadges[status]}</div>;
 		},
 	},
-	{ field: "expectedArrival", headerName: "Ожидаемая дата приезда", type: "dateTime" },
+	{ field: "expectedArrival", headerName: "Ожидаемая дата доставки" },
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
 ];
