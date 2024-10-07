@@ -72,12 +72,7 @@ export default function OrderInspectRoute() {
 
 	const showLoadingOverlay = statusUpdateIsLoading || deliveryUpdateIsLoading;
 
-	const {
-		snackbarOpened,
-		snackbarMessage,
-		showSnackbarMessage,
-		closeSnackbar
-	} = useSnackbar();
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
 	const [statusEditing, setStatusEditing] = useState(false);
 	const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "UNDEFINED">("UNDEFINED");
@@ -133,12 +128,7 @@ export default function OrderInspectRoute() {
 	return (
 		<>
 			<LoadingOverlay isOpened={showLoadingOverlay} />
-			<Snackbar
-				open={snackbarOpened}
-				autoHideDuration={2000}
-				onClose={closeSnackbar}
-				message={snackbarMessage}
-			/>
+			<Snackbar open={snackbarOpened} autoHideDuration={2000} onClose={closeSnackbar} message={snackbarMessage} />
 			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 				<Button onClick={() => navigate("/order/table")} sx={{ width: "fit-content", color: "warning.main" }}>
 					<ChevronLeft />К списку всех заказов
@@ -286,11 +276,7 @@ export default function OrderInspectRoute() {
 												На складе ожидается:
 											</Typography>
 											<Typography variant="body1">
-												{order.preorder?.expectedArrival
-													? DateFormatter.CyrillicMonthNameYYYY(
-															order.preorder.expectedArrival
-													  )
-													: "Неизвестно"}
+												{order.preorder?.expectedArrival ?? "Неизвестно"}
 											</Typography>
 										</div>
 									</div>
