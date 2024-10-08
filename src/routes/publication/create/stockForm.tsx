@@ -98,10 +98,12 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	selectedProducts,
 }) => {
 	const discountValueError = errors.items?.[index]?.discount?.value?.message;
-	const priceAfterDiscount = useMemo(() => {
-		const discount = watch(`items.${index}.discount`);
+	
+	const discount = watch(`items.${index}.discount`);
+	const priceString = watch(`items.${index}.price`);
+
+	const priceAfterDiscount = useMemo(() => {	
 		if (!discount) return null;
-		const priceString = watch(`items.${index}.price`);
 		const discountValueString = discount.value;
 		const price = parseInt(priceString) ?? 0;
 		const discountValue = parseInt(discountValueString) ?? 0;
@@ -109,7 +111,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 			return price - discountValue;
 		}
 		return price - price * (discountValue / 100);
-	}, [index, watch]);
+	}, [discount, priceString]);
+
 	return (
 		<div key={index} className="gap-2 w-100 d-f fd-r">
 			<IconButton {...dragHandleProps}>
