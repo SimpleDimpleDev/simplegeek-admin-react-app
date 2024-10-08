@@ -106,7 +106,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						<Delete />
 					</IconButton>
 				</div>
-				<Stack direction={"row"} spacing={2} divider={<Divider orientation="vertical" flexItem />}>
+				<Stack direction={"row"} alignItems={"end"} spacing={2} divider={<Divider orientation="vertical" flexItem />}>
 					<Controller
 						name={`items.${index}.product`}
 						control={control}
@@ -201,7 +201,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						name={`items.${index}.discount`}
 						control={control}
 						render={({ field: { value: discount, onChange: onDiscountChange }, fieldState: { error } }) => (
-							<div className="gap-05 w-100 ai-c d-f fd-c">
+							<div className="gap-05 w-100 d-f fd-c">
 								<div className="gap-1 ai-c d-f fd-r">
 									<Checkbox
 										checked={discount !== null}
