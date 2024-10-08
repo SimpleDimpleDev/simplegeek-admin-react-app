@@ -16,7 +16,7 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import { Control, Controller, FieldErrors, useFieldArray, useForm } from "react-hook-form";
+import { Control, Controller, FieldErrors, UseFormWatch, useFieldArray, useForm } from "react-hook-form";
 import { Delete, DragIndicator } from "@mui/icons-material";
 import { DiscountResolver, SlugResolver } from "../utils";
 import {
@@ -74,6 +74,7 @@ const PublicationCreateStockResolver = z.object({
 
 interface ItemFormProps {
 	index: number;
+	watch: UseFormWatch<PublicationCreateStockFormData>;
 	control: Control<PublicationCreateStockFormData>;
 	errors: FieldErrors<PublicationCreateStockFormData>;
 	dragHandleProps: DraggableProvidedDragHandleProps | undefined | null;
@@ -86,6 +87,7 @@ interface ItemFormProps {
 
 const ItemForm: React.FC<ItemFormProps> = ({
 	index,
+	watch,
 	control,
 	errors,
 	dragHandleProps,
@@ -96,6 +98,18 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	selectedProducts,
 }) => {
 	const discountValueError = errors.items?.[index]?.discount?.value?.message;
+	const priceAfterDiscount = useMemo(() => {
+		const discount = watch(`items.${index}.discount`);
+		if (!discount) return null;
+		const priceString = watch(`items.${index}.price`);
+		const discountValueString = discount.value;
+		const price = parseInt(priceString) ?? 0;
+		const discountValue = parseInt(discountValueString) ?? 0;
+		if (discount.type === "FIXED") {
+			return price - discountValue;
+		}
+		return price - price * (discountValue / 100);
+	}, [index, watch]);
 	return (
 		<div key={index} className="gap-2 w-100 d-f fd-r">
 			<IconButton {...dragHandleProps}>
@@ -109,11 +123,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						<Delete />
 					</IconButton>
 				</div>
-				<Stack
-					direction={"row"}
-					spacing={2}
-					divider={<Divider orientation="vertical" flexItem />}
-				>
+				<Stack direction={"row"} spacing={2} divider={<Divider orientation="vertical" flexItem />}>
 					<Controller
 						name={`items.${index}.product`}
 						control={control}
@@ -251,6 +261,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 										/>
 										<Typography variant="body2">%</Typography>
 									</div>
+									{discount && <Typography variant="body2">Итог: {priceAfterDiscount}₽</Typography>}
 								</div>
 							</div>
 						)}
@@ -454,11 +465,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 					<ul style={{ margin: 0, padding: 0, listStyleType: "none" }}>
 						<Droppable droppableId="variations">
 							{(provided) => (
-								<div
-									className="gap-1 w-100d-f fd-c"
-									{...provided.droppableProps}
-									ref={provided.innerRef}
-								>
+								<Stack divider={<Divider />} {...provided.droppableProps} ref={provided.innerRef}>
 									{variations.map((item, index) => (
 										<Draggable
 											key={`itemVariation[${index}]`}
@@ -470,6 +477,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 													<ItemForm
 														index={index}
 														control={control}
+														watch={watch}
 														errors={errors}
 														dragHandleProps={provided.dragHandleProps}
 														isSingle={variations.length === 1}
@@ -483,7 +491,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 										</Draggable>
 									))}
 									{provided.placeholder}
-								</div>
+								</Stack>
 							)}
 						</Droppable>
 					</ul>

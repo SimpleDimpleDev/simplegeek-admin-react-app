@@ -143,7 +143,18 @@ const ItemForm: React.FC<ItemFormProps> = ({
 
 	const discountValueError = errors.items?.[index]?.discount?.value?.message;
 
-	console.log(discountValueError);
+	const priceAfterDiscount = useMemo(() => {
+		const discount = watch(`items.${index}.discount`);
+		if (!discount) return null;
+		const priceString = watch(`items.${index}.price`);
+		const discountValueString = discount.value;
+		const price = parseInt(priceString) ?? 0;
+		const discountValue = parseInt(discountValueString) ?? 0;
+		if (discount.type === "FIXED") {
+			return price - discountValue;
+		}
+		return price - (price * (discountValue / 100));
+	}, [index, watch]);
 
 	const creditPayments = watch(`items.${index}.creditPayments`);
 	const creditPaymentsTotal = creditPayments.reduce((acc, { sum }) => acc + (parseInt(sum) ?? 0), 0);
@@ -334,6 +345,11 @@ const ItemForm: React.FC<ItemFormProps> = ({
 										/>
 										<Typography variant="body2">%</Typography>
 									</div>
+									{discount && (
+										<Typography variant="body2">
+											Итог: {priceAfterDiscount}₽
+										</Typography>
+									)}
 								</div>
 							</div>
 						)}
