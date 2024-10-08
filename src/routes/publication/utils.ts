@@ -8,7 +8,7 @@ export const SlugResolver = z
 
 export const DiscountResolver = z.object({
 	type: z.enum(["FIXED", "PERCENT"]),
-	value: z
+	value: z.coerce
 		.number({ message: "Укажите скидку" })
 		.positive({ message: "Скидка должна быть положительным числом" }),
 }).refine((data) => data.type === "PERCENT" ? data.value <= 100 : true, {

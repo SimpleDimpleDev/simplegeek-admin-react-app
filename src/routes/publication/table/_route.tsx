@@ -52,7 +52,10 @@ interface TableRowData {
 	imageUrl: string;
 	categoryTitle: string;
 	price: number;
-	discount: number | null;
+	discount: {
+		type: "FIXED" | "PERCENT";
+		value: number;
+	} | null;
 	preorderTitle: string;
 	hasCredit: boolean;
 	quantity: number | null;
