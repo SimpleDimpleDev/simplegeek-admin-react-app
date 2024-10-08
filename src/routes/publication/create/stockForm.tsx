@@ -52,7 +52,7 @@ const CatalogItemPublishStockResolver = z.object({
 	product: z.object({ id: z.string({ message: "Выберите продукт" }) }, { message: "Выберите продукт" }),
 	rating: z.coerce
 		.number({ message: "Укажите рейтинг" })
-		.positive({ message: "Рейтинг должен быть положительным числом" }),
+		.nonnegative({ message: "Рейтинг не может быть отрицательным числом" }),
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
 	quantity: z.coerce
 		.number({ message: "Укажите количество" })
