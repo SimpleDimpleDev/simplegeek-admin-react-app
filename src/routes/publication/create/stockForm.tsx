@@ -3,6 +3,7 @@ import {
 	Button,
 	Checkbox,
 	CircularProgress,
+	Divider,
 	FormControl,
 	FormHelperText,
 	IconButton,
@@ -10,6 +11,7 @@ import {
 	InputLabel,
 	MenuItem,
 	Select,
+	Stack,
 	Switch,
 	TextField,
 	Typography,
@@ -104,7 +106,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						<Delete />
 					</IconButton>
 				</div>
-				<div className="gap-2 pb-2 d-f fd-c">
+				<Stack direction={"row"} spacing={2} divider={<Divider orientation="vertical" flexItem />}>
 					<Controller
 						name={`items.${index}.product`}
 						control={control}
@@ -148,8 +150,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 							/>
 						)}
 					/>
-				</div>
-				<div className="gap-2 d-f fd-r">
+
 					<Controller
 						name={`items.${index}.price`}
 						control={control}
@@ -200,7 +201,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						name={`items.${index}.discount`}
 						control={control}
 						render={({ field: { value: discount, onChange: onDiscountChange }, fieldState: { error } }) => (
-							<div className="gap-1 w-100 ai-c d-f fd-r">
+							<div className="gap-05 w-100 ai-c d-f fd-r">
 								<Checkbox
 									checked={discount !== null}
 									onChange={(_, checked) => {
@@ -245,7 +246,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 							</div>
 						)}
 					/>
-				</div>
+				</Stack>
 			</div>
 		</div>
 	);
@@ -392,7 +393,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 	return (
 		<form className="gap-2 w-100 d-f fd-c" onSubmit={handleSubmit(formattedOnSubmit)} noValidate>
 			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
-				<div className="gap-2 d-f fd-c">
+				<div className="gap-2 d-f fd-r">
 					<Controller
 						name="link"
 						control={control}

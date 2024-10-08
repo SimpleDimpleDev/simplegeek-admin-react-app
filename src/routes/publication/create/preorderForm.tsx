@@ -155,7 +155,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						<Delete />
 					</IconButton>
 				</div>
-				<div className="gap-2 pb-2 d-f fd-r">
+				<Stack direction={"row"} spacing={2} divider={<Divider orientation="vertical" flexItem />}>
 					<Controller
 						name={`items.${index}.product`}
 						control={control}
@@ -248,8 +248,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 							/>
 						</div>
 					</div>
-				</div>
-				<div className="gap-2 d-f fd-r">
+
 					<Controller
 						name={`items.${index}.price`}
 						control={control}
@@ -278,7 +277,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						name={`items.${index}.discount`}
 						control={control}
 						render={({ field: { value: discount, onChange: onDiscountChange }, fieldState: { error } }) => (
-							<div className="gap-1 w-100 ai-c d-f fd-r">
+							<div className="gap-05 w-100 ai-c d-f fd-r">
 								<Checkbox
 									checked={discount !== null}
 									onChange={(_, checked) => {
@@ -323,76 +322,77 @@ const ItemForm: React.FC<ItemFormProps> = ({
 							</div>
 						)}
 					/>
-				</div>
-			</div>
-			<div className="gap-2 d-f fd-c">
-				<div className="gap-2 d-f fd-c">
-					{creditPaymentsFields.length > 0 && (
-						<>
-							<Typography>Платежи рассрочки</Typography>
-							<div className="gap-1 d-f fd-c">
-								{creditPaymentsFields.map((field, paymentIndex) => (
-									<div className="gap-1 d-f fd-r" key={field.id}>
-										<Controller
-											key={field.id}
-											name={`items.${index}.creditPayments.${paymentIndex}.sum`}
-											control={control}
-											render={({ field: { value, onChange }, fieldState: { error } }) => (
-												<TextField
-													label="Сумма"
-													type="text"
-													value={value}
-													onChange={handleIntChange(onChange)}
-													variant="outlined"
-													error={!!error}
-													helperText={error?.message}
-													slotProps={{
-														input: {
-															endAdornment: (
-																<InputAdornment position="end">₽</InputAdornment>
-															),
-														},
-													}}
-												/>
-											)}
-										/>
+				</Stack>
 
-										<Controller
-											key={field.id}
-											name={`items.${index}.creditPayments.${paymentIndex}.deadline`}
-											control={control}
-											render={({ field: { value, onChange } }) => (
-												<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
-													<DatePicker
-														value={dayjs(value)}
-														onChange={(newValue) => {
-															onChange(newValue?.toDate());
+				<div className="gap-2 d-f fd-c">
+					<div className="gap-2 d-f fd-c">
+						{creditPaymentsFields.length > 0 && (
+							<>
+								<Typography>Платежи рассрочки</Typography>
+								<div className="gap-1 d-f fd-c">
+									{creditPaymentsFields.map((field, paymentIndex) => (
+										<div className="gap-1 d-f fd-r" key={field.id}>
+											<Controller
+												key={field.id}
+												name={`items.${index}.creditPayments.${paymentIndex}.sum`}
+												control={control}
+												render={({ field: { value, onChange }, fieldState: { error } }) => (
+													<TextField
+														label="Сумма"
+														type="text"
+														value={value}
+														onChange={handleIntChange(onChange)}
+														variant="outlined"
+														error={!!error}
+														helperText={error?.message}
+														slotProps={{
+															input: {
+																endAdornment: (
+																	<InputAdornment position="end">₽</InputAdornment>
+																),
+															},
 														}}
 													/>
-												</LocalizationProvider>
-											)}
-										/>
+												)}
+											/>
 
-										<Button
-											sx={{ color: "error.main" }}
-											style={{ width: "fit-content" }}
-											onClick={() => removeCreditPayment(paymentIndex)}
-										>
-											Удалить
-										</Button>
-									</div>
-								))}
-							</div>
-						</>
-					)}
+											<Controller
+												key={field.id}
+												name={`items.${index}.creditPayments.${paymentIndex}.deadline`}
+												control={control}
+												render={({ field: { value, onChange } }) => (
+													<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
+														<DatePicker
+															value={dayjs(value)}
+															onChange={(newValue) => {
+																onChange(newValue?.toDate());
+															}}
+														/>
+													</LocalizationProvider>
+												)}
+											/>
 
-					<Button
-						sx={{ color: "success.main" }}
-						style={{ width: "fit-content" }}
-						onClick={() => appendCreditPayment({ sum: "", deadline: null })}
-					>
-						{creditPaymentsFields.length === 0 ? "Товар в рассрочку" : "Добавить платеж"}
-					</Button>
+											<Button
+												sx={{ color: "error.main" }}
+												style={{ width: "fit-content" }}
+												onClick={() => removeCreditPayment(paymentIndex)}
+											>
+												Удалить
+											</Button>
+										</div>
+									))}
+								</div>
+							</>
+						)}
+
+						<Button
+							sx={{ color: "success.main" }}
+							style={{ width: "fit-content" }}
+							onClick={() => appendCreditPayment({ sum: "", deadline: null })}
+						>
+							{creditPaymentsFields.length === 0 ? "Товар в рассрочку" : "Добавить платеж"}
+						</Button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -604,8 +604,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 							</FormControl>
 						)}
 					/>
-				</div>
-				<div className="gap-2 d-f fd-r">
+
 					<Controller
 						name="preorderId"
 						control={control}
