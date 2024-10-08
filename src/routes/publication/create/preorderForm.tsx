@@ -20,7 +20,15 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import { Control, Controller, UseFormSetValue, UseFormWatch, useFieldArray, useForm } from "react-hook-form";
+import {
+	Control,
+	Controller,
+	FieldErrors,
+	UseFormSetValue,
+	UseFormWatch,
+	useFieldArray,
+	useForm,
+} from "react-hook-form";
 import { DiscountResolver, SlugResolver } from "../utils";
 import {
 	DragDropContext,
@@ -102,6 +110,7 @@ interface ItemFormProps {
 	control: Control<PublicationCreatePreorderFormData>;
 	setValue: UseFormSetValue<PublicationCreatePreorderFormData>;
 	watch: UseFormWatch<PublicationCreatePreorderFormData>;
+	errors: FieldErrors<PublicationCreatePreorderFormData>;
 	dragHandleProps: DraggableProvidedDragHandleProps | undefined | null;
 	isSingle: boolean;
 	onRemove: (index: number) => void;
@@ -115,6 +124,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	control,
 	setValue,
 	watch,
+	errors,
 	dragHandleProps,
 	isSingle,
 	onRemove,
@@ -131,12 +141,12 @@ const ItemForm: React.FC<ItemFormProps> = ({
 		control,
 	});
 
+	const discountError = errors.items?.[index]?.discount?.message;
+
 	const creditPayments = watch(`items.${index}.creditPayments`);
 	const creditPaymentsTotal = creditPayments.reduce((acc, { sum }) => acc + (parseInt(sum) ?? 0), 0);
 
 	const quantityIsUnlimited = watch(`items.${index}.unlimitedQuantity`);
-
-	const discount = watch(`items.${index}.discount`);
 
 	useEffect(() => {
 		if (creditPayments.length > 0) {
@@ -275,21 +285,21 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						)}
 					/>
 
-					<div className="gap-05 w-100 d-f fd-c">
-						<Controller
-							name={`items.${index}.discount.value`}
-							control={control}
-							render={({ field: { value, onChange }, fieldState: { error } }) => (
+					<Controller
+						name={`items.${index}.discount`}
+						control={control}
+						render={({ field: { value: discount, onChange: onDiscountChange }, fieldState: { error } }) => (
+							<div className="gap-05 w-100 d-f fd-c">
 								<TextField
 									fullWidth
 									label="Скидка"
 									type="text"
 									disabled={discount === null}
-									value={discount ? value : "-"}
-									onChange={handleIntChange(onChange)}
+									value={discount ? discount.value : "-"}
+									onChange={handleIntChange((value) => onDiscountChange({ ...discount, value }))}
 									variant="outlined"
 									error={!!error}
-									helperText={error?.message}
+									helperText={discountError || error?.message}
 									slotProps={{
 										input: {
 											endAdornment: discount && (
@@ -300,38 +310,32 @@ const ItemForm: React.FC<ItemFormProps> = ({
 										},
 									}}
 								/>
-							)}
-						/>
-						<Controller
-							name={`items.${index}.discount`}
-							control={control}
-							render={({ field: { value, onChange } }) => (
 								<div className="gap-1 ai-c d-f fd-r">
 									<Checkbox
-										checked={value !== null}
+										checked={discount !== null}
 										onChange={(_, checked) => {
 											if (checked) {
-												onChange({ type: "FIXED", value: "" });
+												onDiscountChange({ type: "FIXED", value: "" });
 											} else {
-												onChange(null);
+												onDiscountChange(null);
 											}
 										}}
 									/>
 									<div className="gap-05 ai-c d-f fd-r">
 										<Typography variant="body2">₽</Typography>
 										<Switch
-											disabled={value === null}
-											checked={value?.type === "PERCENT"}
+											disabled={discount === null}
+											checked={discount?.type === "PERCENT"}
 											onChange={(_, checked) =>
-												onChange({ type: checked ? "PERCENT" : "FIXED", value: "" })
+												onDiscountChange({ type: checked ? "PERCENT" : "FIXED", value: "" })
 											}
 										/>
 										<Typography variant="body2">%</Typography>
 									</div>
 								</div>
-							)}
-						/>
-					</div>
+							</div>
+						)}
+					/>
 				</Stack>
 
 				<div className="gap-2 d-f fd-c">
@@ -522,7 +526,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 	const {
 		control,
 		handleSubmit,
-		formState: { isDirty },
+		formState: { isDirty, errors },
 		setValue,
 		watch,
 	} = useForm<PublicationCreatePreorderFormData>({
@@ -704,6 +708,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 														control={control}
 														setValue={setValue}
 														watch={watch}
+														errors={errors}
 														dragHandleProps={provided.dragHandleProps}
 														isSingle={variations.length === 1}
 														onRemove={removeVariation}
