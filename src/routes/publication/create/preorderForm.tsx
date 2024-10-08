@@ -143,6 +143,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 
 	const discountValueError = errors.items?.[index]?.discount?.value?.message;
 
+	console.log(discountValueError);
+
 	const creditPayments = watch(`items.${index}.creditPayments`);
 	const creditPaymentsTotal = creditPayments.reduce((acc, { sum }) => acc + (parseInt(sum) ?? 0), 0);
 
