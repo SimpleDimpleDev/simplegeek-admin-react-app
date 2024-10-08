@@ -15,8 +15,9 @@ export default function UserInspectRoute() {
 
 	return (
 		<div className="pt-4">
-			<Button onClick={() => navigate("/user/table")} sx={{ width: "fit-content", color: "warning.main" }}>
-				<ChevronLeft />К списку всех пользователей
+			<Button onClick={() => navigate(-1)} sx={{ width: "fit-content", color: "warning.main" }}>
+				<ChevronLeft />
+				Назад
 			</Button>
 			<LoadingSpinner isLoading={userIsLoading}>
 				{!user ? (
