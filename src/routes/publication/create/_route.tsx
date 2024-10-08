@@ -14,11 +14,11 @@ import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { LoadingOverlay } from "@components/LoadingOverlay";
-import { PreorderGet } from "@appTypes/Preorder";
 import { PublicationCreatePreorderForm } from "./preorderForm";
 import { PublicationCreateStockForm } from "./stockForm";
 import { useCreatePublicationMutation } from "@api/admin/publication";
 import { useGetCategoryListQuery } from "@api/admin/category";
+import { useGetPreorderListQuery } from "@api/admin/preorder";
 import { useGetProductListQuery } from "@api/admin/product";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
@@ -28,13 +28,10 @@ export default function PublicationCreateRoute() {
 	const [searchParams] = useSearchParams();
 	const productIds = useMemo(() => searchParams.getAll("productId[]"), [searchParams]);
 
-	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
-	// TODO: fetch preorderList
-	const { data: preorderList, isLoading: preorderListIsLoading } = {
-		data: { items: [] as PreorderGet[] },
-		isLoading: true,
-	};
+	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
+	const { data: preorderList, isLoading: preorderListIsLoading } = useGetPreorderListQuery();
+	
 	const [createPublication, { isSuccess, isLoading, isError, error }] = useCreatePublicationMutation();
 
 	const [publicationType, setPublicationType] = useState<"STOCK" | "PREORDER">("STOCK");
