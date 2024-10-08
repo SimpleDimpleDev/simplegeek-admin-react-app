@@ -217,17 +217,15 @@ const ItemForm: React.FC<ItemFormProps> = ({
 									type="text"
 									disabled={discount === null}
 									value={discount ? discount.value : "-"}
-									onChange={handleIntChange((value) =>
-										onDiscountChange({ ...discount, value })
-									)}
+									onChange={handleIntChange((value) => onDiscountChange({ ...discount, value }))}
 									variant="outlined"
 									error={!!error}
 									helperText={error?.message}
 									slotProps={{
 										input: {
-											endAdornment: (
+											endAdornment: discount && (
 												<InputAdornment position="end">
-													{discount?.type === "FIXED" ? "₽" : "%"}
+													{discount.type === "PERCENT" ? "%" : "₽"}
 												</InputAdornment>
 											),
 										},
@@ -236,6 +234,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								<div className="gap-05 ai-c d-f fd-r">
 									<Typography variant="body2">₽</Typography>
 									<Switch
+										disabled={discount === null}
 										checked={discount?.type === "PERCENT"}
 										onChange={(_, checked) =>
 											onDiscountChange({ type: checked ? "PERCENT" : "FIXED", value: "" })
