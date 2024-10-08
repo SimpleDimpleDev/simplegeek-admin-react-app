@@ -257,7 +257,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 									{variation.isActive ? <Check /> : <Close />}
 								</Typography>
 							</div>
-							<div className="gap-1 pl-2 d-f fd-c" style={{ width: "50%" }}>
+							<div className="gap-05 pl-2 d-f fd-c" style={{ width: "100%" }}>
 								<Typography variant="body2" sx={{ color: "typography.secondary" }}>
 									Рейтинг
 								</Typography>
@@ -342,7 +342,10 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 									field: { value: discount, onChange: onDiscountChange },
 									fieldState: { error },
 								}) => (
-									<div className="gap-1 pl-2 ai-fs d-f fd-c" style={{ width: "50%" }}>
+									<div className="gap-05 pl-2 ai-fs d-f fd-c" style={{ width: "100%" }}>
+										<Typography variant="body2" sx={{ color: "typography.secondary" }}>
+											Скидка
+										</Typography>
 										<div className="gap-1 ai-c d-f fd-r">
 											<Checkbox
 												disabled={!isEditing}
@@ -373,10 +376,10 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 												<Typography variant="body2">Итог: {priceAfterDiscount}₽</Typography>
 											)}
 										</div>
+
 										<TextField
 											{...textFieldProps}
 											fullWidth
-											label="Скидка"
 											type="text"
 											disabled={!isEditing || discount === null}
 											value={discount ? discount.value : "-"}
