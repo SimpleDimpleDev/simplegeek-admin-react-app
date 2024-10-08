@@ -13,7 +13,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CatalogItemUpdateSchema } from "@schemas/CatalogItem";
 import { ChevronLeft } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import { PublicationStockEditableHeader } from "./PublicationEditableHeader";
+import { PublicationStockEditableHeader } from "./PublicationStockEditableHeader";
 import { VariationStockEditableCard } from "./VariationStockEditableCard";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
