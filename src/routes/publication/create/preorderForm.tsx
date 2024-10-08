@@ -73,7 +73,9 @@ type CatalogItemPublishPreorderFormData = {
 
 const CatalogItemPublishPreorderResolver = z.object({
 	product: z.object({ id: z.string({ message: "Выберите продукт" }) }, { message: "Выберите продукт" }),
-	rating: z.coerce.number({ message: "Укажите рейтинг" }).positive({ message: "Рейтинг должен быть положительным числом" }),
+	rating: z.coerce
+		.number({ message: "Укажите рейтинг" })
+		.positive({ message: "Рейтинг должен быть положительным числом" }),
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
 	quantity: z.coerce.number().positive({ message: "Количество должно быть положительным числом" }).nullable(),
 	discount: DiscountResolver.nullable(),
@@ -248,7 +250,9 @@ const ItemForm: React.FC<ItemFormProps> = ({
 							)}
 						/>
 						{/* TODO: fetch max rating */}
-						<Typography variant="body1">Текущий максимальный рейтинг: 20</Typography>
+						<Typography variant="body1" sx={{ color: "typography.secondary" }}>
+							<em>Текущий максимальный рейтинг: 20</em>
+						</Typography>
 					</div>
 
 					<div className="gap-05 w-100 d-f fd-c">

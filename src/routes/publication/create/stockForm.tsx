@@ -195,7 +195,9 @@ const ItemForm: React.FC<ItemFormProps> = ({
 							)}
 						/>
 						{/* TODO: fetch max rating */}
-						<Typography variant="body1">Текущий максимальный рейтинг: 20</Typography>
+						<Typography variant="body1" sx={{ color: "typography.secondary" }}>
+							<em>Текущий максимальный рейтинг: 20</em>
+						</Typography>
 					</div>
 
 					<Controller
