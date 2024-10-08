@@ -556,6 +556,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 				shippingCostIncluded: data.shippingCostIncluded,
 				items: data.items.map((itemVariation) => ({
 					productId: itemVariation.product?.id,
+					rating: itemVariation.rating,
 					price: itemVariation.price,
 					discount: itemVariation.discount,
 					quantity: itemVariation.quantity,

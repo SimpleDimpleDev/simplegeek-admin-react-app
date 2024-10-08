@@ -382,6 +382,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 				shippingCostIncluded: data.deliveryCostIncluded,
 				items: data.items.map((itemVariation) => ({
 					productId: itemVariation.product?.id,
+					rating: itemVariation.rating,
 					price: itemVariation.price,
 					discount: itemVariation.discount,
 					quantity: itemVariation.quantity,
