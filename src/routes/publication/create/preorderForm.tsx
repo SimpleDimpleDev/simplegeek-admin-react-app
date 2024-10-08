@@ -5,6 +5,7 @@ import {
 	Autocomplete,
 	Button,
 	Checkbox,
+	CircularProgress,
 	Divider,
 	FormControl,
 	FormControlLabel,
@@ -31,7 +32,6 @@ import { useCallback, useEffect, useMemo } from "react";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { CategoryGet } from "@appTypes/Category";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { LoadingSpinner } from "@components/LoadingSpinner";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { PreorderGet } from "@appTypes/Preorder";
 import { ProductGet } from "@appTypes/Product";
@@ -547,13 +547,15 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 									{...field}
 									error={!!error}
 								>
-									<LoadingSpinner isLoading={categoryListIsLoading}>
-										{categoryList?.items.map((category) => (
+									{!categoryList || categoryListIsLoading ? (
+										<CircularProgress />
+									) : (
+										categoryList?.items.map((category) => (
 											<MenuItem key={category.id} value={category.id}>
 												{category.title}
 											</MenuItem>
-										))}
-									</LoadingSpinner>
+										))
+									)}
 								</Select>
 								<FormHelperText error={!!error}>{error?.message}</FormHelperText>
 							</FormControl>
@@ -575,13 +577,15 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 									{...field}
 									error={!!error}
 								>
-									<LoadingSpinner isLoading={preorderListIsLoading}>
-										{preorderList?.items.map((preorder) => (
+									{!preorderList || preorderListIsLoading ? (
+										<CircularProgress />
+									) : (
+										preorderList?.items.map((preorder) => (
 											<MenuItem key={preorder.id} value={preorder.id}>
 												{preorder.title}
 											</MenuItem>
-										))}
-									</LoadingSpinner>
+										))
+									)}
 								</Select>
 								<FormHelperText error={!!error}>{error?.message}</FormHelperText>
 							</FormControl>
