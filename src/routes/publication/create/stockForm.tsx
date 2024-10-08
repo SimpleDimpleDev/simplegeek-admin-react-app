@@ -98,11 +98,11 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	selectedProducts,
 }) => {
 	const discountValueError = errors.items?.[index]?.discount?.value?.message;
-	
+
 	const discount = watch(`items.${index}.discount`);
 	const priceString = watch(`items.${index}.price`);
 
-	const priceAfterDiscount = useMemo(() => {	
+	const priceAfterDiscount = useMemo(() => {
 		if (!discount) return null;
 		const discountValueString = discount.value;
 		const price = parseInt(priceString) ?? 0;
@@ -114,7 +114,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	}, [discount, priceString]);
 
 	return (
-		<div key={index} className="gap-2 w-100 d-f fd-r">
+		<div key={index} className="gap-2 py-2 w-100 d-f fd-r">
 			<IconButton {...dragHandleProps}>
 				<DragIndicator />
 			</IconButton>
@@ -172,29 +172,6 @@ const ItemForm: React.FC<ItemFormProps> = ({
 					/>
 
 					<Controller
-						name={`items.${index}.price`}
-						control={control}
-						render={({ field: { value, onChange }, fieldState: { error } }) => (
-							<TextField
-								fullWidth
-								label="Цена"
-								type="text"
-								required
-								value={value}
-								onChange={handleIntChange(onChange)}
-								variant="outlined"
-								error={!!error}
-								helperText={error?.message}
-								slotProps={{
-									input: {
-										endAdornment: <InputAdornment position="end">₽</InputAdornment>,
-									},
-								}}
-							/>
-						)}
-					/>
-
-					<Controller
 						name={`items.${index}.quantity`}
 						control={control}
 						render={({ field: { value, onChange }, fieldState: { error } }) => (
@@ -211,6 +188,29 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								slotProps={{
 									input: {
 										endAdornment: <InputAdornment position="end">шт</InputAdornment>,
+									},
+								}}
+							/>
+						)}
+					/>
+
+					<Controller
+						name={`items.${index}.price`}
+						control={control}
+						render={({ field: { value, onChange }, fieldState: { error } }) => (
+							<TextField
+								fullWidth
+								label="Цена"
+								type="text"
+								required
+								value={value}
+								onChange={handleIntChange(onChange)}
+								variant="outlined"
+								error={!!error}
+								helperText={error?.message}
+								slotProps={{
+									input: {
+										endAdornment: <InputAdornment position="end">₽</InputAdornment>,
 									},
 								}}
 							/>
