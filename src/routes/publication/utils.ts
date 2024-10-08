@@ -18,4 +18,5 @@ export const DiscountResolver = z
 	})
 	.refine((data) => (data.type === "PERCENT" ? data.value <= 100 : true), {
 		message: "Процент не может превышать 100%",
+		path: ["value"],
 	});
