@@ -201,17 +201,30 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						name={`items.${index}.discount`}
 						control={control}
 						render={({ field: { value: discount, onChange: onDiscountChange }, fieldState: { error } }) => (
-							<div className="gap-05 w-100 ai-c d-f fd-r">
-								<Checkbox
-									checked={discount !== null}
-									onChange={(_, checked) => {
-										if (checked) {
-											onDiscountChange({ type: "FIXED", value: "" });
-										} else {
-											onDiscountChange(null);
-										}
-									}}
-								/>
+							<div className="gap-05 w-100 ai-c d-f fd-c">
+								<div className="gap-1 ai-c d-f fd-r">
+									<Checkbox
+										checked={discount !== null}
+										onChange={(_, checked) => {
+											if (checked) {
+												onDiscountChange({ type: "FIXED", value: "" });
+											} else {
+												onDiscountChange(null);
+											}
+										}}
+									/>
+									<div className="gap-05 ai-c d-f fd-r">
+										<Typography variant="body2">₽</Typography>
+										<Switch
+											disabled={discount === null}
+											checked={discount?.type === "PERCENT"}
+											onChange={(_, checked) =>
+												onDiscountChange({ type: checked ? "PERCENT" : "FIXED", value: "" })
+											}
+										/>
+										<Typography variant="body2">%</Typography>
+									</div>
+								</div>
 								<TextField
 									fullWidth
 									label="Скидка"
@@ -232,17 +245,6 @@ const ItemForm: React.FC<ItemFormProps> = ({
 										},
 									}}
 								/>
-								<div className="gap-05 ai-c d-f fd-r">
-									<Typography variant="body2">₽</Typography>
-									<Switch
-										disabled={discount === null}
-										checked={discount?.type === "PERCENT"}
-										onChange={(_, checked) =>
-											onDiscountChange({ type: checked ? "PERCENT" : "FIXED", value: "" })
-										}
-									/>
-									<Typography variant="body2">%</Typography>
-								</div>
 							</div>
 						)}
 					/>
