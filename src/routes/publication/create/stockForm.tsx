@@ -16,7 +16,7 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import { Control, Controller, useFieldArray, useForm } from "react-hook-form";
+import { Control, Controller, UseFormWatch, useFieldArray, useForm } from "react-hook-form";
 import { Delete, DragIndicator } from "@mui/icons-material";
 import { DiscountResolver, SlugResolver } from "../utils";
 import {
@@ -75,6 +75,7 @@ const PublicationCreateStockResolver = z.object({
 interface ItemFormProps {
 	index: number;
 	control: Control<PublicationCreateStockFormData>;
+	watch: UseFormWatch<PublicationCreateStockFormData>;
 	dragHandleProps: DraggableProvidedDragHandleProps | undefined | null;
 	isSingle: boolean;
 	onRemove: (index: number) => void;
@@ -86,6 +87,7 @@ interface ItemFormProps {
 const ItemForm: React.FC<ItemFormProps> = ({
 	index,
 	control,
+	watch,
 	dragHandleProps,
 	isSingle,
 	onRemove,
@@ -93,6 +95,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	productsLoading,
 	selectedProducts,
 }) => {
+	const discount = watch(`items.${index}.discount`);
+
 	return (
 		<div key={index} className="gap-2 w-100 d-f fd-r">
 			<IconButton {...dragHandleProps}>
@@ -106,11 +110,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						<Delete />
 					</IconButton>
 				</div>
-				<Stack
-					direction={"row"}
-					spacing={2}
-					divider={<Divider orientation="vertical" flexItem />}
-				>
+				<Stack direction={"row"} spacing={2} divider={<Divider orientation="vertical" flexItem />}>
 					<Controller
 						name={`items.${index}.product`}
 						control={control}
@@ -201,18 +201,18 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						)}
 					/>
 
-					<Controller
-						name={`items.${index}.discount`}
-						control={control}
-						render={({ field: { value: discount, onChange: onDiscountChange }, fieldState: { error } }) => (
-							<div className="gap-05 w-100 d-f fd-c">
+					<div className="gap-05 w-100 d-f fd-c">
+						<Controller
+							name={`items.${index}.discount.value`}
+							control={control}
+							render={({ field: { value, onChange }, fieldState: { error } }) => (
 								<TextField
 									fullWidth
 									label="Скидка"
 									type="text"
 									disabled={discount === null}
-									value={discount ? discount.value : "-"}
-									onChange={handleIntChange((value) => onDiscountChange({ ...discount, value }))}
+									value={discount ? value : "-"}
+									onChange={handleIntChange(onChange)}
 									variant="outlined"
 									error={!!error}
 									helperText={error?.message}
@@ -226,32 +226,38 @@ const ItemForm: React.FC<ItemFormProps> = ({
 										},
 									}}
 								/>
+							)}
+						/>
+						<Controller
+							name={`items.${index}.discount`}
+							control={control}
+							render={({ field: { value, onChange } }) => (
 								<div className="gap-1 ai-c d-f fd-r">
 									<Checkbox
-										checked={discount !== null}
+										checked={value !== null}
 										onChange={(_, checked) => {
 											if (checked) {
-												onDiscountChange({ type: "FIXED", value: "" });
+												onChange({ type: "FIXED", value: "" });
 											} else {
-												onDiscountChange(null);
+												onChange(null);
 											}
 										}}
 									/>
 									<div className="gap-05 ai-c d-f fd-r">
 										<Typography variant="body2">₽</Typography>
 										<Switch
-											disabled={discount === null}
-											checked={discount?.type === "PERCENT"}
+											disabled={value === null}
+											checked={value?.type === "PERCENT"}
 											onChange={(_, checked) =>
-												onDiscountChange({ type: checked ? "PERCENT" : "FIXED", value: "" })
+												onChange({ type: checked ? "PERCENT" : "FIXED", value: "" })
 											}
 										/>
 										<Typography variant="body2">%</Typography>
 									</div>
 								</div>
-							</div>
-						)}
-					/>
+							)}
+						/>
+					</div>
 				</Stack>
 			</div>
 		</div>
@@ -467,6 +473,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 													<ItemForm
 														index={index}
 														control={control}
+														watch={watch}
 														dragHandleProps={provided.dragHandleProps}
 														isSingle={variations.length === 1}
 														onRemove={removeVariation}

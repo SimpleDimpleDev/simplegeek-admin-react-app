@@ -136,6 +136,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 
 	const quantityIsUnlimited = watch(`items.${index}.unlimitedQuantity`);
 
+	const discount = watch(`items.${index}.discount`);
+
 	useEffect(() => {
 		if (creditPayments.length > 0) {
 			setValue(`items.${index}.price`, creditPaymentsTotal.toString());
@@ -155,11 +157,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						<Delete />
 					</IconButton>
 				</div>
-				<Stack
-					direction={"row"}
-					spacing={2}
-					divider={<Divider orientation="vertical" flexItem />}
-				>
+				<Stack direction={"row"} spacing={2} divider={<Divider orientation="vertical" flexItem />}>
 					<Controller
 						name={`items.${index}.product`}
 						control={control}
@@ -277,18 +275,18 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						)}
 					/>
 
-					<Controller
-						name={`items.${index}.discount`}
-						control={control}
-						render={({ field: { value: discount, onChange: onDiscountChange }, fieldState: { error } }) => (
-							<div className="gap-05 w-100 d-f fd-c">
+					<div className="gap-05 w-100 d-f fd-c">
+						<Controller
+							name={`items.${index}.discount.value`}
+							control={control}
+							render={({ field: { value, onChange }, fieldState: { error } }) => (
 								<TextField
 									fullWidth
 									label="Скидка"
 									type="text"
 									disabled={discount === null}
-									value={discount ? discount.value : "-"}
-									onChange={handleIntChange((value) => onDiscountChange({ ...discount, value }))}
+									value={discount ? value : "-"}
+									onChange={handleIntChange(onChange)}
 									variant="outlined"
 									error={!!error}
 									helperText={error?.message}
@@ -302,32 +300,38 @@ const ItemForm: React.FC<ItemFormProps> = ({
 										},
 									}}
 								/>
+							)}
+						/>
+						<Controller
+							name={`items.${index}.discount`}
+							control={control}
+							render={({ field: { value, onChange } }) => (
 								<div className="gap-1 ai-c d-f fd-r">
 									<Checkbox
-										checked={discount !== null}
+										checked={value !== null}
 										onChange={(_, checked) => {
 											if (checked) {
-												onDiscountChange({ type: "FIXED", value: "" });
+												onChange({ type: "FIXED", value: "" });
 											} else {
-												onDiscountChange(null);
+												onChange(null);
 											}
 										}}
 									/>
 									<div className="gap-05 ai-c d-f fd-r">
 										<Typography variant="body2">₽</Typography>
 										<Switch
-											disabled={discount === null}
-											checked={discount?.type === "PERCENT"}
+											disabled={value === null}
+											checked={value?.type === "PERCENT"}
 											onChange={(_, checked) =>
-												onDiscountChange({ type: checked ? "PERCENT" : "FIXED", value: "" })
+												onChange({ type: checked ? "PERCENT" : "FIXED", value: "" })
 											}
 										/>
 										<Typography variant="body2">%</Typography>
 									</div>
 								</div>
-							</div>
-						)}
-					/>
+							)}
+						/>
+					</div>
 				</Stack>
 
 				<div className="gap-2 d-f fd-c">
@@ -532,7 +536,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 	});
 
 	const {
-		fields: items,
+		fields: variations,
 		append: appendVariation,
 		move: moveVariation,
 		remove: removeVariation,
@@ -555,6 +559,15 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 		() => currentItems.map((itemVariation) => itemVariation.product).filter((item) => item !== null),
 		[currentItems]
 	);
+
+	useEffect(() => {
+		for (let i = 0; i < variations.length; i++) {
+			const item = watch(`items.${i}`);
+			if (item.product && item.product.category.id !== currentCategoryId) {
+				setValue(`items.${i}.product`, null);
+			}
+		}
+	}, [currentCategoryId, setValue, variations, watch]);
 
 	const handleDragItemVariation = ({ source, destination }: DropResult) => {
 		if (destination) {
@@ -678,7 +691,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 						<Droppable droppableId="variations">
 							{(provided) => (
 								<Stack divider={<Divider />} {...provided.droppableProps} ref={provided.innerRef}>
-									{items.map((item, index) => (
+									{variations.map((item, index) => (
 										<Draggable
 											key={`itemVariation[${index}]`}
 											draggableId={`itemVariation-${index}`}
@@ -692,7 +705,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 														setValue={setValue}
 														watch={watch}
 														dragHandleProps={provided.dragHandleProps}
-														isSingle={items.length === 1}
+														isSingle={variations.length === 1}
 														onRemove={removeVariation}
 														availableProducts={availableProducts || []}
 														productsLoading={productListIsLoading}
