@@ -216,8 +216,10 @@ const ItemForm: React.FC<ItemFormProps> = ({
 									label="Скидка"
 									type="text"
 									disabled={discount === null}
-									value={discount ?? "-"}
-									onChange={handleIntChange(onDiscountChange)}
+									value={discount ? discount.value : "-"}
+									onChange={handleIntChange((value) =>
+										onDiscountChange({ ...discount, value })
+									)}
 									variant="outlined"
 									error={!!error}
 									helperText={error?.message}
