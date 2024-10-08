@@ -134,6 +134,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 		if (updateSuccess || updateError) {
 			reset({
 				id: variation.id,
+				rating: variation.rating.toString(),
 				price: variation.price.toString(),
 				quantity: variation.quantity ? variation.quantity.toString() : "0",
 				discount: variation.discount
