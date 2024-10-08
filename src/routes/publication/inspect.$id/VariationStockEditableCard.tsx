@@ -56,7 +56,9 @@ type VariationStockUpdateFormData = {
 
 const VariationStockUpdateResolver = z.object({
 	id: z.string({ message: "Выберите вариацию" }),
-	rating: z.coerce.number({ message: "Укажите рейтинг" }).positive({ message: "Рейтинг должен быть положительным числом" }),
+	rating: z.coerce
+		.number({ message: "Укажите рейтинг" })
+		.positive({ message: "Рейтинг должен быть положительным числом" }),
 	quantity: z.coerce
 		.number({ message: "Укажите количество" })
 		.positive({ message: "Количество должно быть положительным числом" }),
@@ -255,15 +257,23 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 									{variation.isActive ? <Check /> : <Close />}
 								</Typography>
 							</div>
-							<div className="gap-05 w-100 d-f fd-c">
+							<div className="gap-1 pl-2 d-f fd-c" style={{ width: "50%" }}>
+								<Typography variant="body2" sx={{ color: "typography.secondary" }}>
+									Рейтинг
+								</Typography>
+								{/* TODO: fetch max rating */}
+								<Typography variant="caption" sx={{ color: "typography.secondary" }}>
+									<em>Текущий максимальный рейтинг: 20</em>
+								</Typography>
 								<Controller
 									name={`rating`}
 									control={control}
 									render={({ field: { value, onChange }, fieldState: { error } }) => (
 										<TextField
+											{...textFieldProps}
 											fullWidth
-											label="рейтинг"
 											type="text"
+											disabled={!isEditing}
 											variant="standard"
 											required
 											value={value}
@@ -273,10 +283,6 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 										/>
 									)}
 								/>
-								{/* TODO: fetch max rating */}
-								<Typography variant="body1" sx={{ color: "typography.secondary" }}>
-									<em>Текущий максимальный рейтинг: 20</em>
-								</Typography>
 							</div>
 							<div className="gap-1 pl-2 d-f fd-c" style={{ width: "50%" }}>
 								<Typography variant="body2" sx={{ color: "typography.secondary" }}>
@@ -336,12 +342,43 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 									field: { value: discount, onChange: onDiscountChange },
 									fieldState: { error },
 								}) => (
-									<div className="gap-05 w-100 d-f fd-c">
+									<div className="gap-1 pl-2 ai-fs d-f fd-c" style={{ width: "50%" }}>
+										<div className="gap-1 ai-c d-f fd-r">
+											<Checkbox
+												disabled={!isEditing}
+												checked={discount !== null}
+												onChange={(_, checked) => {
+													if (checked) {
+														onDiscountChange({ type: "FIXED", value: "" });
+													} else {
+														onDiscountChange(null);
+													}
+												}}
+											/>
+											<div className="gap-05 ai-c d-f fd-r">
+												<Typography variant="body2">₽</Typography>
+												<Switch
+													disabled={!isEditing || discount === null}
+													checked={discount?.type === "PERCENTAGE"}
+													onChange={(_, checked) =>
+														onDiscountChange({
+															type: checked ? "PERCENTAGE" : "FIXED",
+															value: "",
+														})
+													}
+												/>
+												<Typography variant="body2">%</Typography>
+											</div>
+											{discount && (
+												<Typography variant="body2">Итог: {priceAfterDiscount}₽</Typography>
+											)}
+										</div>
 										<TextField
+											{...textFieldProps}
 											fullWidth
 											label="Скидка"
 											type="text"
-											disabled={discount === null}
+											disabled={!isEditing || discount === null}
 											value={discount ? discount.value : "-"}
 											onChange={handleIntChange((value) =>
 												onDiscountChange({ ...discount, value })
@@ -359,35 +396,6 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 												},
 											}}
 										/>
-										<div className="gap-1 ai-c d-f fd-r">
-											<Checkbox
-												checked={discount !== null}
-												onChange={(_, checked) => {
-													if (checked) {
-														onDiscountChange({ type: "FIXED", value: "" });
-													} else {
-														onDiscountChange(null);
-													}
-												}}
-											/>
-											<div className="gap-05 ai-c d-f fd-r">
-												<Typography variant="body2">₽</Typography>
-												<Switch
-													disabled={discount === null}
-													checked={discount?.type === "PERCENTAGE"}
-													onChange={(_, checked) =>
-														onDiscountChange({
-															type: checked ? "PERCENTAGE" : "FIXED",
-															value: "",
-														})
-													}
-												/>
-												<Typography variant="body2">%</Typography>
-											</div>
-											{discount && (
-												<Typography variant="body2">Итог: {priceAfterDiscount}₽</Typography>
-											)}
-										</div>
 									</div>
 								)}
 							/>
