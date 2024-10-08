@@ -157,7 +157,6 @@ const ItemForm: React.FC<ItemFormProps> = ({
 				</div>
 				<Stack
 					direction={"row"}
-					alignItems={"end"}
 					spacing={2}
 					divider={<Divider orientation="vertical" flexItem />}
 				>
