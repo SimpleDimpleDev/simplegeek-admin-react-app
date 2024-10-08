@@ -66,7 +66,7 @@ const CatalogItemPublishPreorderResolver = z.object({
 	product: z.object({ id: z.string({ message: "Выберите продукт" }) }, { message: "Выберите продукт" }),
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
 	quantity: z.coerce.number().positive({ message: "Количество должно быть положительным числом" }).nullable(),
-	discount: DiscountResolver,
+	discount: DiscountResolver.nullable(),
 	creditPayments: z
 		.object({
 			sum: z.coerce

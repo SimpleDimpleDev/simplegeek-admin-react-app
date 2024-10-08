@@ -53,7 +53,7 @@ const CatalogItemPublishStockResolver = z.object({
 	quantity: z.coerce
 		.number({ message: "Укажите количество" })
 		.positive({ message: "Количество должно быть положительным числом" }),
-	discount: DiscountResolver,
+	discount: DiscountResolver.nullable(),
 });
 
 type PublicationCreateStockFormData = {
@@ -407,6 +407,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 							<TextField
 								{...field}
 								label="Ссылка"
+								fullWidth
 								required
 								variant="outlined"
 								error={!!error}
