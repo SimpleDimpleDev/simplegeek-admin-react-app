@@ -57,6 +57,7 @@ type ShippingCostIncluded = "FOREIGN" | "FULL" | "NOT";
 
 type CatalogItemPublishPreorderFormData = {
 	product: ProductGet | null;
+	rating: string;
 	price: string;
 	quantity: string | null;
 	unlimitedQuantity: boolean;
@@ -72,6 +73,7 @@ type CatalogItemPublishPreorderFormData = {
 
 const CatalogItemPublishPreorderResolver = z.object({
 	product: z.object({ id: z.string({ message: "Выберите продукт" }) }, { message: "Выберите продукт" }),
+	rating: z.coerce.number({ message: "Укажите рейтинг" }).positive({ message: "Рейтинг должен быть положительным числом" }),
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
 	quantity: z.coerce.number().positive({ message: "Количество должно быть положительным числом" }).nullable(),
 	discount: DiscountResolver.nullable(),
@@ -146,15 +148,16 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	const discount = watch(`items.${index}.discount`);
 	const priceString = watch(`items.${index}.price`);
 
-	const priceAfterDiscount = useMemo(() => {	
+	const priceAfterDiscount = useMemo(() => {
 		if (!discount) return null;
 		const discountValueString = discount.value;
 		const price = parseInt(priceString) ?? 0;
 		const discountValue = parseInt(discountValueString) ?? 0;
+		if (isNaN(discountValue) || isNaN(price)) return null;
 		if (discount.type === "FIXED") {
 			return price - discountValue;
 		}
-		return price - price * (discountValue / 100);
+		return Math.ceil(price - price * (discountValue / 100));
 	}, [discount, priceString]);
 
 	const creditPayments = watch(`items.${index}.creditPayments`);
@@ -228,6 +231,28 @@ const ItemForm: React.FC<ItemFormProps> = ({
 
 					<div className="gap-05 w-100 d-f fd-c">
 						<Controller
+							name={`items.${index}.rating`}
+							control={control}
+							render={({ field: { value, onChange }, fieldState: { error } }) => (
+								<TextField
+									fullWidth
+									label="рейтинг"
+									type="text"
+									required
+									value={value}
+									onChange={handleIntChange(onChange)}
+									variant="outlined"
+									error={!!error}
+									helperText={error?.message}
+								/>
+							)}
+						/>
+						{/* TODO: fetch max rating */}
+						<Typography variant="body1">Текущий максимальный рейтинг: 20</Typography>
+					</div>
+
+					<div className="gap-05 w-100 d-f fd-c">
+						<Controller
 							name={`items.${index}.quantity`}
 							control={control}
 							render={({ field: { value, onChange }, fieldState: { error } }) => (
@@ -285,7 +310,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								type="text"
 								required
 								disabled={creditPayments?.length > 0}
-								value={value}
+								value={isNaN(parseInt(value)) ? "" : value}
 								onChange={handleIntChange(onChange)}
 								variant="outlined"
 								error={!!error}
@@ -346,11 +371,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 										/>
 										<Typography variant="body2">%</Typography>
 									</div>
-									{discount && (
-										<Typography variant="body2">
-											Итог: {priceAfterDiscount}₽
-										</Typography>
-									)}
+									{discount && <Typography variant="body2">Итог: {priceAfterDiscount}₽</Typography>}
 								</div>
 							</div>
 						)}
@@ -468,6 +489,7 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 		defaultValues.categoryId = categoryId || null;
 		defaultValues.items = productsToAdd.map((product) => ({
 			product,
+			rating: "0",
 			price: "",
 			discount: null,
 			unlimitedQuantity: false,
@@ -477,6 +499,7 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 	} else {
 		defaultValues.items.push({
 			product: null,
+			rating: "0",
 			price: "",
 			discount: null,
 			unlimitedQuantity: false,
@@ -751,6 +774,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 					onClick={() =>
 						appendVariation({
 							product: null,
+							rating: "0",
 							price: "",
 							discount: null,
 							unlimitedQuantity: false,

@@ -28,12 +28,12 @@ const textFieldProps = {
 	},
 };
 
-type PublicationUpdateFormData = {
+type PublicationStockUpdateFormData = {
 	id: string;
 	link: string;
 };
 
-const PublicationUpdateResolver = z.object({
+const PublicationStockUpdateResolver = z.object({
 	id: z.string().min(1),
 	link: SlugResolver,
 });
@@ -57,8 +57,8 @@ const PublicationStockEditableHeader: React.FC<PublicationStockEditableHeaderPro
 		handleSubmit,
 		reset,
 		formState: { isDirty },
-	} = useForm<PublicationUpdateFormData>({
-		resolver: zodResolver(PublicationUpdateResolver),
+	} = useForm<PublicationStockUpdateFormData>({
+		resolver: zodResolver(PublicationStockUpdateResolver),
 		defaultValues: {
 			id: publication.id,
 			link: publication.link,
@@ -76,7 +76,7 @@ const PublicationStockEditableHeader: React.FC<PublicationStockEditableHeaderPro
 		}
 	}, [publication, reset, updateSuccess]);
 
-	const resolvedOnSubmit = (data: PublicationUpdateFormData) => {
+	const resolvedOnSubmit = (data: PublicationStockUpdateFormData) => {
 		onUpdate(PublicationUpdateSchema.parse(data));
 	};
 

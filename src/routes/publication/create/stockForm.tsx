@@ -39,6 +39,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 type CatalogItemPublishStockFormData = {
 	product: ProductGet | null;
+	rating: string;
 	price: string;
 	quantity: string;
 	discount: {
@@ -49,6 +50,9 @@ type CatalogItemPublishStockFormData = {
 
 const CatalogItemPublishStockResolver = z.object({
 	product: z.object({ id: z.string({ message: "Выберите продукт" }) }, { message: "Выберите продукт" }),
+	rating: z.coerce
+		.number({ message: "Укажите рейтинг" })
+		.positive({ message: "Рейтинг должен быть положительным числом" }),
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
 	quantity: z.coerce
 		.number({ message: "Укажите количество" })
@@ -107,10 +111,11 @@ const ItemForm: React.FC<ItemFormProps> = ({
 		const discountValueString = discount.value;
 		const price = parseInt(priceString) ?? 0;
 		const discountValue = parseInt(discountValueString) ?? 0;
+		if (isNaN(discountValue) || isNaN(price)) return null;
 		if (discount.type === "FIXED") {
 			return price - discountValue;
 		}
-		return price - price * (discountValue / 100);
+		return Math.ceil(price - price * (discountValue / 100));
 	}, [discount, priceString]);
 
 	return (
@@ -171,6 +176,28 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						)}
 					/>
 
+					<div className="gap-05 w-100 d-f fd-c">
+						<Controller
+							name={`items.${index}.rating`}
+							control={control}
+							render={({ field: { value, onChange }, fieldState: { error } }) => (
+								<TextField
+									fullWidth
+									label="рейтинг"
+									type="text"
+									required
+									value={value}
+									onChange={handleIntChange(onChange)}
+									variant="outlined"
+									error={!!error}
+									helperText={error?.message}
+								/>
+							)}
+						/>
+						{/* TODO: fetch max rating */}
+						<Typography variant="body1">Текущий максимальный рейтинг: 20</Typography>
+					</div>
+
 					<Controller
 						name={`items.${index}.quantity`}
 						control={control}
@@ -203,7 +230,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								label="Цена"
 								type="text"
 								required
-								value={value}
+								value={isNaN(parseInt(value)) ? "" : value}
 								onChange={handleIntChange(onChange)}
 								variant="outlined"
 								error={!!error}
@@ -308,6 +335,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 		defaultValues.categoryId = categoryId || null;
 		defaultValues.items = productsToAdd.map((product) => ({
 			product,
+			rating: "0",
 			price: "",
 			discount: null,
 			quantity: "",
@@ -315,6 +343,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 	} else {
 		defaultValues.items.push({
 			product: null,
+			rating: "0",
 			price: "",
 			discount: null,
 			quantity: "",
@@ -505,6 +534,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 					onClick={() =>
 						appendVariation({
 							product: null,
+							rating: "0",
 							price: "",
 							discount: null,
 							quantity: "",

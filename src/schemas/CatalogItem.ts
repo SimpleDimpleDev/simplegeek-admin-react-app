@@ -11,18 +11,20 @@ export const DiscountSchema = z.object({
 
 export const CatalogItemPublishSchema = z.object({
 	productId: IdSchema,
+	rating: z.number(),
+	quantity: z.number().nullable(),
 	price: z.number(),
 	discount: DiscountSchema.nullable(),
-	quantity: z.number().nullable(),
 	creditInfo: CreditInfoSchema.nullable(),
 });
 
 export const CatalogItemGetSchema = AdminGetBaseSchema.extend({
 	product: ProductGetSchema,
+	rating: z.number(),
+	orderedQuantity: z.number(),
+	quantity: z.number().nullable(),
 	price: z.number(),
 	discount: DiscountSchema.nullable(),
-	quantity: z.number().nullable(),
-	orderedQuantity: z.number(),
 	creditInfo: CreditInfoSchema.nullable(),
 	variationIndex: z.number().nullable(),
 	isActive: z.boolean(),
@@ -30,8 +32,10 @@ export const CatalogItemGetSchema = AdminGetBaseSchema.extend({
 
 export const CatalogItemUpdateSchema = z.object({
 	id: z.string(),
-	price: z.number(),
+	rating: z.number(),
 	quantity: z.number().nullable(),
+	price: z.number(),
+	discount: DiscountSchema.nullable(),
 
 	// TODO: Add credit info
 	// creditInfo: CreditInfoSchema.nullable(),
