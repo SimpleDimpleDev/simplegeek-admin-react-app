@@ -95,7 +95,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	productsLoading,
 	selectedProducts,
 }) => {
-	const discountError = errors.items?.[index]?.discount?.message;
+	const discountValueError = errors.items?.[index]?.discount?.value?.message;
 	return (
 		<div key={index} className="gap-2 w-100 d-f fd-r">
 			<IconButton {...dragHandleProps}>
@@ -218,7 +218,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 									onChange={handleIntChange((value) => onDiscountChange({ ...discount, value }))}
 									variant="outlined"
 									error={!!error}
-									helperText={discountError || error?.message}
+									helperText={discountValueError || error?.message}
 									slotProps={{
 										input: {
 											endAdornment: discount && (

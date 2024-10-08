@@ -141,7 +141,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 		control,
 	});
 
-	const discountError = errors.items?.[index]?.discount?.message;
+	const discountValueError = errors.items?.[index]?.discount?.value?.message;
 
 	const creditPayments = watch(`items.${index}.creditPayments`);
 	const creditPaymentsTotal = creditPayments.reduce((acc, { sum }) => acc + (parseInt(sum) ?? 0), 0);
@@ -299,7 +299,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 									onChange={handleIntChange((value) => onDiscountChange({ ...discount, value }))}
 									variant="outlined"
 									error={!!error}
-									helperText={discountError || error?.message}
+									helperText={discountValueError || error?.message}
 									slotProps={{
 										input: {
 											endAdornment: discount && (
