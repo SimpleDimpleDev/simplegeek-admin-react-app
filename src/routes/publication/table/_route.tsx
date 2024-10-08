@@ -10,7 +10,30 @@ import { getImageUrl } from "@utils/image";
 import { useGetPublicationListQuery } from "@api/admin/publication";
 import { useNavigate } from "react-router-dom";
 
+interface TableRowData {
+	link: string;
+	publicationId: string;
+	variationIndex: number | null;
+	productTitle: string;
+	imageUrl: string;
+	categoryTitle: string;
+	price: number;
+	discount: {
+		type: "FIXED" | "PERCENTAGE";
+		value: number;
+	} | null;
+	preorderTitle: string;
+	hasCredit: boolean;
+	quantity: number | null;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
 const columns: GridColDef[] = [
+	{
+		field: "link",
+		headerName: "Ссылка",	
+	},
 	{
 		field: "productTitle",
 		headerName: "Товар",
@@ -27,7 +50,7 @@ const columns: GridColDef[] = [
 	{ field: "price", headerName: "Цена", type: "number", renderCell: (params) => `${params.row.price} ₽` },
 	{
 		field: "preorderTitle",
-		headerName: "Предзаказ",
+		headerName: "Тип",
 	},
 	{
 		field: "hasCredit",
@@ -40,34 +63,15 @@ const columns: GridColDef[] = [
 		type: "number",
 		renderCell: (params) => (params.row.quantity ? `${params.row.quantity} шт.` : "Неограниченно"),
 	},
-	{ field: "hasVariations", headerName: "Есть вариации", type: "boolean" },
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
 ];
-
-interface TableRowData {
-	publicationId: string;
-	variationIndex: number | null;
-	productTitle: string;
-	imageUrl: string;
-	categoryTitle: string;
-	price: number;
-	discount: {
-		type: "FIXED" | "PERCENTAGE";
-		value: number;
-	} | null;
-	preorderTitle: string;
-	hasCredit: boolean;
-	quantity: number | null;
-	hasVariations: boolean;
-	createdAt: Date;
-	updatedAt: Date;
-}
 
 const formatPublications = (publications: PublicationGet[]): TableRowData[] => {
 	return publications.flatMap((publication) => {
 		return publication.items.map((item) => {
 			return {
+				link: publication.link,
 				publicationId: publication.id,
 				variationIndex: item.variationIndex,
 				productTitle: item.product.title,
@@ -78,7 +82,6 @@ const formatPublications = (publications: PublicationGet[]): TableRowData[] => {
 				preorderTitle: publication.preorder?.title || "Розница",
 				hasCredit: item.creditInfo ? true : false,
 				quantity: item.quantity,
-				hasVariations: publication.items.length > 1 ? true : false,
 				createdAt: item.createdAt,
 				updatedAt: item.updatedAt,
 			};
