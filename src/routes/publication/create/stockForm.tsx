@@ -43,7 +43,7 @@ type CatalogItemPublishStockFormData = {
 	price: string;
 	quantity: string;
 	discount: {
-		type: "FIXED" | "PERCENT";
+		type: "FIXED" | "PERCENTAGE";
 		value: string;
 	} | null;
 };
@@ -265,7 +265,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 										input: {
 											endAdornment: discount && (
 												<InputAdornment position="end">
-													{discount.type === "PERCENT" ? "%" : "₽"}
+													{discount.type === "PERCENTAGE" ? "%" : "₽"}
 												</InputAdornment>
 											),
 										},
@@ -286,9 +286,9 @@ const ItemForm: React.FC<ItemFormProps> = ({
 										<Typography variant="body2">₽</Typography>
 										<Switch
 											disabled={discount === null}
-											checked={discount?.type === "PERCENT"}
+											checked={discount?.type === "PERCENTAGE"}
 											onChange={(_, checked) =>
-												onDiscountChange({ type: checked ? "PERCENT" : "FIXED", value: "" })
+												onDiscountChange({ type: checked ? "PERCENTAGE" : "FIXED", value: "" })
 											}
 										/>
 										<Typography variant="body2">%</Typography>

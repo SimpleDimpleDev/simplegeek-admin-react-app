@@ -6,7 +6,7 @@ export const SlugResolver = z.string({ message: "Укажите ссылку" })
 
 export const DiscountResolver = z
 	.object({
-		type: z.enum(["FIXED", "PERCENT"]),
+		type: z.enum(["FIXED", "PERCENTAGE"]),
 		value: z
 			.string()
 			.min(1, { message: "Укажите скидку" })
@@ -16,7 +16,7 @@ export const DiscountResolver = z
 					.positive({ message: "Скидка должна быть положительным числом" })
 			),
 	})
-	.refine((data) => (data.type === "PERCENT" ? data.value <= 100 : true), {
+	.refine((data) => (data.type === "PERCENTAGE" ? data.value <= 100 : true), {
 		message: "Процент не может превышать 100%",
 		path: ["value"],
 	});

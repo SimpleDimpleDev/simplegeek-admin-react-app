@@ -5,7 +5,7 @@ import { ProductGetSchema } from "./Product";
 import { z } from "zod";
 
 export const DiscountSchema = z.object({
-	type: z.enum(["FIXED", "PERCENT"]),
+	type: z.enum(["FIXED", "PERCENTAGE"]),
 	value: z.number(),
 });
 

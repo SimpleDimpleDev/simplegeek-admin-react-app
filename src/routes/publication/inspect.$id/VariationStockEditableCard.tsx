@@ -49,7 +49,7 @@ type VariationStockUpdateFormData = {
 	quantity: string;
 	price: string;
 	discount: {
-		type: "FIXED" | "PERCENT";
+		type: "FIXED" | "PERCENTAGE";
 		value: string;
 	} | null;
 };
@@ -353,7 +353,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 												input: {
 													endAdornment: discount && (
 														<InputAdornment position="end">
-															{discount.type === "PERCENT" ? "%" : "₽"}
+															{discount.type === "PERCENTAGE" ? "%" : "₽"}
 														</InputAdornment>
 													),
 												},
@@ -374,10 +374,10 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 												<Typography variant="body2">₽</Typography>
 												<Switch
 													disabled={discount === null}
-													checked={discount?.type === "PERCENT"}
+													checked={discount?.type === "PERCENTAGE"}
 													onChange={(_, checked) =>
 														onDiscountChange({
-															type: checked ? "PERCENT" : "FIXED",
+															type: checked ? "PERCENTAGE" : "FIXED",
 															value: "",
 														})
 													}

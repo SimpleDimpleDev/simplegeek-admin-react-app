@@ -53,7 +53,7 @@ interface TableRowData {
 	categoryTitle: string;
 	price: number;
 	discount: {
-		type: "FIXED" | "PERCENT";
+		type: "FIXED" | "PERCENTAGE";
 		value: number;
 	} | null;
 	preorderTitle: string;
