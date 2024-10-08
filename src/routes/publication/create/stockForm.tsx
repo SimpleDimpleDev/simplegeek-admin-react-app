@@ -106,7 +106,12 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						<Delete />
 					</IconButton>
 				</div>
-				<Stack direction={"row"} alignItems={"end"} spacing={2} divider={<Divider orientation="vertical" flexItem />}>
+				<Stack
+					direction={"row"}
+					alignItems={"end"}
+					spacing={2}
+					divider={<Divider orientation="vertical" flexItem />}
+				>
 					<Controller
 						name={`items.${index}.product`}
 						control={control}
@@ -202,6 +207,26 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						control={control}
 						render={({ field: { value: discount, onChange: onDiscountChange }, fieldState: { error } }) => (
 							<div className="gap-05 w-100 d-f fd-c">
+								<TextField
+									fullWidth
+									label="Скидка"
+									type="text"
+									disabled={discount === null}
+									value={discount ? discount.value : "-"}
+									onChange={handleIntChange((value) => onDiscountChange({ ...discount, value }))}
+									variant="outlined"
+									error={!!error}
+									helperText={error?.message}
+									slotProps={{
+										input: {
+											endAdornment: discount && (
+												<InputAdornment position="end">
+													{discount.type === "PERCENT" ? "%" : "₽"}
+												</InputAdornment>
+											),
+										},
+									}}
+								/>
 								<div className="gap-1 ai-c d-f fd-r">
 									<Checkbox
 										checked={discount !== null}
@@ -225,26 +250,6 @@ const ItemForm: React.FC<ItemFormProps> = ({
 										<Typography variant="body2">%</Typography>
 									</div>
 								</div>
-								<TextField
-									fullWidth
-									label="Скидка"
-									type="text"
-									disabled={discount === null}
-									value={discount ? discount.value : "-"}
-									onChange={handleIntChange((value) => onDiscountChange({ ...discount, value }))}
-									variant="outlined"
-									error={!!error}
-									helperText={error?.message}
-									slotProps={{
-										input: {
-											endAdornment: discount && (
-												<InputAdornment position="end">
-													{discount.type === "PERCENT" ? "%" : "₽"}
-												</InputAdornment>
-											),
-										},
-									}}
-								/>
 							</div>
 						)}
 					/>
