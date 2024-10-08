@@ -16,10 +16,12 @@ import {
 	MenuItem,
 	Select,
 	Stack,
+	Switch,
 	TextField,
 	Typography,
 } from "@mui/material";
 import { Control, Controller, UseFormSetValue, UseFormWatch, useFieldArray, useForm } from "react-hook-form";
+import { DiscountResolver, SlugResolver } from "../utils";
 import {
 	DragDropContext,
 	Draggable,
@@ -37,7 +39,6 @@ import { PreorderGet } from "@appTypes/Preorder";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
 import { PublicationCreateSchema } from "@schemas/Publication";
-import { SlugResolver } from "../utils";
 import dayjs from "dayjs";
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
@@ -51,7 +52,10 @@ type CatalogItemPublishPreorderFormData = {
 	price: string;
 	quantity: string | null;
 	unlimitedQuantity: boolean;
-	discount: string | null;
+	discount: {
+		type: "FIXED" | "PERCENT";
+		value: string;
+	} | null;
 	creditPayments: {
 		sum: string;
 		deadline: Date | null;
@@ -62,7 +66,7 @@ const CatalogItemPublishPreorderResolver = z.object({
 	product: z.object({ id: z.string({ message: "Выберите продукт" }) }, { message: "Выберите продукт" }),
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
 	quantity: z.coerce.number().positive({ message: "Количество должно быть положительным числом" }).nullable(),
-	discount: z.number().positive({ message: "Скидка должна быть положительным числом" }).nullable(),
+	discount: DiscountResolver,
 	creditPayments: z
 		.object({
 			sum: z.coerce
@@ -261,6 +265,11 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								variant="outlined"
 								error={!!error}
 								helperText={error?.message}
+								slotProps={{
+									input: {
+										endAdornment: <InputAdornment position="end">₽</InputAdornment>,
+									},
+								}}
 							/>
 						)}
 					/>
@@ -269,87 +278,120 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						name={`items.${index}.discount`}
 						control={control}
 						render={({ field: { value, onChange }, fieldState: { error } }) => (
-							<TextField
-								fullWidth
-								label="Скидка"
-								type="text"
-								disabled
-								value={value}
-								onChange={(e) => {
-									const value = parseInt(e.target.value, 10);
-									if (!isNaN(value)) {
-										onChange(value);
-									}
-								}}
-								variant="outlined"
-								error={!!error}
-								helperText={error?.message}
-							/>
+							<div className="gap-1 w-100 ai-c d-f fd-r">
+								<Checkbox
+									checked={value !== null}
+									onChange={(_, value) => {
+										if (value !== null) {
+											onChange(null);
+										} else {
+											onChange({ type: "FIXED", value: "" });
+										}
+									}}
+								/>
+								<TextField
+									fullWidth
+									label="Скидка"
+									type="text"
+									disabled={value === null}
+									value={value ?? "-"}
+									onChange={handleIntChange(onChange)}
+									variant="outlined"
+									error={!!error}
+									helperText={error?.message}
+									slotProps={{
+										input: {
+											endAdornment: (
+												<InputAdornment position="end">
+													{value?.type === "FIXED" ? "₽" : "%"}
+												</InputAdornment>
+											),
+										},
+									}}
+								/>
+								<div className="gap-05 ai-c d-f fd-r">
+									<Typography variant="body2">₽</Typography>
+									<Switch
+										checked={value?.type === "PERCENT"}
+										onChange={(_, value) =>
+											onChange(() => onChange({ type: value ? "PERCENT" : "FIXED", value: "" }))
+										}
+									/>
+									<Typography variant="body2">%</Typography>
+								</div>
+							</div>
 						)}
 					/>
 				</div>
+			</div>
+			<div className="gap-2 d-f fd-c">
 				<div className="gap-2 d-f fd-c">
-					<div className="gap-2 d-f fd-c">
-						{creditPaymentsFields.length > 0 && (
-							<>
-								<Typography>Платежи рассрочки</Typography>
-								<div className="gap-1 d-f fd-c">
-									{creditPaymentsFields.map((field, paymentIndex) => (
-										<div className="gap-1 d-f fd-r" key={field.id}>
-											<Controller
-												key={field.id}
-												name={`items.${index}.creditPayments.${paymentIndex}.sum`}
-												control={control}
-												render={({ field: { value, onChange }, fieldState: { error } }) => (
-													<TextField
-														label="Сумма"
-														type="text"
-														value={value}
-														onChange={handleIntChange(onChange)}
-														variant="outlined"
-														error={!!error}
-														helperText={error?.message}
+					{creditPaymentsFields.length > 0 && (
+						<>
+							<Typography>Платежи рассрочки</Typography>
+							<div className="gap-1 d-f fd-c">
+								{creditPaymentsFields.map((field, paymentIndex) => (
+									<div className="gap-1 d-f fd-r" key={field.id}>
+										<Controller
+											key={field.id}
+											name={`items.${index}.creditPayments.${paymentIndex}.sum`}
+											control={control}
+											render={({ field: { value, onChange }, fieldState: { error } }) => (
+												<TextField
+													label="Сумма"
+													type="text"
+													value={value}
+													onChange={handleIntChange(onChange)}
+													variant="outlined"
+													error={!!error}
+													helperText={error?.message}
+													slotProps={{
+														input: {
+															endAdornment: (
+																<InputAdornment position="end">₽</InputAdornment>
+															),
+														},
+													}}
+												/>
+											)}
+										/>
+
+										<Controller
+											key={field.id}
+											name={`items.${index}.creditPayments.${paymentIndex}.deadline`}
+											control={control}
+											render={({ field: { value, onChange } }) => (
+												<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
+													<DatePicker
+														value={dayjs(value)}
+														onChange={(newValue) => {
+															onChange(newValue?.toDate());
+														}}
 													/>
-												)}
-											/>
+												</LocalizationProvider>
+											)}
+										/>
 
-											<Controller
-												key={field.id}
-												name={`items.${index}.creditPayments.${paymentIndex}.deadline`}
-												control={control}
-												render={({ field: { value, onChange } }) => (
-													<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
-														<DatePicker
-															value={dayjs(value)}
-															onChange={(newValue) => {
-																onChange(newValue?.toDate());
-															}}
-														/>
-													</LocalizationProvider>
-												)}
-											/>
+										<Button
+											sx={{ color: "error.main" }}
+											style={{ width: "fit-content" }}
+											onClick={() => removeCreditPayment(paymentIndex)}
+										>
+											Удалить
+										</Button>
+									</div>
+								))}
+							</div>
+						</>
+					)}
 
-											<Button
-												sx={{ color: "error.main" }}
-												style={{ width: "fit-content" }}
-												onClick={() => removeCreditPayment(paymentIndex)}
-											>
-												Удалить
-											</Button>
-										</div>
-									))}
-								</div>
-							</>
-						)}
-
-						<Button
-							sx={{ color: "success.main" }}
-							style={{ width: "fit-content" }}
-							onClick={() => appendCreditPayment({ sum: "", deadline: null })}
-						>
-							{creditPaymentsFields.length === 0 ? "Товар в рассрочку" : "Добавить платеж"}
-						</Button>
-					</div>
+					<Button
+						sx={{ color: "success.main" }}
+						style={{ width: "fit-content" }}
+						onClick={() => appendCreditPayment({ sum: "", deadline: null })}
+					>
+						{creditPaymentsFields.length === 0 ? "Товар в рассрочку" : "Добавить платеж"}
+					</Button>
 				</div>
 			</div>
 		</div>

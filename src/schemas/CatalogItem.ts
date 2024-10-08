@@ -4,10 +4,15 @@ import { IdSchema } from "./Primitives";
 import { ProductGetSchema } from "./Product";
 import { z } from "zod";
 
+export const DiscountSchema = z.object({
+	type: z.enum(["FIXED", "PERCENT"]),
+	value: z.number(),
+});
+
 export const CatalogItemPublishSchema = z.object({
 	productId: IdSchema,
 	price: z.number(),
-	discount: z.number().nullable(),
+	discount: DiscountSchema.nullable(),
 	quantity: z.number().nullable(),
 	creditInfo: CreditInfoSchema.nullable(),
 });
@@ -15,7 +20,7 @@ export const CatalogItemPublishSchema = z.object({
 export const CatalogItemGetSchema = AdminGetBaseSchema.extend({
 	product: ProductGetSchema,
 	price: z.number(),
-	discount: z.number().nullable(),
+	discount: DiscountSchema.nullable(),
 	quantity: z.number().nullable(),
 	orderedQuantity: z.number(),
 	creditInfo: CreditInfoSchema.nullable(),

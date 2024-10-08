@@ -1,18 +1,22 @@
 import {
 	Autocomplete,
 	Button,
+	Checkbox,
 	CircularProgress,
 	FormControl,
 	FormHelperText,
 	IconButton,
+	InputAdornment,
 	InputLabel,
 	MenuItem,
 	Select,
+	Switch,
 	TextField,
 	Typography,
 } from "@mui/material";
 import { Control, Controller, useFieldArray, useForm } from "react-hook-form";
 import { Delete, DragIndicator } from "@mui/icons-material";
+import { DiscountResolver, SlugResolver } from "../utils";
 import {
 	DragDropContext,
 	Draggable,
@@ -26,7 +30,6 @@ import { CategoryGet } from "@appTypes/Category";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
 import { PublicationCreateSchema } from "@schemas/Publication";
-import { SlugResolver } from "../utils";
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
 import { z } from "zod";
@@ -36,7 +39,10 @@ type CatalogItemPublishStockFormData = {
 	product: ProductGet | null;
 	price: string;
 	quantity: string;
-	discount: number | null;
+	discount: {
+		type: "FIXED" | "PERCENT";
+		value: string;
+	} | null;
 };
 
 const CatalogItemPublishStockResolver = z.object({
@@ -45,7 +51,7 @@ const CatalogItemPublishStockResolver = z.object({
 	quantity: z.coerce
 		.number({ message: "Укажите количество" })
 		.positive({ message: "Количество должно быть положительным числом" }),
-	discount: z.number().positive({ message: "Скидка должна быть положительным числом" }).nullable(),
+	discount: DiscountResolver,
 });
 
 type PublicationCreateStockFormData = {
@@ -158,6 +164,11 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								variant="outlined"
 								error={!!error}
 								helperText={error?.message}
+								slotProps={{
+									input: {
+										endAdornment: <InputAdornment position="end">₽</InputAdornment>,
+									},
+								}}
 							/>
 						)}
 					/>
@@ -176,6 +187,11 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								variant="outlined"
 								error={!!error}
 								helperText={error?.message}
+								slotProps={{
+									input: {
+										endAdornment: <InputAdornment position="end">шт</InputAdornment>,
+									},
+								}}
 							/>
 						)}
 					/>
@@ -184,22 +200,48 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						name={`items.${index}.discount`}
 						control={control}
 						render={({ field: { value, onChange }, fieldState: { error } }) => (
-							<TextField
-								fullWidth
-								label="Скидка"
-								type="text"
-								disabled
-								value={value}
-								onChange={(e) => {
-									const value = parseInt(e.target.value, 10);
-									if (!isNaN(value)) {
-										onChange(value);
-									}
-								}}
-								variant="outlined"
-								error={!!error}
-								helperText={error?.message}
-							/>
+							<div className="gap-1 w-100 ai-c d-f fd-r">
+								<Checkbox
+									checked={value !== null}
+									onChange={(_, value) => {
+										if (value !== null) {
+											onChange(null);
+										} else {
+											onChange({ type: "FIXED", value: "" });
+										}
+									}}
+								/>
+								<TextField
+									fullWidth
+									label="Скидка"
+									type="text"
+									disabled={value === null}
+									value={value ?? "-"}
+									onChange={handleIntChange(onChange)}
+									variant="outlined"
+									error={!!error}
+									helperText={error?.message}
+									slotProps={{
+										input: {
+											endAdornment: (
+												<InputAdornment position="end">
+													{value?.type === "FIXED" ? "₽" : "%"}
+												</InputAdornment>
+											),
+										},
+									}}
+								/>
+								<div className="gap-05 ai-c d-f fd-r">
+									<Typography variant="body2">₽</Typography>
+									<Switch
+										checked={value?.type === "PERCENT"}
+										onChange={(_, value) =>
+											onChange(() => onChange({ type: value ? "PERCENT" : "FIXED", value: "" }))
+										}
+									/>
+									<Typography variant="body2">%</Typography>
+								</div>
+							</div>
 						)}
 					/>
 				</div>
