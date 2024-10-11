@@ -1,4 +1,5 @@
-import { Button, CircularProgress, Modal, Snackbar, Typography } from "@mui/material";
+import { Button, CircularProgress, IconButton, Modal, Snackbar, Tooltip, Typography } from "@mui/material";
+import { ChevronLeft, OpenInNew } from "@mui/icons-material";
 import {
 	useActivateCatalogItemMutation,
 	useDeactivateCatalogItemMutation,
@@ -11,7 +12,6 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 
 import { CatalogItemUpdateSchema } from "@schemas/CatalogItem";
-import { ChevronLeft } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { PublicationStockEditableHeader } from "./PublicationStockEditableHeader";
 import { VariationStockEditableCard } from "./VariationStockEditableCard";
@@ -177,8 +177,13 @@ export default function PublicationInspectRoute() {
 					<ChevronLeft />
 					Назад
 				</Button>
-				<div className="p-2">
+				<div className="gap-2 p-2 d-f fd-r">
 					<Typography variant="h5">Публикация {publication?.link || ""}</Typography>
+					<Tooltip title="Открыть в браузере">
+						<IconButton onClick={() => window.open(`https://simplegeek.ru/item/${publication?.link}`, "_blank")}>
+							<OpenInNew />
+						</IconButton>
+					</Tooltip>
 				</div>
 
 				<LoadingSpinner isLoading={publicationIsLoading}>

@@ -10,7 +10,7 @@ import {
 	SpaceDashboard,
 	Tune,
 } from "@mui/icons-material";
-import { Box, ListItem, Typography } from "@mui/material";
+import { Box, Button, ListItem, Typography } from "@mui/material";
 import { Link, Outlet } from "react-router-dom";
 
 import NavButton from "@components/NavButton";
@@ -53,7 +53,10 @@ export default function AppLayout() {
 						<NavButton to="/faq" icon={<Info />} text={"FAQ"} />
 					</Box>
 					<Box padding={"0 16px"}>
-						<Link to="/" style={{ textDecoration: "none" }}>
+						<Button
+							onClick={() => (window.location.href = "https://simplegeek.ru/")}
+							style={{ textDecoration: "none" }}
+						>
 							<ListItem
 								sx={{
 									height: 48,
@@ -67,7 +70,7 @@ export default function AppLayout() {
 									В магазин
 								</Typography>
 							</ListItem>
-						</Link>
+						</Button>
 					</Box>
 				</Box>
 			</div>
