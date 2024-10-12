@@ -1,5 +1,3 @@
-import "react-image-crop/dist/ReactCrop.css";
-
 import { Button, FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";

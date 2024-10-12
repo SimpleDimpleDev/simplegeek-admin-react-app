@@ -1,3 +1,5 @@
+import "react-image-crop/dist/ReactCrop.css";
+
 import {
 	Autocomplete,
 	Box,
@@ -442,7 +444,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 											slotProps={{
 												input: {
 													endAdornment: <Typography variant="body1">см</Typography>,
-												}
+												},
 											}}
 										/>
 									)}
@@ -464,7 +466,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 											slotProps={{
 												input: {
 													endAdornment: <Typography variant="body1">см</Typography>,
-												}
+												},
 											}}
 										/>
 									)}
@@ -486,7 +488,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 											slotProps={{
 												input: {
 													endAdornment: <Typography variant="body1">г</Typography>,
-												}
+												},
 											}}
 										/>
 									)}
