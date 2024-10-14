@@ -69,7 +69,7 @@ const CatalogItemPublishStockResolver = z.object({
 type PublicationCreateStockFormData = {
 	link: string | null;
 	categoryId: string | null;
-	deliveryCostIncluded: null;
+	shippingCostIncluded: null;
 	items: CatalogItemPublishStockFormData[];
 	isActive: boolean;
 };
@@ -361,7 +361,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 	const defaultValues: PublicationCreateStockFormData = {
 		link: null,
 		categoryId: null,
-		deliveryCostIncluded: null,
+		shippingCostIncluded: null,
 		items: [],
 		isActive: true,
 	};
@@ -430,17 +430,11 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 	const formattedOnSubmit = useCallback(
 		(data: PublicationCreateStockFormData) => {
 			const formattedData = {
-				link: data.link,
-				categoryId: data.categoryId,
+				...data,
 				preorderId: null,
-				shippingCostIncluded: data.deliveryCostIncluded,
 				items: data.items.map((itemVariation) => ({
+					...itemVariation,
 					productId: itemVariation.product?.id,
-					rating: itemVariation.rating,
-					price: itemVariation.price,
-					discount: itemVariation.discount,
-					quantity: itemVariation.quantity,
-					quantityRestriction: itemVariation.quantityRestriction,
 					creditInfo: null,
 				})),
 			};

@@ -531,17 +531,10 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 	const formattedOnSubmit = useCallback(
 		(data: PublicationCreatePreorderFormData) => {
 			const formattedData = {
-				link: data.link,
-				categoryId: data.categoryId,
-				preorderId: data.preorderId,
-				shippingCostIncluded: data.shippingCostIncluded,
+				...data,
 				items: data.items.map((itemVariation) => ({
+					...itemVariation,
 					productId: itemVariation.product?.id,
-					rating: itemVariation.rating,
-					price: itemVariation.price,
-					quantity: itemVariation.quantity,
-					discount: itemVariation.discount,
-					quantityRestriction: itemVariation.quantityRestriction,
 					creditInfo: {
 						payments: itemVariation.creditPayments,
 					},
