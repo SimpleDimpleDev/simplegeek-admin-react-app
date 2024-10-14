@@ -207,7 +207,7 @@ export default function PublicationInspectRoute() {
 						<CircularProgress />
 					</div>
 				) : publication.preorder === null ? (
-					<div className="w-100v h-100v ai-c d-f jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+					<div className="bg-primary p-2 w-max h-max ai-c d-f jc-c">
 						<VariationAddStockForm
 							onSubmit={(data) => addVariation({ publicationId: publicationId, data })}
 							categoryId={publication.items.at(0)?.product.category.id || ""}
