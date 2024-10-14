@@ -794,7 +794,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 									onActiveChange(true);
 								}
 							}}
-							control={<Checkbox defaultChecked />}
+							control={<Checkbox />}
 							label="Создать без публикации"
 						/>
 					)}

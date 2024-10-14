@@ -623,7 +623,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 									onActiveChange(true);
 								}
 							}}
-							control={<Checkbox defaultChecked />}
+							control={<Checkbox />}
 							label="Создать без публикации"
 						/>
 					)}
