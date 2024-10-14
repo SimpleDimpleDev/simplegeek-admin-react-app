@@ -11,6 +11,7 @@ export const PublicationCreateSchema = z.object({
 	preorderId: IdSchema.nullable(),
 	shippingCostIncluded: ShippingCostIncludedSchema.nullable(),
 	items: CatalogItemPublishSchema.array(),
+	isActive: z.boolean(),
 });
 
 export const PublicationGetSchema = AdminGetBaseSchema.extend({
