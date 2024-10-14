@@ -326,7 +326,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 									fieldState: { error },
 								}) => (
 									<div className="gap-05 ai-fs d-f fd-c" style={{ width: "100%" }}>
-										<div className="gap-1 w-100 ai-c d-f fd-r">
+										<div className="w-100 ai-c d-f fd-r">
 											<Typography variant="body2" sx={{ color: "typography.secondary" }}>
 												Скидка
 											</Typography>
@@ -342,7 +342,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 												}}
 											/>
 										</div>
-										<div className="w-100 ai-c d-f fd-r jc-sb">
+										<div className="gap-3 w-100 ai-c d-f fd-r jc-sb">
 											<TextField
 												{...textFieldProps}
 												fullWidth
@@ -380,7 +380,9 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 												<Typography variant="body2">%</Typography>
 											</div>
 											{discount && (
-												<Typography variant="body2">Итог: {priceAfterDiscount}₽</Typography>
+												<Typography sx={{ width: "100%" }} variant="body2">
+													Итог: {priceAfterDiscount}₽
+												</Typography>
 											)}
 										</div>
 									</div>
@@ -479,17 +481,17 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 							justifyContent="space-between"
 							divider={<Divider orientation="vertical" />}
 						>
-							<div className="gap-05 d-f fd-c" style={{ width: "100%" }}>
-								<Typography variant="body2" sx={{ color: "typography.secondary" }}>
-									Рейтинг
-								</Typography>
-								<Typography variant="caption" sx={{ color: "typography.secondary" }}>
-									<em>Текущий максимальный рейтинг: {maxRating}</em>
-								</Typography>
-								<Controller
-									name={`rating`}
-									control={control}
-									render={({ field: { value, onChange }, fieldState: { error } }) => (
+							<Controller
+								name={`rating`}
+								control={control}
+								render={({ field: { value, onChange }, fieldState: { error } }) => (
+									<div className="gap-05 d-f fd-c" style={{ width: "100%" }}>
+										<Typography variant="body2" sx={{ color: "typography.secondary" }}>
+											Рейтинг
+										</Typography>
+										<Typography variant="caption" sx={{ color: "typography.secondary" }}>
+											<em>Текущий максимальный рейтинг: {maxRating}</em>
+										</Typography>
 										<TextField
 											{...textFieldProps}
 											fullWidth
@@ -502,53 +504,54 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 											error={!!error}
 											helperText={error?.message}
 										/>
-									)}
-								/>
-								<Controller
-									name={`quantityRestriction`}
-									control={control}
-									render={({
-										field: { value: quantityRestriction, onChange: onQuantityRestrictionChange },
-										fieldState: { error },
-									}) => (
-										<div className="gap-05 ai-fs d-f fd-c" style={{ width: "100%" }}>
+									</div>
+								)}
+							/>
+
+							<Controller
+								name={`quantityRestriction`}
+								control={control}
+								render={({
+									field: { value: quantityRestriction, onChange: onQuantityRestrictionChange },
+									fieldState: { error },
+								}) => (
+									<div className="gap-05 ai-fs d-f fd-c" style={{ width: "100%" }}>
+										<div className="w-100 ai-c d-f fd-r">
 											<Typography variant="body2" sx={{ color: "typography.secondary" }}>
 												Ограничение на аккаунт
 											</Typography>
-											<div className="gap-1 w-100 ai-c d-f fd-r jc-sb">
-												<Checkbox
-													disabled={!isEditing}
-													checked={quantityRestriction !== null}
-													onChange={(_, checked) => {
-														if (checked) {
-															onQuantityRestrictionChange("");
-														} else {
-															onQuantityRestrictionChange(null);
-														}
-													}}
-												/>
-											</div>
-
-											<TextField
-												{...textFieldProps}
-												fullWidth
-												type="text"
-												disabled={!isEditing || quantityRestriction === null}
-												value={quantityRestriction ?? "-"}
-												onChange={handleIntChange(onQuantityRestrictionChange)}
-												variant="standard"
-												error={!!error}
-												helperText={error?.message}
-												slotProps={{
-													input: {
-														endAdornment: "шт.",
-													},
+											<Checkbox
+												disabled={!isEditing}
+												checked={quantityRestriction !== null}
+												onChange={(_, checked) => {
+													if (checked) {
+														onQuantityRestrictionChange("");
+													} else {
+														onQuantityRestrictionChange(null);
+													}
 												}}
 											/>
 										</div>
-									)}
-								/>
-							</div>
+
+										<TextField
+											{...textFieldProps}
+											fullWidth
+											type="text"
+											disabled={!isEditing || quantityRestriction === null}
+											value={quantityRestriction ?? "-"}
+											onChange={handleIntChange(onQuantityRestrictionChange)}
+											variant="standard"
+											error={!!error}
+											helperText={error?.message}
+											slotProps={{
+												input: {
+													endAdornment: "шт.",
+												},
+											}}
+										/>
+									</div>
+								)}
+							/>
 						</Stack>
 					</AccordionDetails>
 				</Accordion>
