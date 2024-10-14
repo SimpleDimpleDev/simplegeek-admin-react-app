@@ -404,9 +404,6 @@ const ItemForm: React.FC<ItemFormProps> = ({
 														<DatePicker
 															value={dayjs(value)}
 															onChange={(newValue) => {
-																console.log({
-																	isoString: newValue?.toDate().toISOString(),
-																});
 																onChange(newValue?.toDate());
 															}}
 														/>
@@ -544,7 +541,15 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 					...itemVariation,
 					productId: itemVariation.product?.id,
 					creditInfo: {
-						payments: itemVariation.creditPayments,
+						payments: itemVariation.creditPayments.map((payment) => {
+							const localDate = payment.deadline;
+							return {
+								...payment,
+								deadline:
+									localDate &&
+									`${localDate.getFullYear()}-${localDate.getMonth() + 1}-${localDate.getDate()}`,
+							};
+						}),
 					},
 				})),
 			};

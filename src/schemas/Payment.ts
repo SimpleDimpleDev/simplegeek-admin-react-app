@@ -15,7 +15,7 @@ export const CreditInfoCreateSchema = z.object({
 	payments: z
 		.object({
 			sum: z.number(),
-			deadline: z.date(),
+			deadline: z.string(),
 		})
 		.array(),
 });
