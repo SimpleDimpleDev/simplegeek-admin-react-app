@@ -404,24 +404,9 @@ const ItemForm: React.FC<ItemFormProps> = ({
 														<DatePicker
 															value={dayjs(value)}
 															onChange={(newValue) => {
-																console.log({ pickedDate: newValue });
 																console.log({
-																	startOf: newValue?.startOf("day").toISOString(),
+																	isoString: newValue?.toDate().toISOString(),
 																});
-																console.log({ utc: newValue?.utc().toISOString() });
-																console.log({
-																	startOfUtc: newValue?.startOf("day").utc().toISOString(),
-																});
-																console.log({
-																	tz: newValue?.tz("UTC").toISOString(),
-																});
-																console.log({
-																	startOfTz: newValue
-																		?.startOf("day")
-																		.tz("UTC")
-																		.toISOString(),
-																});
-																console.log({ toChange: newValue?.toDate() });
 																onChange(newValue?.toDate());
 															}}
 														/>
