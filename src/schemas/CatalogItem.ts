@@ -1,5 +1,6 @@
+import { CreditInfoCreateSchema, CreditInfoGetSchema } from "./Payment";
+
 import { AdminGetBaseSchema } from "./Admin";
-import { CreditInfoSchema } from "./Payment";
 import { IdSchema } from "./Primitives";
 import { ProductGetSchema } from "./Product";
 import { z } from "zod";
@@ -16,7 +17,7 @@ export const CatalogItemPublishSchema = z.object({
 	quantityRestriction: z.number().nullable(),
 	price: z.number(),
 	discount: DiscountSchema.nullable(),
-	creditInfo: CreditInfoSchema.nullable(),
+	creditInfo: CreditInfoCreateSchema.nullable(),
 });
 
 export const CatalogItemGetSchema = AdminGetBaseSchema.extend({
@@ -27,7 +28,7 @@ export const CatalogItemGetSchema = AdminGetBaseSchema.extend({
 	quantityRestriction: z.number().nullable(),
 	price: z.number(),
 	discount: DiscountSchema.nullable(),
-	creditInfo: CreditInfoSchema.nullable(),
+	creditInfo: CreditInfoGetSchema.nullable(),
 	variationIndex: z.number().nullable(),
 	isActive: z.boolean(),
 });

@@ -2,13 +2,20 @@ import { AdminGetBaseSchema } from "./Admin";
 import { ISOToDateSchema } from "./Primitives";
 import { z } from "zod";
 
-export const BaseCreditPaymentInfo = z.object({
-	sum: z.number(),
-	deadline: ISOToDateSchema,
+export const CreditInfoGetSchema = z.object({
+	payments: z
+		.object({
+			sum: z.number(),
+			deadline: ISOToDateSchema,
+		})
+		.array(),
 });
 
-export const CreditInfoSchema = z.object({
-	payments: BaseCreditPaymentInfo.array(),
+export const CreditInfoCreateSchema = z.object({
+	payments: z.object({
+		sum: z.number(),
+		deadline: z.date(),
+	}),
 });
 
 export const InvoiceGetSchema = AdminGetBaseSchema.extend({
@@ -17,7 +24,7 @@ export const InvoiceGetSchema = AdminGetBaseSchema.extend({
 	expiresAt: ISOToDateSchema.nullable(),
 });
 
-export const CreditGetSchema = CreditInfoSchema.extend({
+export const CreditGetSchema = CreditInfoGetSchema.extend({
 	paidParts: z.number(),
 	invoices: InvoiceGetSchema.array(),
 });
