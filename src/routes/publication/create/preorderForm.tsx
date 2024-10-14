@@ -539,8 +539,9 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 					productId: itemVariation.product?.id,
 					rating: itemVariation.rating,
 					price: itemVariation.price,
-					discount: itemVariation.discount,
 					quantity: itemVariation.quantity,
+					discount: itemVariation.discount,
+					quantityRestriction: itemVariation.quantityRestriction,
 					creditInfo: {
 						payments: itemVariation.creditPayments,
 					},

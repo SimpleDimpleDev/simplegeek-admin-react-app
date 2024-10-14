@@ -440,6 +440,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 					price: itemVariation.price,
 					discount: itemVariation.discount,
 					quantity: itemVariation.quantity,
+					quantityRestriction: itemVariation.quantityRestriction,
 					creditInfo: null,
 				})),
 			};

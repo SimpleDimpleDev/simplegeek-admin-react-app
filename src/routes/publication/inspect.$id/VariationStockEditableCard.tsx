@@ -326,10 +326,10 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 									fieldState: { error },
 								}) => (
 									<div className="gap-05 ai-fs d-f fd-c" style={{ width: "100%" }}>
-										<Typography variant="body2" sx={{ color: "typography.secondary" }}>
-											Скидка
-										</Typography>
-										<div className="gap-1 w-100 ai-c d-f fd-r jc-sb">
+										<div className="gap-1 w-100 ai-c d-f fd-r">
+											<Typography variant="body2" sx={{ color: "typography.secondary" }}>
+												Скидка
+											</Typography>
 											<Checkbox
 												disabled={!isEditing}
 												checked={discount !== null}
@@ -339,6 +339,30 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 													} else {
 														onDiscountChange(null);
 													}
+												}}
+											/>
+										</div>
+										<div className="w-100 ai-c d-f fd-r jc-sb">
+											<TextField
+												{...textFieldProps}
+												fullWidth
+												type="text"
+												disabled={!isEditing || discount === null}
+												value={discount ? discount.value : "-"}
+												onChange={handleIntChange((value) =>
+													onDiscountChange({ ...discount, value })
+												)}
+												variant="standard"
+												error={!!error}
+												helperText={discountValueError || error?.message}
+												slotProps={{
+													input: {
+														endAdornment: discount && (
+															<InputAdornment position="end">
+																{discount.type === "PERCENTAGE" ? "%" : "₽"}
+															</InputAdornment>
+														),
+													},
 												}}
 											/>
 											<div className="gap-05 ai-c d-f fd-r">
@@ -359,29 +383,6 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 												<Typography variant="body2">Итог: {priceAfterDiscount}₽</Typography>
 											)}
 										</div>
-
-										<TextField
-											{...textFieldProps}
-											fullWidth
-											type="text"
-											disabled={!isEditing || discount === null}
-											value={discount ? discount.value : "-"}
-											onChange={handleIntChange((value) =>
-												onDiscountChange({ ...discount, value })
-											)}
-											variant="standard"
-											error={!!error}
-											helperText={discountValueError || error?.message}
-											slotProps={{
-												input: {
-													endAdornment: discount && (
-														<InputAdornment position="end">
-															{discount.type === "PERCENTAGE" ? "%" : "₽"}
-														</InputAdornment>
-													),
-												},
-											}}
-										/>
 									</div>
 								)}
 							/>
@@ -540,7 +541,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 												helperText={error?.message}
 												slotProps={{
 													input: {
-														endAdornment: "шт."
+														endAdornment: "шт.",
 													},
 												}}
 											/>
