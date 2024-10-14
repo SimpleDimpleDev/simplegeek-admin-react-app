@@ -406,20 +406,20 @@ const ItemForm: React.FC<ItemFormProps> = ({
 															onChange={(newValue) => {
 																console.log({ pickedDate: newValue });
 																console.log({
-																	startOf: newValue?.startOf("day").toDate(),
+																	startOf: newValue?.startOf("day").toISOString(),
 																});
-																console.log({ utc: newValue?.utc().toDate() });
+																console.log({ utc: newValue?.utc().toISOString() });
 																console.log({
-																	startOfUtc: newValue?.startOf("day").utc().toDate(),
+																	startOfUtc: newValue?.startOf("day").utc().toISOString(),
 																});
 																console.log({
-																	tz: newValue?.tz("UTC").toDate(),
+																	tz: newValue?.tz("UTC").toISOString(),
 																});
 																console.log({
 																	startOfTz: newValue
 																		?.startOf("day")
 																		.tz("UTC")
-																		.toDate(),
+																		.toISOString(),
 																});
 																console.log({ toChange: newValue?.toDate() });
 																onChange(newValue?.toDate());
