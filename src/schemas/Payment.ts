@@ -12,10 +12,12 @@ export const CreditInfoGetSchema = z.object({
 });
 
 export const CreditInfoCreateSchema = z.object({
-	payments: z.object({
-		sum: z.number(),
-		deadline: z.date(),
-	}),
+	payments: z
+		.object({
+			sum: z.number(),
+			deadline: z.date(),
+		})
+		.array(),
 });
 
 export const InvoiceGetSchema = AdminGetBaseSchema.extend({
