@@ -5,6 +5,7 @@ import {
 	CircularProgress,
 	Divider,
 	FormControl,
+	FormControlLabel,
 	FormHelperText,
 	IconButton,
 	InputAdornment,
@@ -46,6 +47,7 @@ type CatalogItemPublishStockFormData = {
 		type: "FIXED" | "PERCENTAGE";
 		value: string;
 	} | null;
+	quantityRestriction: string | null;
 };
 
 const CatalogItemPublishStockResolver = z.object({
@@ -58,6 +60,10 @@ const CatalogItemPublishStockResolver = z.object({
 		.number({ message: "Укажите количество" })
 		.positive({ message: "Количество должно быть положительным числом" }),
 	discount: DiscountResolver.nullable(),
+	quantityRestriction: z.coerce
+		.number()
+		.positive({ message: "Количество должно быть положительным числом" })
+		.nullable(),
 });
 
 type PublicationCreateStockFormData = {
@@ -65,6 +71,7 @@ type PublicationCreateStockFormData = {
 	categoryId: string | null;
 	deliveryCostIncluded: null;
 	items: CatalogItemPublishStockFormData[];
+	isActive: boolean;
 };
 
 const PublicationCreateStockResolver = z.object({
@@ -74,6 +81,7 @@ const PublicationCreateStockResolver = z.object({
 	items: CatalogItemPublishStockResolver.array().nonempty({
 		message: "У публикации должен быть хотя бы один товар",
 	}),
+	isActive: z.boolean(),
 });
 
 interface ItemFormProps {
@@ -87,6 +95,7 @@ interface ItemFormProps {
 	availableProducts: ProductGet[];
 	productsLoading: boolean;
 	selectedProducts: ProductGet[];
+	maxRating: number;
 }
 
 const ItemForm: React.FC<ItemFormProps> = ({
@@ -100,6 +109,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	availableProducts,
 	productsLoading,
 	selectedProducts,
+	maxRating,
 }) => {
 	const discountValueError = errors.items?.[index]?.discount?.value?.message;
 
@@ -194,9 +204,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								/>
 							)}
 						/>
-						{/* TODO: fetch max rating */}
-						<Typography variant="body1" sx={{ color: "typography.secondary" }}>
-							<em>Текущий максимальный рейтинг: 20</em>
+						<Typography variant="caption" sx={{ color: "typography.secondary" }}>
+							<em>Текущий максимальный рейтинг: {maxRating}</em>
 						</Typography>
 					</div>
 
@@ -271,7 +280,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 										},
 									}}
 								/>
-								<div className="gap-1 ai-c d-f fd-r">
+								<div className="ai-c d-f fd-r jc-sb">
 									<Checkbox
 										checked={discount !== null}
 										onChange={(_, checked) => {
@@ -298,6 +307,45 @@ const ItemForm: React.FC<ItemFormProps> = ({
 							</div>
 						)}
 					/>
+					<Controller
+						name={`items.${index}.quantityRestriction`}
+						control={control}
+						render={({
+							field: { value: quantityRestriction, onChange: onQuantityRestrictionChange },
+							fieldState: { error },
+						}) => (
+							<div className="gap-05 w-100 d-f fd-c">
+								<TextField
+									fullWidth
+									label="Ограничение на аккаунт"
+									type="text"
+									disabled={quantityRestriction === null}
+									value={quantityRestriction ?? "-"}
+									onChange={handleIntChange(onQuantityRestrictionChange)}
+									variant="outlined"
+									error={!!error}
+									helperText={error?.message}
+									slotProps={{
+										input: {
+											endAdornment: "шт.",
+										},
+									}}
+								/>
+								<div className="ai-c d-f fd-r jc-sb">
+									<Checkbox
+										checked={quantityRestriction !== null}
+										onChange={(_, checked) => {
+											if (checked) {
+												onQuantityRestrictionChange("");
+											} else {
+												onQuantityRestrictionChange(null);
+											}
+										}}
+									/>
+								</div>
+							</div>
+						)}
+					/>
 				</Stack>
 			</div>
 		</div>
@@ -315,6 +363,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 		categoryId: null,
 		deliveryCostIncluded: null,
 		items: [],
+		isActive: true,
 	};
 
 	if (productIds) {
@@ -341,6 +390,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 			price: "",
 			discount: null,
 			quantity: "",
+			quantityRestriction: null,
 		}));
 	} else {
 		defaultValues.items.push({
@@ -349,6 +399,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 			price: "",
 			discount: null,
 			quantity: "",
+			quantityRestriction: null,
 		});
 	}
 	return defaultValues;
@@ -362,7 +413,9 @@ type PublicationCreateStockFormProps = {
 	onSubmit: (data: PublicationCreate) => void;
 	onDirty: () => void;
 	productIds?: string[];
+	maxRating?: number;
 };
+
 
 export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProps> = ({
 	productList,
@@ -372,6 +425,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 	onSubmit,
 	onDirty,
 	productIds,
+	maxRating,
 }) => {
 	const formattedOnSubmit = useCallback(
 		(data: PublicationCreateStockFormData) => {
@@ -417,6 +471,8 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 			onDirty();
 		}
 	}, [isDirty, onDirty]);
+
+	const publishActive = watch("isActive");
 
 	const currentCategoryId = watch("categoryId");
 
@@ -520,6 +576,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 														availableProducts={availableProducts || []}
 														productsLoading={productListIsLoading}
 														selectedProducts={selectedProducts}
+														maxRating={maxRating ?? 0}
 													/>
 												</li>
 											)}
@@ -541,6 +598,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 							price: "",
 							discount: null,
 							quantity: "",
+							quantityRestriction: null,
 						})
 					}
 				>
@@ -548,10 +606,27 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 				</Button>
 			</div>
 			<div className="gap-1 bg-primary p-3 br-3 d-f fd-r">
-				<Button variant="outlined">Сохранить черновик</Button>
 				<Button type="submit" variant="contained">
-					Опубликовать
+					{publishActive ? "Опубликовать" : "Создать"}
 				</Button>
+				<Controller
+					name="isActive"
+					control={control}
+					render={({ field: { value: isActive, onChange: onActiveChange } }) => (
+						<FormControlLabel
+							value={!isActive}
+							onChange={(_, checked) => {
+								if (checked) {
+									onActiveChange(false);
+								} else {
+									onActiveChange(true);
+								}
+							}}
+							control={<Checkbox defaultChecked />}
+							label="Создать без публикации"
+						/>
+					)}
+				/>
 			</div>
 		</form>
 	);

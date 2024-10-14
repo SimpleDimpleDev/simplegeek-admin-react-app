@@ -13,6 +13,7 @@ export const CatalogItemPublishSchema = z.object({
 	productId: IdSchema,
 	rating: z.number(),
 	quantity: z.number().nullable(),
+	quantityRestriction: z.number().nullable(),
 	price: z.number(),
 	discount: DiscountSchema.nullable(),
 	creditInfo: CreditInfoSchema.nullable(),
@@ -23,6 +24,7 @@ export const CatalogItemGetSchema = AdminGetBaseSchema.extend({
 	rating: z.number(),
 	orderedQuantity: z.number(),
 	quantity: z.number().nullable(),
+	quantityRestriction: z.number().nullable(),
 	price: z.number(),
 	discount: DiscountSchema.nullable(),
 	creditInfo: CreditInfoSchema.nullable(),
@@ -34,9 +36,14 @@ export const CatalogItemUpdateSchema = z.object({
 	id: z.string(),
 	rating: z.number(),
 	quantity: z.number().nullable(),
+	quantityRestriction: z.number().nullable(),
 	price: z.number(),
 	discount: DiscountSchema.nullable(),
 
 	// TODO: Add credit info
 	// creditInfo: CreditInfoSchema.nullable(),
+});
+
+export const MaxRatingGetSchema = z.object({
+	rating: z.number(),
 });

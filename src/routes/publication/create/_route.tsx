@@ -10,13 +10,13 @@ import {
 	Snackbar,
 	Typography,
 } from "@mui/material";
+import { useCreatePublicationMutation, useGetMaxRatingQuery } from "@api/admin/publication";
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { PublicationCreatePreorderForm } from "./preorderForm";
 import { PublicationCreateStockForm } from "./stockForm";
-import { useCreatePublicationMutation } from "@api/admin/publication";
 import { useGetCategoryListQuery } from "@api/admin/category";
 import { useGetPreorderListQuery } from "@api/admin/preorder";
 import { useGetProductListQuery } from "@api/admin/product";
@@ -31,6 +31,7 @@ export default function PublicationCreateRoute() {
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
 	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
 	const { data: preorderList, isLoading: preorderListIsLoading } = useGetPreorderListQuery();
+	const { data: maxRating } = useGetMaxRatingQuery();
 	
 	const [createPublication, { isSuccess, isLoading, isError, error }] = useCreatePublicationMutation();
 
@@ -122,6 +123,7 @@ export default function PublicationCreateRoute() {
 						productIds={productIds}
 						onDirty={() => setFormIsDirty(true)}
 						onSubmit={createPublication}
+						maxRating={maxRating?.rating}
 					/>
 				) : (
 					<PublicationCreatePreorderForm
@@ -133,6 +135,7 @@ export default function PublicationCreateRoute() {
 						preorderListIsLoading={preorderListIsLoading}
 						onDirty={() => setFormIsDirty(true)}
 						onSubmit={createPublication}
+						maxRating={maxRating?.rating}
 					/>
 				)}
 			</div>

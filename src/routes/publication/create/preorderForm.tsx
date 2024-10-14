@@ -16,7 +16,6 @@ import {
 	MenuItem,
 	Select,
 	Stack,
-	Switch,
 	TextField,
 	Typography,
 } from "@mui/material";
@@ -65,6 +64,7 @@ type CatalogItemPublishPreorderFormData = {
 		type: "FIXED" | "PERCENTAGE";
 		value: string;
 	} | null;
+	quantityRestriction: string | null;
 	creditPayments: {
 		sum: string;
 		deadline: Date | null;
@@ -79,6 +79,10 @@ const CatalogItemPublishPreorderResolver = z.object({
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
 	quantity: z.coerce.number().positive({ message: "Количество должно быть положительным числом" }).nullable(),
 	discount: DiscountResolver.nullable(),
+	quantityRestriction: z.coerce
+		.number()
+		.positive({ message: "Количество должно быть положительным числом" })
+		.nullable(),
 	creditPayments: z
 		.object({
 			sum: z.coerce
@@ -95,6 +99,7 @@ type PublicationCreatePreorderFormData = {
 	categoryId: string | null;
 	items: CatalogItemPublishPreorderFormData[];
 	shippingCostIncluded: ShippingCostIncluded | null;
+	isActive: boolean;
 };
 
 const PublicationCreatePreorderResolver = z.object({
@@ -107,6 +112,7 @@ const PublicationCreatePreorderResolver = z.object({
 	shippingCostIncluded: z.enum(["FOREIGN", "FULL", "NOT"], {
 		message: "Укажите, включена ли стоимость доставки в цену товаров",
 	}),
+	isActive: z.boolean(),
 });
 
 interface ItemFormProps {
@@ -121,6 +127,7 @@ interface ItemFormProps {
 	availableProducts: ProductGet[];
 	productsLoading: boolean;
 	selectedProducts: ProductGet[];
+	maxRating: number;
 }
 
 const ItemForm: React.FC<ItemFormProps> = ({
@@ -128,13 +135,13 @@ const ItemForm: React.FC<ItemFormProps> = ({
 	control,
 	setValue,
 	watch,
-	errors,
 	dragHandleProps,
 	isSingle,
 	onRemove,
 	availableProducts,
 	productsLoading,
 	selectedProducts,
+	maxRating,
 }) => {
 	const {
 		fields: creditPaymentsFields,
@@ -144,23 +151,6 @@ const ItemForm: React.FC<ItemFormProps> = ({
 		name: `items.${index}.creditPayments`,
 		control,
 	});
-
-	const discountValueError = errors.items?.[index]?.discount?.value?.message;
-
-	const discount = watch(`items.${index}.discount`);
-	const priceString = watch(`items.${index}.price`);
-
-	const priceAfterDiscount = useMemo(() => {
-		if (!discount) return null;
-		const discountValueString = discount.value;
-		const price = parseInt(priceString) ?? 0;
-		const discountValue = parseInt(discountValueString) ?? 0;
-		if (isNaN(discountValue) || isNaN(price)) return null;
-		if (discount.type === "FIXED") {
-			return price - discountValue;
-		}
-		return Math.ceil(price - price * (discountValue / 100));
-	}, [discount, priceString]);
 
 	const creditPayments = watch(`items.${index}.creditPayments`);
 	const creditPaymentsTotal = creditPayments.reduce((acc, { sum }) => acc + (parseInt(sum) ?? 0), 0);
@@ -249,9 +239,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								/>
 							)}
 						/>
-						{/* TODO: fetch max rating */}
-						<Typography variant="body1" sx={{ color: "typography.secondary" }}>
-							<em>Текущий максимальный рейтинг: 20</em>
+						<Typography variant="caption" sx={{ color: "typography.secondary" }}>
+							<em>Текущий максимальный рейтинг: {maxRating}</em>
 						</Typography>
 					</div>
 
@@ -329,53 +318,40 @@ const ItemForm: React.FC<ItemFormProps> = ({
 					/>
 
 					<Controller
-						name={`items.${index}.discount`}
+						name={`items.${index}.quantityRestriction`}
 						control={control}
-						render={({ field: { value: discount, onChange: onDiscountChange }, fieldState: { error } }) => (
+						render={({
+							field: { value: quantityRestriction, onChange: onQuantityRestrictionChange },
+							fieldState: { error },
+						}) => (
 							<div className="gap-05 w-100 d-f fd-c">
 								<TextField
 									fullWidth
-									label="Скидка"
+									label="Ограничение на аккаунт"
 									type="text"
-									disabled={discount === null}
-									value={discount ? discount.value : "-"}
-									onChange={handleIntChange((value) => onDiscountChange({ ...discount, value }))}
+									disabled={quantityRestriction === null}
+									value={quantityRestriction ?? "-"}
+									onChange={handleIntChange(onQuantityRestrictionChange)}
 									variant="outlined"
 									error={!!error}
-									helperText={discountValueError || error?.message}
+									helperText={error?.message}
 									slotProps={{
 										input: {
-											endAdornment: discount && (
-												<InputAdornment position="end">
-													{discount.type === "PERCENTAGE" ? "%" : "₽"}
-												</InputAdornment>
-											),
+											endAdornment: "шт.",
 										},
 									}}
 								/>
-								<div className="gap-1 ai-c d-f fd-r">
+								<div className="ai-c d-f fd-r jc-sb">
 									<Checkbox
-										checked={discount !== null}
+										checked={quantityRestriction !== null}
 										onChange={(_, checked) => {
 											if (checked) {
-												onDiscountChange({ type: "FIXED", value: "" });
+												onQuantityRestrictionChange("");
 											} else {
-												onDiscountChange(null);
+												onQuantityRestrictionChange(null);
 											}
 										}}
 									/>
-									<div className="gap-05 ai-c d-f fd-r">
-										<Typography variant="body2">₽</Typography>
-										<Switch
-											disabled={discount === null}
-											checked={discount?.type === "PERCENTAGE"}
-											onChange={(_, checked) =>
-												onDiscountChange({ type: checked ? "PERCENTAGE" : "FIXED", value: "" })
-											}
-										/>
-										<Typography variant="body2">%</Typography>
-									</div>
-									{discount && <Typography variant="body2">Итог: {priceAfterDiscount}₽</Typography>}
 								</div>
 							</div>
 						)}
@@ -471,6 +447,7 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 		preorderId: null,
 		shippingCostIncluded: null,
 		items: [],
+		isActive: true,
 	};
 
 	if (productIds) {
@@ -495,9 +472,10 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 			product,
 			rating: "0",
 			price: "",
-			discount: null,
 			unlimitedQuantity: false,
 			quantity: "",
+			discount: null,
+			quantityRestriction: null,
 			creditPayments: [],
 		}));
 	} else {
@@ -505,9 +483,10 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 			product: null,
 			rating: "0",
 			price: "",
-			discount: null,
 			unlimitedQuantity: false,
 			quantity: "",
+			discount: null,
+			quantityRestriction: null,
 			creditPayments: [],
 		});
 	}
@@ -533,6 +512,7 @@ type PublicationCreatePreorderFormProps = {
 	onDirty: () => void;
 	productIds?: string[];
 	preorderId?: string;
+	maxRating?: number;
 };
 
 export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFormProps> = ({
@@ -546,6 +526,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 	onDirty,
 	productIds,
 	preorderId,
+	maxRating,
 }) => {
 	const formattedOnSubmit = useCallback(
 		(data: PublicationCreatePreorderFormData) => {
@@ -598,6 +579,8 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 			onDirty();
 		}
 	}, [isDirty, onDirty]);
+	
+	const publishActive = watch("isActive");
 
 	const currentCategoryId = watch("categoryId");
 	const availableProducts = useMemo(() => {
@@ -762,6 +745,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 														availableProducts={availableProducts || []}
 														productsLoading={productListIsLoading}
 														selectedProducts={selectedProducts}
+														maxRating={maxRating || 0}
 													/>
 												</li>
 											)}
@@ -781,9 +765,10 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 							product: null,
 							rating: "0",
 							price: "",
-							discount: null,
 							unlimitedQuantity: false,
 							quantity: "",
+							discount: null,
+							quantityRestriction: null,
 							creditPayments: [],
 						})
 					}
@@ -792,10 +777,27 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 				</Button>
 			</div>
 			<div className="gap-1 bg-primary p-3 br-3 d-f fd-r">
-				<Button variant="outlined">Сохранить черновик</Button>
 				<Button type="submit" variant="contained">
-					Опубликовать
+					{publishActive ? "Опубликовать" : "Создать"}
 				</Button>
+				<Controller
+					name="isActive"
+					control={control}
+					render={({ field: { value: isActive, onChange: onActiveChange } }) => (
+						<FormControlLabel
+							value={!isActive}
+							onChange={(_, checked) => {
+								if (checked) {
+									onActiveChange(false);
+								} else {
+									onActiveChange(true);
+								}
+							}}
+							control={<Checkbox defaultChecked />}
+							label="Создать без публикации"
+						/>
+					)}
+				/>
 			</div>
 		</form>
 	);

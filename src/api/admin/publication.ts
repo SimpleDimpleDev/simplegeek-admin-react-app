@@ -1,3 +1,4 @@
+import { CatalogItemUpdateSchema, MaxRatingGetSchema } from "@schemas/CatalogItem";
 import {
 	PublicationCreateSchema,
 	PublicationGetSchema,
@@ -5,7 +6,6 @@ import {
 	PublicationUpdateSchema,
 } from "@schemas/Publication";
 
-import { CatalogItemUpdateSchema } from "./../../schemas/CatalogItem";
 import { CreateResponseSchema } from "@schemas/Api";
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
@@ -20,7 +20,10 @@ export const publicationApi = adminApi.injectEndpoints({
 				body: data,
 			}),
 			transformResponse: (response) => validateData(CreateResponseSchema, response),
-			invalidatesTags: ["Publication"],
+			invalidatesTags: (_result, _error, data) => [
+				...data.items.map((item) => ({ type: "Product" as const, id: item.productId })),
+				{ type: "Publication" },
+			],
 		}),
 
 		getPublication: build.query<z.infer<typeof PublicationGetSchema>, { publicationId: string }>({
@@ -60,12 +63,20 @@ export const publicationApi = adminApi.injectEndpoints({
 			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),
 
+		getMaxRating: build.query<z.infer<typeof MaxRatingGetSchema>, void>({
+			query: () => ({
+				url: "/admin/catalog-item/max-rating",
+				method: "GET",
+			}),
+			transformResponse: (response) => validateData(MaxRatingGetSchema, response),
+		}),
+
 		updateCatalogItem: build.mutation<
 			void,
 			{ publicationId: string; data: z.infer<typeof CatalogItemUpdateSchema> }
 		>({
 			query: ({ data }) => ({
-				url: "/admin/publication/variation",
+				url: "/admin/catalog-item",
 				method: "PUT",
 				body: data,
 			}),
@@ -74,7 +85,7 @@ export const publicationApi = adminApi.injectEndpoints({
 
 		deleteCatalogItem: build.mutation<void, { publicationId: string; variationId: string }>({
 			query: ({ variationId }) => ({
-				url: "/admin/publication/variation",
+				url: "/admin/catalog-item",
 				method: "DELETE",
 				params: { id: variationId },
 			}),
@@ -83,7 +94,7 @@ export const publicationApi = adminApi.injectEndpoints({
 
 		activateCatalogItem: build.mutation<void, { publicationId: string; variationId: string }>({
 			query: ({ variationId }) => ({
-				url: "/admin/publication/variation/activate",
+				url: "/admin/catalog-item/activate",
 				method: "PATCH",
 				params: { id: variationId },
 			}),
@@ -92,7 +103,7 @@ export const publicationApi = adminApi.injectEndpoints({
 
 		deactivateCatalogItem: build.mutation<void, { publicationId: string; variationId: string }>({
 			query: ({ variationId }) => ({
-				url: "/admin/publication/variation/deactivate",
+				url: "/admin/catalog-item/deactivate",
 				method: "PATCH",
 				params: { id: variationId },
 			}),
@@ -107,6 +118,7 @@ export const {
 	useGetPublicationListQuery,
 	useUpdatePublicationMutation,
 	useDeletePublicationMutation,
+	useGetMaxRatingQuery,
 	useUpdateCatalogItemMutation,
 	useDeleteCatalogItemMutation,
 	useActivateCatalogItemMutation,

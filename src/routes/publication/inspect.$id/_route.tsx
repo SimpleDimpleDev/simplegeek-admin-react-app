@@ -5,6 +5,7 @@ import {
 	useDeactivateCatalogItemMutation,
 	useDeleteCatalogItemMutation,
 	useDeletePublicationMutation,
+	useGetMaxRatingQuery,
 	useGetPublicationQuery,
 	useUpdateCatalogItemMutation,
 	useUpdatePublicationMutation,
@@ -28,7 +29,8 @@ export default function PublicationInspectRoute() {
 	}
 
 	const { data: publication, isLoading: publicationIsLoading } = useGetPublicationQuery({ publicationId });
-
+	const { data: maxRating } = useGetMaxRatingQuery();
+	
 	const [
 		updatePublication,
 		{
@@ -209,6 +211,7 @@ export default function PublicationInspectRoute() {
 									onDelete={handleDeleteVariation}
 									onActivate={handleActivateVariation}
 									onDeactivate={handleDeactivateVariation}
+									maxRating={maxRating?.rating}
 								/>
 							))}
 						</>
