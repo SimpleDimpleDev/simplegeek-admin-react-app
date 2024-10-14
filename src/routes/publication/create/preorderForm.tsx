@@ -547,7 +547,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 								...payment,
 								deadline:
 									localDate &&
-									`${localDate.getFullYear()}-${localDate.getMonth() + 1}-${localDate.getDate()}`,
+									`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, "0")}-${String(localDate.getDate()).padStart(2, "0")}`,
 							};
 						}),
 					},
