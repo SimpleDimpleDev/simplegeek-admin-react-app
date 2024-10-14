@@ -49,11 +49,13 @@ import { PublicationCreateSchema } from "@schemas/Publication";
 import dayjs from "dayjs";
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
+import tz from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 dayjs.extend(utc);
+dayjs.extend(tz);
 
 type ShippingCostIncluded = "FOREIGN" | "FULL" | "NOT";
 
@@ -403,11 +405,21 @@ const ItemForm: React.FC<ItemFormProps> = ({
 															value={dayjs(value)}
 															onChange={(newValue) => {
 																console.log({ pickedDate: newValue });
-																console.log({ startOf: newValue?.startOf("day") });
-																console.log({ utc: newValue?.utc() });
 																console.log({
-																	startOfUtc:
-																		newValue && newValue.startOf("day").utc(),
+																	startOf: newValue?.startOf("day").toDate(),
+																});
+																console.log({ utc: newValue?.utc().toDate() });
+																console.log({
+																	startOfUtc: newValue?.startOf("day").utc().toDate(),
+																});
+																console.log({
+																	tz: newValue?.tz("UTC").toDate(),
+																});
+																console.log({
+																	startOfTz: newValue
+																		?.startOf("day")
+																		.tz("UTC")
+																		.toDate(),
 																});
 																console.log({ toChange: newValue?.toDate() });
 																onChange(newValue?.toDate());
