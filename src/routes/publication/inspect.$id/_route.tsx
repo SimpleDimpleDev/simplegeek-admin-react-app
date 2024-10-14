@@ -1,7 +1,8 @@
+import { Add, ChevronLeft, OpenInNew } from "@mui/icons-material";
 import { Button, CircularProgress, IconButton, Modal, Snackbar, Tooltip, Typography } from "@mui/material";
-import { ChevronLeft, OpenInNew } from "@mui/icons-material";
 import {
 	useActivateCatalogItemMutation,
+	useAddVariationMutation,
 	useDeactivateCatalogItemMutation,
 	useDeleteCatalogItemMutation,
 	useDeletePublicationMutation,
@@ -10,11 +11,13 @@ import {
 	useUpdateCatalogItemMutation,
 	useUpdatePublicationMutation,
 } from "@api/admin/publication";
+import { useCallback, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { CatalogItemUpdateSchema } from "@schemas/CatalogItem";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { PublicationStockEditableHeader } from "./PublicationStockEditableHeader";
+import { VariationAddStockForm } from "./VariationAddStockForm";
 import { VariationStockEditableCard } from "./VariationStockEditableCard";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
@@ -30,7 +33,7 @@ export default function PublicationInspectRoute() {
 
 	const { data: publication, isLoading: publicationIsLoading } = useGetPublicationQuery({ publicationId });
 	const { data: maxRating } = useGetMaxRatingQuery();
-	
+
 	const [
 		updatePublication,
 		{
@@ -49,6 +52,16 @@ export default function PublicationInspectRoute() {
 			error: deletePublicationError,
 		},
 	] = useDeletePublicationMutation();
+
+	const [
+		addVariation,
+		{
+			isLoading: addVariationIsLoading,
+			isSuccess: addVariationIsSuccess,
+			isError: addVariationIsError,
+			error: addVariationError,
+		},
+	] = useAddVariationMutation();
 	const [
 		updateVariation,
 		{
@@ -87,6 +100,11 @@ export default function PublicationInspectRoute() {
 		},
 	] = useDeactivateCatalogItemMutation();
 
+	const [addVariationModalOpened, setAddVariationModalOpened] = useState(false);
+	const closeAddVariationModal = useCallback(() => {
+		setAddVariationModalOpened(false);
+	}, []);
+
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
 	useMutationFeedback({
@@ -102,6 +120,14 @@ export default function PublicationInspectRoute() {
 		isSuccess: deletePublicationIsSuccess,
 		isError: deletePublicationIsError,
 		error: deletePublicationError,
+		feedbackFn: showSnackbarMessage,
+	});
+
+	useMutationFeedback({
+		title: "Добавление вариации",
+		isSuccess: addVariationIsSuccess,
+		isError: addVariationIsError,
+		error: addVariationError,
 		feedbackFn: showSnackbarMessage,
 	});
 
@@ -140,6 +166,7 @@ export default function PublicationInspectRoute() {
 	const showLoadingOverlay =
 		updatePublicationIsLoading ||
 		deletePublicationIsLoading ||
+		addVariationIsLoading ||
 		updateVariationIsLoading ||
 		deleteVariationIsLoading ||
 		activateVariationIsLoading ||
@@ -174,6 +201,24 @@ export default function PublicationInspectRoute() {
 					<CircularProgress />
 				</div>
 			</Modal>
+			<Modal open={addVariationModalOpened} onClose={closeAddVariationModal}>
+				{!publication ? (
+					<div className="w-100v h-100v ai-c d-f jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+						<CircularProgress />
+					</div>
+				) : publication.preorder === null ? (
+					<div className="w-100v h-100v ai-c d-f jc-c" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+						<VariationAddStockForm
+							onSubmit={(data) => addVariation({ publicationId: publicationId, data })}
+							categoryId={publication.items.at(0)?.product.category.id || ""}
+							selectedProducts={publication.items.map((item) => item.product)}
+							maxRating={maxRating?.rating ?? 0}
+						/>
+					</div>
+				) : (
+					<>Variation add preorder is not implemented</>
+				)}
+			</Modal>
 			<div className="gap-2 px-3 py-4 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 				<Button onClick={() => navigate(-1)} sx={{ color: "warning.main", width: "fit-content" }}>
 					<ChevronLeft />
@@ -182,7 +227,9 @@ export default function PublicationInspectRoute() {
 				<div className="gap-2 p-2 d-f fd-r">
 					<Typography variant="h5">Публикация {publication?.link || ""}</Typography>
 					<Tooltip title="Открыть в браузере">
-						<IconButton onClick={() => window.open(`https://simplegeek.ru/item/${publication?.link}`, "_blank")}>
+						<IconButton
+							onClick={() => window.open(`https://simplegeek.ru/item/${publication?.link}`, "_blank")}
+						>
 							<OpenInNew />
 						</IconButton>
 					</Tooltip>
@@ -193,7 +240,7 @@ export default function PublicationInspectRoute() {
 						<div className="w-100 h-100v ai-c d-f jc-c">
 							<Typography variant="h5">Что-то пошло не так</Typography>
 						</div>
-					) : (
+					) : publication.preorder === null ? (
 						<>
 							<PublicationStockEditableHeader
 								publication={publication}
@@ -214,7 +261,12 @@ export default function PublicationInspectRoute() {
 									maxRating={maxRating?.rating}
 								/>
 							))}
+							<IconButton onClick={() => setAddVariationModalOpened(true)}>
+								<Add />
+							</IconButton>
 						</>
+					) : (
+						<>Preorder publication inspect is not implemented</>
 					)}
 				</LoadingSpinner>
 			</div>

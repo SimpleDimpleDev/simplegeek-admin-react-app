@@ -1,4 +1,4 @@
-import { CatalogItemUpdateSchema, MaxRatingGetSchema } from "@schemas/CatalogItem";
+import { CatalogItemPublishSchema, CatalogItemUpdateSchema, MaxRatingGetSchema } from "@schemas/CatalogItem";
 import {
 	PublicationCreateSchema,
 	PublicationGetSchema,
@@ -71,6 +71,16 @@ export const publicationApi = adminApi.injectEndpoints({
 			transformResponse: (response) => validateData(MaxRatingGetSchema, response),
 		}),
 
+		addVariation: build.mutation<void, { data: z.infer<typeof CatalogItemPublishSchema>; publicationId: string }>({
+			query: ({ data, publicationId }) => ({
+				url: "/admin/catalog-item",
+				method: "POST",
+				body: data,
+				params: { publicationId },
+			}),
+			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
+		}),
+
 		updateCatalogItem: build.mutation<
 			void,
 			{ publicationId: string; data: z.infer<typeof CatalogItemUpdateSchema> }
@@ -119,6 +129,7 @@ export const {
 	useUpdatePublicationMutation,
 	useDeletePublicationMutation,
 	useGetMaxRatingQuery,
+	useAddVariationMutation,
 	useUpdateCatalogItemMutation,
 	useDeleteCatalogItemMutation,
 	useActivateCatalogItemMutation,
