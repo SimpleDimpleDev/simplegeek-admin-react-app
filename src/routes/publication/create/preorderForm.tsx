@@ -399,6 +399,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 														<DatePicker
 															value={dayjs(value)}
 															onChange={(newValue) => {
+																console.log({ pickedDate: newValue });
+																console.log({ toChange: newValue?.toDate() });
 																onChange(newValue?.toDate());
 															}}
 														/>
@@ -573,7 +575,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 			onDirty();
 		}
 	}, [isDirty, onDirty]);
-	
+
 	const publishActive = watch("isActive");
 
 	const currentCategoryId = watch("categoryId");
