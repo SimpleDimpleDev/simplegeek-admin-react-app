@@ -372,24 +372,27 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 													},
 												}}
 											/>
-											<div className="gap-05 ai-c d-f fd-r">
-												<Typography variant="body2">₽</Typography>
-												<Switch
-													disabled={!isEditing || discount === null}
-													checked={discount?.type === "PERCENTAGE"}
-													onChange={(_, checked) =>
-														onDiscountChange({
-															type: checked ? "PERCENTAGE" : "FIXED",
-															value: "",
-														})
-													}
-												/>
-												<Typography variant="body2">%</Typography>
-											</div>
+
 											{discount && (
-												<Typography sx={{ width: "100%" }} variant="body2">
-													Итог: {priceAfterDiscount}₽
-												</Typography>
+												<>
+													<div className="gap-05 ai-c d-f fd-r">
+														<Typography variant="body2">₽</Typography>
+														<Switch
+															disabled={!isEditing || discount === null}
+															checked={discount?.type === "PERCENTAGE"}
+															onChange={(_, checked) =>
+																onDiscountChange({
+																	type: checked ? "PERCENTAGE" : "FIXED",
+																	value: "",
+																})
+															}
+														/>
+														<Typography variant="body2">%</Typography>
+													</div>
+													<Typography sx={{ width: "100%" }} variant="body2">
+														Итог: {priceAfterDiscount}₽
+													</Typography>
+												</>
 											)}
 										</div>
 									</div>
