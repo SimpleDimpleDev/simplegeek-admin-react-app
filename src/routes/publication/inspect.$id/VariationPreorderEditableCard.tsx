@@ -347,10 +347,10 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 									render={({ field: { value, onChange }, fieldState: { error } }) => (
 										<TextField
 											{...textFieldProps}
-											value={value}
+											disabled={!isEditing || creditPayments.length > 0}
+											value={creditPayments.length > 0 ? creditPaymentsTotal : value}
 											onChange={handleIntChange(onChange)}
 											variant={"standard"}
-											disabled={!isEditing}
 											error={!!error}
 											helperText={error?.message}
 											slotProps={{
@@ -608,6 +608,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 													<div className="gap-1 d-f fd-r" key={field.id}>
 														<Controller
 															key={field.id}
+															disabled={!isEditing}
 															name={`creditPayments.${paymentIndex}.sum`}
 															control={control}
 															render={({
@@ -637,6 +638,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 
 														<Controller
 															key={field.id}
+															disabled={!isEditing}
 															name={`creditPayments.${paymentIndex}.deadline`}
 															control={control}
 															render={({ field: { value, onChange } }) => (
@@ -654,13 +656,16 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 															)}
 														/>
 
-														<Button
-															sx={{ color: "error.main" }}
-															style={{ width: "fit-content" }}
-															onClick={() => removeCreditPayment(paymentIndex)}
-														>
-															Удалить
-														</Button>
+														<Tooltip title="Удалить платеж">
+															<IconButton
+																disabled={!isEditing}
+																sx={{ color: "error.main" }}
+																onFocus={(event) => event.stopPropagation()}
+																onClick={() => removeCreditPayment(paymentIndex)}
+															>
+																<Delete />
+															</IconButton>
+														</Tooltip>
 													</div>
 												))}
 											</div>
@@ -668,6 +673,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 									)}
 
 									<Button
+										disabled={!isEditing}
 										sx={{ color: "success.main" }}
 										style={{ width: "fit-content" }}
 										onClick={() => appendCreditPayment({ sum: "", deadline: null })}
