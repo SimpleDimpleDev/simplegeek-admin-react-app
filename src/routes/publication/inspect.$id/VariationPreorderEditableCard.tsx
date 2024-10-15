@@ -297,8 +297,9 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 									<Typography variant="body2" sx={{ color: "typography.secondary" }}>
 										Количество
 									</Typography>
-									<div className="d-f fd-r">
+									<div className="ai-c d-f fd-r">
 										<Checkbox
+                                            disabled={!isEditing}
 											checked={quantityIsUnlimited}
 											onChange={(_, checked) => {
 												if (checked) {
