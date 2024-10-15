@@ -348,7 +348,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 										<TextField
 											{...textFieldProps}
 											disabled={!isEditing || creditPayments.length > 0}
-											value={creditPayments.length > 0 ? creditPaymentsTotal : value}
+											value={value}
 											onChange={handleIntChange(onChange)}
 											variant={"standard"}
 											error={!!error}
@@ -608,7 +608,6 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 													<div className="gap-1 d-f fd-r" key={field.id}>
 														<Controller
 															key={field.id}
-															disabled={!isEditing}
 															name={`creditPayments.${paymentIndex}.sum`}
 															control={control}
 															render={({
@@ -616,6 +615,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 																fieldState: { error },
 															}) => (
 																<TextField
+																	disabled={!isEditing}
 																	label="Сумма"
 																	type="text"
 																	value={value}
@@ -638,7 +638,6 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 
 														<Controller
 															key={field.id}
-															disabled={!isEditing}
 															name={`creditPayments.${paymentIndex}.deadline`}
 															control={control}
 															render={({ field: { value, onChange } }) => (
@@ -647,6 +646,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 																	adapterLocale="ru"
 																>
 																	<DatePicker
+																		disabled={!isEditing}
 																		value={dayjs(value)}
 																		onChange={(newValue) => {
 																			onChange(newValue?.toDate());
