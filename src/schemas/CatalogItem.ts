@@ -40,9 +40,7 @@ export const CatalogItemUpdateSchema = z.object({
 	quantityRestriction: z.number().nullable(),
 	price: z.number(),
 	discount: DiscountSchema.nullable(),
-
-	// TODO: Add credit info
-	// creditInfo: CreditInfoSchema.nullable(),
+	creditInfo: CreditInfoCreateSchema.nullable(),
 });
 
 export const MaxRatingGetSchema = z.object({

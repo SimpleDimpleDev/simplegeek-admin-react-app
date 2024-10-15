@@ -172,7 +172,21 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 	}, [variation, reset, updateSuccess, updateError]);
 
 	const resolvedOnSubmit = (data: VariationPreorderUpdateFormData) => {
-		onUpdate(CatalogItemUpdateSchema.parse(data));
+        const formattedData = {
+            ...data,
+            creditInfo: {
+                payments: data.creditPayments.map((payment) => {
+                    const localDate = payment.deadline;
+                    return {
+                        ...payment,
+                        deadline:
+                            localDate &&
+                            `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, "0")}-${String(localDate.getDate()).padStart(2, "0")}`,
+                    };
+                }),
+            },
+        }
+		onUpdate(CatalogItemUpdateSchema.parse(formattedData));
 		setIsEditing(false);
 	};
 
