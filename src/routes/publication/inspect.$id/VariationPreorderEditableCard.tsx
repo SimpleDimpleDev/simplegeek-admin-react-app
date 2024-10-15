@@ -2,6 +2,8 @@ import {
 	Accordion,
 	AccordionDetails,
 	AccordionSummary,
+	Box,
+	Button,
 	Checkbox,
 	Divider,
 	IconButton,
@@ -12,13 +14,16 @@ import {
 	Typography,
 } from "@mui/material";
 import { AllInclusive, Check, Close, Delete, Edit, ExpandMore, Visibility, VisibilityOff } from "@mui/icons-material";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useEffect, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { CatalogItemGet } from "@appTypes/CatalogItem";
 import { CatalogItemUpdateSchema } from "@schemas/CatalogItem";
 import { DiscountResolver } from "../utils";
+import dayjs from "dayjs";
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
 import { useNavigate } from "react-router-dom";
@@ -81,6 +86,26 @@ const VariationPreorderUpdateResolver = z.object({
 		.array(),
 });
 
+const getFormValues = (variation: CatalogItemGet): VariationPreorderUpdateFormData => ({
+	id: variation.id,
+	rating: variation.rating.toString(),
+	price: variation.price.toString(),
+	quantity: variation.quantity?.toString() ?? null,
+	unlimitedQuantity: variation.quantity === null,
+	discount: variation.discount
+		? {
+				type: variation.discount.type,
+				value: variation.discount.value.toString(),
+		  }
+		: null,
+	quantityRestriction: variation.quantityRestriction?.toString() ?? null,
+	creditPayments:
+		variation.creditInfo?.payments.map((payment) => ({
+			sum: payment.sum.toString(),
+			deadline: payment.deadline,
+		})) ?? [],
+});
+
 interface VariationPreorderEditableCardProps {
 	variation: CatalogItemGet;
 	maxRating?: number;
@@ -113,25 +138,16 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 		formState: { isDirty },
 	} = useForm<VariationPreorderUpdateFormData>({
 		resolver: zodResolver(VariationPreorderUpdateResolver),
-		defaultValues: {
-			id: variation.id,
-			rating: variation.rating.toString(),
-			price: variation.price.toString(),
-			quantity: variation.quantity?.toString() ?? null,
-			unlimitedQuantity: variation.quantity === null,
-			discount: variation.discount
-				? {
-						type: variation.discount.type,
-						value: variation.discount.value.toString(),
-				  }
-				: null,
-			quantityRestriction: variation.quantityRestriction?.toString() ?? null,
-			creditPayments:
-				variation.creditInfo?.payments.map((payment) => ({
-					sum: payment.sum.toString(),
-					deadline: payment.deadline,
-				})) ?? [],
-		},
+		defaultValues: getFormValues(variation),
+	});
+
+	const {
+		fields: creditPaymentsFields,
+		append: appendCreditPayment,
+		remove: removeCreditPayment,
+	} = useFieldArray({
+		name: `creditPayments`,
+		control,
 	});
 
 	const creditPayments = watch(`creditPayments`);
@@ -151,25 +167,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 
 	useEffect(() => {
 		if (updateSuccess || updateError) {
-			reset({
-				id: variation.id,
-				rating: variation.rating.toString(),
-				price: variation.price.toString(),
-				quantity: variation.quantity?.toString() ?? null,
-				unlimitedQuantity: variation.quantity === null,
-				discount: variation.discount
-					? {
-							type: variation.discount.type,
-							value: variation.discount.value.toString(),
-					  }
-					: null,
-				quantityRestriction: variation.quantityRestriction?.toString() ?? null,
-				creditPayments:
-					variation.creditInfo?.payments.map((payment) => ({
-						sum: payment.sum.toString(),
-						deadline: payment.deadline,
-					})) ?? [],
-			});
+			reset(getFormValues(variation));
 		}
 	}, [variation, reset, updateSuccess, updateError]);
 
@@ -299,7 +297,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 									</Typography>
 									<div className="ai-c d-f fd-r">
 										<Checkbox
-                                            disabled={!isEditing}
+											disabled={!isEditing}
 											checked={quantityIsUnlimited}
 											onChange={(_, checked) => {
 												if (checked) {
@@ -519,86 +517,166 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 						</Stack>
 					</AccordionSummary>
 					<AccordionDetails>
-						<Stack
-							sx={{ width: "100%" }}
-							direction="row"
-							alignItems="center"
-							spacing={1}
-							justifyContent="space-between"
-							divider={<Divider orientation="vertical" />}
-						>
-							<Controller
-								name={`rating`}
-								control={control}
-								render={({ field: { value, onChange }, fieldState: { error } }) => (
-									<div className="gap-05 d-f fd-c" style={{ width: "100%" }}>
-										<Typography variant="body2" sx={{ color: "typography.secondary" }}>
-											Рейтинг
-										</Typography>
-										<Typography variant="caption" sx={{ color: "typography.secondary" }}>
-											<em>Текущий максимальный рейтинг: {maxRating}</em>
-										</Typography>
-										<TextField
-											{...textFieldProps}
-											fullWidth
-											type="text"
-											disabled={!isEditing}
-											variant="standard"
-											required
-											value={value}
-											onChange={handleIntChange(onChange)}
-											error={!!error}
-											helperText={error?.message}
-										/>
-									</div>
-								)}
-							/>
-
-							<Controller
-								name={`quantityRestriction`}
-								control={control}
-								render={({
-									field: { value: quantityRestriction, onChange: onQuantityRestrictionChange },
-									fieldState: { error },
-								}) => (
-									<div className="gap-05 ai-fs d-f fd-c" style={{ width: "100%" }}>
-										<div className="w-100 ai-c d-f fd-r">
+						<Box display={"flex"} flexDirection={"column"} gap={2}>
+							<Stack
+								sx={{ width: "100%" }}
+								direction="row"
+								alignItems="center"
+								spacing={1}
+								justifyContent="space-between"
+								divider={<Divider orientation="vertical" />}
+							>
+								<Controller
+									name={`rating`}
+									control={control}
+									render={({ field: { value, onChange }, fieldState: { error } }) => (
+										<div className="gap-05 d-f fd-c" style={{ width: "100%" }}>
 											<Typography variant="body2" sx={{ color: "typography.secondary" }}>
-												Ограничение на аккаунт
+												Рейтинг
 											</Typography>
-											<Checkbox
+											<Typography variant="caption" sx={{ color: "typography.secondary" }}>
+												<em>Текущий максимальный рейтинг: {maxRating}</em>
+											</Typography>
+											<TextField
+												{...textFieldProps}
+												fullWidth
+												type="text"
 												disabled={!isEditing}
-												checked={quantityRestriction !== null}
-												onChange={(_, checked) => {
-													if (checked) {
-														onQuantityRestrictionChange("");
-													} else {
-														onQuantityRestrictionChange(null);
-													}
+												variant="standard"
+												required
+												value={value}
+												onChange={handleIntChange(onChange)}
+												error={!!error}
+												helperText={error?.message}
+											/>
+										</div>
+									)}
+								/>
+
+								<Controller
+									name={`quantityRestriction`}
+									control={control}
+									render={({
+										field: { value: quantityRestriction, onChange: onQuantityRestrictionChange },
+										fieldState: { error },
+									}) => (
+										<div className="gap-05 ai-fs d-f fd-c" style={{ width: "100%" }}>
+											<div className="w-100 ai-c d-f fd-r">
+												<Typography variant="body2" sx={{ color: "typography.secondary" }}>
+													Ограничение на аккаунт
+												</Typography>
+												<Checkbox
+													disabled={!isEditing}
+													checked={quantityRestriction !== null}
+													onChange={(_, checked) => {
+														if (checked) {
+															onQuantityRestrictionChange("");
+														} else {
+															onQuantityRestrictionChange(null);
+														}
+													}}
+												/>
+											</div>
+
+											<TextField
+												{...textFieldProps}
+												fullWidth
+												type="text"
+												disabled={!isEditing || quantityRestriction === null}
+												value={quantityRestriction ?? "-"}
+												onChange={handleIntChange(onQuantityRestrictionChange)}
+												variant="standard"
+												error={!!error}
+												helperText={error?.message}
+												slotProps={{
+													input: {
+														endAdornment: "шт.",
+													},
 												}}
 											/>
 										</div>
+									)}
+								/>
+							</Stack>
+							<div className="gap-2 d-f fd-c">
+								<div className="gap-2 d-f fd-c">
+									{creditPaymentsFields.length > 0 && (
+										<>
+											<Typography>Платежи рассрочки</Typography>
+											<div className="gap-1 d-f fd-c">
+												{creditPaymentsFields.map((field, paymentIndex) => (
+													<div className="gap-1 d-f fd-r" key={field.id}>
+														<Controller
+															key={field.id}
+															name={`creditPayments.${paymentIndex}.sum`}
+															control={control}
+															render={({
+																field: { value, onChange },
+																fieldState: { error },
+															}) => (
+																<TextField
+																	label="Сумма"
+																	type="text"
+																	value={value}
+																	onChange={handleIntChange(onChange)}
+																	variant="outlined"
+																	error={!!error}
+																	helperText={error?.message}
+																	slotProps={{
+																		input: {
+																			endAdornment: (
+																				<InputAdornment position="end">
+																					₽
+																				</InputAdornment>
+																			),
+																		},
+																	}}
+																/>
+															)}
+														/>
 
-										<TextField
-											{...textFieldProps}
-											fullWidth
-											type="text"
-											disabled={!isEditing || quantityRestriction === null}
-											value={quantityRestriction ?? "-"}
-											onChange={handleIntChange(onQuantityRestrictionChange)}
-											variant="standard"
-											error={!!error}
-											helperText={error?.message}
-											slotProps={{
-												input: {
-													endAdornment: "шт.",
-												},
-											}}
-										/>
-									</div>
-								)}
-							/>
-						</Stack>
+														<Controller
+															key={field.id}
+															name={`creditPayments.${paymentIndex}.deadline`}
+															control={control}
+															render={({ field: { value, onChange } }) => (
+																<LocalizationProvider
+																	dateAdapter={AdapterDayjs}
+																	adapterLocale="ru"
+																>
+																	<DatePicker
+																		value={dayjs(value)}
+																		onChange={(newValue) => {
+																			onChange(newValue?.toDate());
+																		}}
+																	/>
+																</LocalizationProvider>
+															)}
+														/>
+
+														<Button
+															sx={{ color: "error.main" }}
+															style={{ width: "fit-content" }}
+															onClick={() => removeCreditPayment(paymentIndex)}
+														>
+															Удалить
+														</Button>
+													</div>
+												))}
+											</div>
+										</>
+									)}
+
+									<Button
+										sx={{ color: "success.main" }}
+										style={{ width: "fit-content" }}
+										onClick={() => appendCreditPayment({ sum: "", deadline: null })}
+									>
+										{creditPaymentsFields.length === 0 ? "Товар в рассрочку" : "Добавить платеж"}
+									</Button>
+								</div>
+							</div>
+						</Box>
 					</AccordionDetails>
 				</Accordion>
 			</form>
