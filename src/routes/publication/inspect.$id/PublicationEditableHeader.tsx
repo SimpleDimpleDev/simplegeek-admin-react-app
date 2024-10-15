@@ -139,6 +139,14 @@ const PublicationEditableHeader: React.FC<PublicationEditableHeaderProps> = ({
 						</div>
 						<div className="gap-1 pl-2 w-100 ai-fs d-f fd-c">
 							<Typography variant="body2" sx={{ color: "typography.secondary" }}>
+								Тип публикации
+							</Typography>
+							<Typography variant="subtitle0">
+								{publication.preorder ? `Предзаказ ${publication.preorder.title}` : "Розница"}
+							</Typography>
+						</div>
+						<div className="gap-1 pl-2 w-100 ai-fs d-f fd-c">
+							<Typography variant="body2" sx={{ color: "typography.secondary" }}>
 								Категория
 							</Typography>
 							<Typography variant="subtitle0">
