@@ -1,4 +1,14 @@
-import { Autocomplete, Checkbox, Divider, InputAdornment, Stack, Switch, TextField, Typography } from "@mui/material";
+import {
+	Autocomplete,
+	Button,
+	Checkbox,
+	Divider,
+	InputAdornment,
+	Stack,
+	Switch,
+	TextField,
+	Typography,
+} from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { useCallback, useMemo } from "react";
 
@@ -41,6 +51,7 @@ const VariationAddStockResolver = z.object({
 
 interface VariationAddStockFormProps {
 	onSubmit: (data: z.infer<typeof CatalogItemPublishSchema>) => void;
+	onClose: () => void;
 	categoryId: string;
 	selectedProducts: ProductGet[];
 	maxRating: number;
@@ -48,6 +59,7 @@ interface VariationAddStockFormProps {
 
 const VariationAddStockForm: React.FC<VariationAddStockFormProps> = ({
 	onSubmit,
+	onClose,
 	categoryId,
 	selectedProducts,
 	maxRating,
@@ -63,7 +75,7 @@ const VariationAddStockForm: React.FC<VariationAddStockFormProps> = ({
 		control,
 		watch,
 		handleSubmit,
-		formState: { errors },
+		formState: { isDirty, errors },
 	} = useForm<VariationAddStockFormData>({
 		resolver: zodResolver(VariationAddStockResolver),
 		defaultValues: {
@@ -317,6 +329,14 @@ const VariationAddStockForm: React.FC<VariationAddStockFormProps> = ({
 						)}
 					/>
 				</Stack>
+			</div>
+			<div className="gap-2 d-f fd-r">
+				<Button variant="contained" type="submit" disabled={!isDirty}>
+					{"Добавить"}
+				</Button>
+				<Button variant="contained" onClick={onClose} color="error">
+					{"Отмена"}
+				</Button>
 			</div>
 		</form>
 	);

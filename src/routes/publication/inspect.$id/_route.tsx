@@ -16,8 +16,9 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { CatalogItemUpdateSchema } from "@schemas/CatalogItem";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import { PublicationStockEditableHeader } from "./PublicationStockEditableHeader";
+import { PublicationEditableHeader } from "./PublicationEditableHeader";
 import { VariationAddStockForm } from "./VariationAddStockForm";
+import { VariationPreorderEditableCard } from "./VariationPreorderEditableCard";
 import { VariationStockEditableCard } from "./VariationStockEditableCard";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
@@ -210,6 +211,7 @@ export default function PublicationInspectRoute() {
 					<div className="bg-primary p-2 w-max h-max ai-c d-f jc-c">
 						<VariationAddStockForm
 							onSubmit={(data) => addVariation({ publicationId: publicationId, data })}
+							onClose={closeAddVariationModal}
 							categoryId={publication.items.at(0)?.product.category.id || ""}
 							selectedProducts={publication.items.map((item) => item.product)}
 							maxRating={maxRating?.rating ?? 0}
@@ -240,33 +242,47 @@ export default function PublicationInspectRoute() {
 						<div className="w-100 h-100v ai-c d-f jc-c">
 							<Typography variant="h5">Что-то пошло не так</Typography>
 						</div>
-					) : publication.preorder === null ? (
+					) : (
 						<>
-							<PublicationStockEditableHeader
+							<PublicationEditableHeader
 								publication={publication}
 								onUpdate={updatePublication}
 								updateSuccess={updatePublicationIsSuccess}
 								onDelete={deletePublication}
 							/>
-							{publication.items.map((variation) => (
-								<VariationStockEditableCard
-									key={variation.id}
-									variation={variation}
-									onUpdate={handleUpdateVariation}
-									updateSuccess={updateVariationIsSuccess}
-									updateError={updateVariationIsError}
-									onDelete={handleDeleteVariation}
-									onActivate={handleActivateVariation}
-									onDeactivate={handleDeactivateVariation}
-									maxRating={maxRating?.rating}
-								/>
-							))}
+							{publication.preorder === null ? (
+								publication.items.map((variation) => (
+									<VariationStockEditableCard
+										key={variation.id}
+										variation={variation}
+										onUpdate={handleUpdateVariation}
+										updateSuccess={updateVariationIsSuccess}
+										updateError={updateVariationIsError}
+										onDelete={handleDeleteVariation}
+										onActivate={handleActivateVariation}
+										onDeactivate={handleDeactivateVariation}
+										maxRating={maxRating?.rating}
+									/>
+								))
+							) : (
+								publication.items.map((variation) => (
+									<VariationPreorderEditableCard
+										key={variation.id}
+										variation={variation}
+										onUpdate={handleUpdateVariation}
+										updateSuccess={updateVariationIsSuccess}
+										updateError={updateVariationIsError}
+										onDelete={handleDeleteVariation}
+										onActivate={handleActivateVariation}
+										onDeactivate={handleDeactivateVariation}
+										maxRating={maxRating?.rating}
+									/>
+								))
+							)}
 							<IconButton onClick={() => setAddVariationModalOpened(true)}>
 								<Add />
 							</IconButton>
 						</>
-					) : (
-						<>Preorder publication inspect is not implemented</>
 					)}
 				</LoadingSpinner>
 			</div>

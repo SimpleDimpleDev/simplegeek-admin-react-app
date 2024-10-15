@@ -7,14 +7,13 @@ import {
 	IconButton,
 	InputAdornment,
 	Stack,
-	Switch,
 	TextField,
 	Tooltip,
 	Typography,
 } from "@mui/material";
-import { Check, Close, Delete, Edit, ExpandMore, Visibility, VisibilityOff } from "@mui/icons-material";
+import { AllInclusive, Check, Close, Delete, Edit, ExpandMore, Visibility, VisibilityOff } from "@mui/icons-material";
 import { Controller, useForm } from "react-hook-form";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
 import { CatalogItemGet } from "@appTypes/CatalogItem";
@@ -43,35 +42,46 @@ const textFieldProps = {
 	},
 };
 
-type VariationStockUpdateFormData = {
+type VariationPreorderUpdateFormData = {
 	id: string;
 	rating: string;
-	quantity: string;
 	price: string;
+	quantity: string | null;
+	unlimitedQuantity: boolean;
 	discount: {
 		type: "FIXED" | "PERCENTAGE";
 		value: string;
 	} | null;
 	quantityRestriction: string | null;
+	creditPayments: {
+		sum: string;
+		deadline: Date | null;
+	}[];
 };
 
-const VariationStockUpdateResolver = z.object({
+const VariationPreorderUpdateResolver = z.object({
 	id: z.string({ message: "Выберите вариацию" }),
 	rating: z.coerce
 		.number({ message: "Укажите рейтинг" })
 		.nonnegative({ message: "Рейтинг не может быть отрицательным числом" }),
-	quantity: z.coerce
-		.number({ message: "Укажите количество" })
-		.positive({ message: "Количество должно быть положительным числом" }),
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
+	quantity: z.coerce.number().positive({ message: "Количество должно быть положительным числом" }).nullable(),
 	discount: DiscountResolver.nullable(),
 	quantityRestriction: z.coerce
 		.number()
 		.positive({ message: "Количество должно быть положительным числом" })
 		.nullable(),
+	creditPayments: z
+		.object({
+			sum: z.coerce
+				.number({ message: "Укажите сумму кредитного платежа" })
+				.positive({ message: "Сумма должна быть положительным числом" }),
+			deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
+		})
+		.array(),
 });
 
-interface VariationStockEditableCardProps {
+interface VariationPreorderEditableCardProps {
 	variation: CatalogItemGet;
 	maxRating?: number;
 	onUpdate: (data: z.infer<typeof CatalogItemUpdateSchema>) => void;
@@ -82,7 +92,7 @@ interface VariationStockEditableCardProps {
 	onDeactivate: ({ variationId }: { variationId: string }) => void;
 }
 
-const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
+const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps> = ({
 	variation,
 	maxRating,
 	onUpdate,
@@ -96,17 +106,19 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 
 	const {
 		control,
+		setValue,
 		watch,
 		handleSubmit,
 		reset,
-		formState: { isDirty, errors },
-	} = useForm<VariationStockUpdateFormData>({
-		resolver: zodResolver(VariationStockUpdateResolver),
+		formState: { isDirty },
+	} = useForm<VariationPreorderUpdateFormData>({
+		resolver: zodResolver(VariationPreorderUpdateResolver),
 		defaultValues: {
 			id: variation.id,
 			rating: variation.rating.toString(),
 			price: variation.price.toString(),
-			quantity: variation.quantity ? variation.quantity.toString() : "0",
+			quantity: variation.quantity?.toString() ?? null,
+			unlimitedQuantity: variation.quantity === null,
 			discount: variation.discount
 				? {
 						type: variation.discount.type,
@@ -114,25 +126,24 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 				  }
 				: null,
 			quantityRestriction: variation.quantityRestriction?.toString() ?? null,
+			creditPayments:
+				variation.creditInfo?.payments.map((payment) => ({
+					sum: payment.sum.toString(),
+					deadline: payment.deadline,
+				})) ?? [],
 		},
 	});
 
-	const discountValueError = errors?.discount?.value?.message;
+	const creditPayments = watch(`creditPayments`);
+	const creditPaymentsTotal = creditPayments.reduce((acc, { sum }) => acc + (parseInt(sum) ?? 0), 0);
 
-	const discount = watch(`discount`);
-	const priceString = watch(`price`);
+	const quantityIsUnlimited = watch(`unlimitedQuantity`);
 
-	const priceAfterDiscount = useMemo(() => {
-		if (!discount) return null;
-		const discountValueString = discount.value;
-		const price = parseInt(priceString) ?? 0;
-		const discountValue = parseInt(discountValueString) ?? 0;
-		if (isNaN(discountValue) || isNaN(price)) return null;
-		if (discount.type === "FIXED") {
-			return price - discountValue;
+	useEffect(() => {
+		if (creditPayments.length > 0) {
+			setValue(`price`, creditPaymentsTotal.toString());
 		}
-		return Math.ceil(price - price * (discountValue / 100));
-	}, [discount, priceString]);
+	}, [creditPaymentsTotal, setValue, creditPayments.length]);
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -144,7 +155,8 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 				id: variation.id,
 				rating: variation.rating.toString(),
 				price: variation.price.toString(),
-				quantity: variation.quantity ? variation.quantity.toString() : "0",
+				quantity: variation.quantity?.toString() ?? null,
+				unlimitedQuantity: variation.quantity === null,
 				discount: variation.discount
 					? {
 							type: variation.discount.type,
@@ -152,11 +164,16 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 					  }
 					: null,
 				quantityRestriction: variation.quantityRestriction?.toString() ?? null,
+				creditPayments:
+					variation.creditInfo?.payments.map((payment) => ({
+						sum: payment.sum.toString(),
+						deadline: payment.deadline,
+					})) ?? [],
 			});
 		}
 	}, [variation, reset, updateSuccess, updateError]);
 
-	const resolvedOnSubmit = (data: VariationStockUpdateFormData) => {
+	const resolvedOnSubmit = (data: VariationPreorderUpdateFormData) => {
 		onUpdate(CatalogItemUpdateSchema.parse(data));
 		setIsEditing(false);
 	};
@@ -276,24 +293,45 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 								<Typography variant="subtitle0">{variation.orderedQuantity}</Typography>
 							</div>
 							<div className="gap-1 d-f fd-c" style={{ width: "50%" }}>
-								<Typography variant="body2" sx={{ color: "typography.secondary" }}>
-									Количество
-								</Typography>
+								<div className="gap-1 ai-c d-f fd-r">
+									<Typography variant="body2" sx={{ color: "typography.secondary" }}>
+										Количество
+									</Typography>
+									<div className="d-f fd-r">
+										<Checkbox
+											checked={quantityIsUnlimited}
+											onChange={(_, checked) => {
+												if (checked) {
+													setValue("unlimitedQuantity", true);
+													setValue("quantity", null);
+												} else {
+													setValue("unlimitedQuantity", false);
+													setValue("quantity", "");
+												}
+											}}
+										/>
+										<AllInclusive />
+									</div>
+								</div>
 								<Controller
 									name="quantity"
 									control={control}
 									render={({ field: { value, onChange }, fieldState: { error } }) => (
 										<TextField
 											{...textFieldProps}
-											value={value}
+											value={value ?? ""}
 											onChange={handleIntChange(onChange)}
 											variant={"standard"}
-											disabled={!isEditing}
+											disabled={!isEditing || quantityIsUnlimited}
 											error={!!error}
 											helperText={error?.message}
 											slotProps={{
 												input: {
-													endAdornment: <InputAdornment position="end">шт.</InputAdornment>,
+													endAdornment: quantityIsUnlimited ? (
+														<AllInclusive />
+													) : (
+														<InputAdornment position="end">шт.</InputAdornment>
+													),
 												},
 											}}
 										/>
@@ -318,14 +356,14 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 											helperText={error?.message}
 											slotProps={{
 												input: {
-													endAdornment: <InputAdornment position="end">₽</InputAdornment>,
+													endAdornment: <Typography variant="subtitle0">₽</Typography>,
 												},
 											}}
 										/>
 									)}
 								/>
 							</div>
-							<Controller
+							{/* <Controller
 								name={`discount`}
 								control={control}
 								render={({
@@ -394,7 +432,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 										</div>
 									</div>
 								)}
-							/>
+							/> */}
 							<div className="gap-1 pl-2 d-f fd-r jc-c">
 								{!isEditing ? (
 									<>
@@ -567,4 +605,4 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 	);
 };
 
-export { VariationStockEditableCard };
+export { VariationPreorderEditableCard };

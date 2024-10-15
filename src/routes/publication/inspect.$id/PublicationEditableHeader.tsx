@@ -28,24 +28,24 @@ const textFieldProps = {
 	},
 };
 
-type PublicationStockUpdateFormData = {
+type PublicationUpdateFormData = {
 	id: string;
 	link: string;
 };
 
-const PublicationStockUpdateResolver = z.object({
+const PublicationUpdateResolver = z.object({
 	id: z.string().min(1),
 	link: SlugResolver,
 });
 
-interface PublicationStockEditableHeaderProps {
+interface PublicationEditableHeaderProps {
 	publication: PublicationGet;
 	onUpdate: (data: z.infer<typeof PublicationUpdateSchema>) => void;
 	updateSuccess: boolean;
 	onDelete: ({ publicationId }: { publicationId: string }) => void;
 }
 
-const PublicationStockEditableHeader: React.FC<PublicationStockEditableHeaderProps> = ({
+const PublicationEditableHeader: React.FC<PublicationEditableHeaderProps> = ({
 	publication,
 	onUpdate,
 	updateSuccess,
@@ -57,8 +57,8 @@ const PublicationStockEditableHeader: React.FC<PublicationStockEditableHeaderPro
 		handleSubmit,
 		reset,
 		formState: { isDirty },
-	} = useForm<PublicationStockUpdateFormData>({
-		resolver: zodResolver(PublicationStockUpdateResolver),
+	} = useForm<PublicationUpdateFormData>({
+		resolver: zodResolver(PublicationUpdateResolver),
 		defaultValues: {
 			id: publication.id,
 			link: publication.link,
@@ -76,7 +76,7 @@ const PublicationStockEditableHeader: React.FC<PublicationStockEditableHeaderPro
 		}
 	}, [publication, reset, updateSuccess]);
 
-	const resolvedOnSubmit = (data: PublicationStockUpdateFormData) => {
+	const resolvedOnSubmit = (data: PublicationUpdateFormData) => {
 		onUpdate(PublicationUpdateSchema.parse(data));
 	};
 
@@ -190,4 +190,4 @@ const PublicationStockEditableHeader: React.FC<PublicationStockEditableHeaderPro
 	);
 };
 
-export { PublicationStockEditableHeader };
+export { PublicationEditableHeader };
