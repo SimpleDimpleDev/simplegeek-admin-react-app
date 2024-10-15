@@ -118,7 +118,7 @@ const VariationAddStockForm: React.FC<VariationAddStockFormProps> = ({
 	}, [discount, priceString]);
 
 	return (
-		<form onSubmit={handleSubmit(formattedOnSubmit)} className="gap-2 py-2 w-100 d-f fd-r">
+		<form onSubmit={handleSubmit(formattedOnSubmit)} className="gap-2 py-2 w-100 d-f fd-c">
 			<div className="gap-1 w-100 d-f fd-c">
 				<div className="ai-c d-f fd-r js-sb">
 					<Typography variant="h6">{"Добавить вариацию"}</Typography>

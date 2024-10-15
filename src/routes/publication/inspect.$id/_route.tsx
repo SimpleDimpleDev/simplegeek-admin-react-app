@@ -17,6 +17,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CatalogItemUpdateSchema } from "@schemas/CatalogItem";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { PublicationEditableHeader } from "./PublicationEditableHeader";
+import { VariationAddPreorderForm } from "./VariationAddPreorderForm";
 import { VariationAddStockForm } from "./VariationAddStockForm";
 import { VariationPreorderEditableCard } from "./VariationPreorderEditableCard";
 import { VariationStockEditableCard } from "./VariationStockEditableCard";
@@ -218,7 +219,15 @@ export default function PublicationInspectRoute() {
 						/>
 					</div>
 				) : (
-					<>Variation add preorder is not implemented</>
+					<div className="bg-primary p-2 w-max h-max ai-c d-f jc-c">
+						<VariationAddPreorderForm
+							onSubmit={(data) => addVariation({ publicationId: publicationId, data })}
+							onClose={closeAddVariationModal}
+							categoryId={publication.items.at(0)?.product.category.id || ""}
+							selectedProducts={publication.items.map((item) => item.product)}
+							maxRating={maxRating?.rating ?? 0}
+						/>
+					</div>
 				)}
 			</Modal>
 			<div className="gap-2 px-3 py-4 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
@@ -250,35 +259,33 @@ export default function PublicationInspectRoute() {
 								updateSuccess={updatePublicationIsSuccess}
 								onDelete={deletePublication}
 							/>
-							{publication.preorder === null ? (
-								publication.items.map((variation) => (
-									<VariationStockEditableCard
-										key={variation.id}
-										variation={variation}
-										onUpdate={handleUpdateVariation}
-										updateSuccess={updateVariationIsSuccess}
-										updateError={updateVariationIsError}
-										onDelete={handleDeleteVariation}
-										onActivate={handleActivateVariation}
-										onDeactivate={handleDeactivateVariation}
-										maxRating={maxRating?.rating}
-									/>
-								))
-							) : (
-								publication.items.map((variation) => (
-									<VariationPreorderEditableCard
-										key={variation.id}
-										variation={variation}
-										onUpdate={handleUpdateVariation}
-										updateSuccess={updateVariationIsSuccess}
-										updateError={updateVariationIsError}
-										onDelete={handleDeleteVariation}
-										onActivate={handleActivateVariation}
-										onDeactivate={handleDeactivateVariation}
-										maxRating={maxRating?.rating}
-									/>
-								))
-							)}
+							{publication.preorder === null
+								? publication.items.map((variation) => (
+										<VariationStockEditableCard
+											key={variation.id}
+											variation={variation}
+											onUpdate={handleUpdateVariation}
+											updateSuccess={updateVariationIsSuccess}
+											updateError={updateVariationIsError}
+											onDelete={handleDeleteVariation}
+											onActivate={handleActivateVariation}
+											onDeactivate={handleDeactivateVariation}
+											maxRating={maxRating?.rating}
+										/>
+								  ))
+								: publication.items.map((variation) => (
+										<VariationPreorderEditableCard
+											key={variation.id}
+											variation={variation}
+											onUpdate={handleUpdateVariation}
+											updateSuccess={updateVariationIsSuccess}
+											updateError={updateVariationIsError}
+											onDelete={handleDeleteVariation}
+											onActivate={handleActivateVariation}
+											onDeactivate={handleDeactivateVariation}
+											maxRating={maxRating?.rating}
+										/>
+								  ))}
 							<IconButton onClick={() => setAddVariationModalOpened(true)}>
 								<Add />
 							</IconButton>
