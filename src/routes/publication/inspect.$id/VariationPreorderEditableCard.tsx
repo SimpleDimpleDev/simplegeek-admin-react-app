@@ -157,21 +157,21 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 		name: `creditPayments`,
 		control,
 	});
+	
+	const quantityIsUnlimited = watch(`unlimitedQuantity`);
 
 	const isCredit = watch(`isCredit`);
 	const creditDeposit = watch(`creditDeposit`);
-
-	const quantityIsUnlimited = watch(`unlimitedQuantity`);
+	const creditDepositTotal = creditDeposit ? Number(creditDeposit) : 0;
+	const creditPayments = watch(`creditPayments`);
+	const creditPaymentsTotal = creditPayments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
 
 	useEffect(() => {
 		if (isCredit) {
-			const creditTotal =
-				(creditDeposit ? Number(creditDeposit) : 0) +
-				creditPaymentsFields.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
-
+			const creditTotal = creditDepositTotal + creditPaymentsTotal;
 			setValue(`price`, creditTotal.toString());
 		}
-	}, [setValue, isCredit, creditDeposit, creditPaymentsFields]);
+	}, [setValue, isCredit, creditDepositTotal, creditPaymentsTotal]);
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [isExpanded, setIsExpanded] = useState(false);
