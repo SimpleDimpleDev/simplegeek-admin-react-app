@@ -594,6 +594,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 }) => {
 	const formattedOnSubmit = useCallback(
 		(data: PublicationCreatePreorderFormData) => {
+			console.log(data);
 			const formattedData = {
 				...data,
 				items: data.items.map((itemVariation) => ({
