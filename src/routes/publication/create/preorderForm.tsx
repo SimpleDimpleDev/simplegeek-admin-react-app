@@ -173,9 +173,9 @@ const ItemForm: React.FC<ItemFormProps> = ({
 
 	useEffect(() => {
 		if (credit) {
-			const creditTotal = credit.payments
-				.map((payment) => Number(payment.sum))
-				.reduce((sum, current) => sum + current, 0);
+			const creditTotal =
+				credit.deposit +
+				credit.payments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
 
 			setValue(`items.${index}.price`, creditTotal.toString());
 		}
@@ -377,28 +377,34 @@ const ItemForm: React.FC<ItemFormProps> = ({
 				</Stack>
 
 				<div className="gap-2 d-f fd-c">
-					<FormControlLabel
-						label="Товар в рассрочку"
-						control={
-							<Checkbox
-								checked={!!credit}
-								onChange={(_, checked) => {
-									if (checked) {
-										setValue(`items.${index}.credit`, {
-											deposit: "",
-											payments: [
-												{
-													sum: "",
-													deadline: null,
-												},
-											],
-										});
-									} else {
-										setValue(`items.${index}.credit`, null);
-									}
-								}}
+					<Controller
+						name={`items.${index}.credit`}
+						control={control}
+						render={({ field: { value, onChange }}) => (
+							<FormControlLabel
+								label="Товар в рассрочку"
+								control={
+									<Checkbox
+										checked={value !== null}
+										onChange={(_, checked) => {
+											if (checked) {
+												onChange({
+													deposit: "",
+													payments: [
+														{
+															sum: "",
+															deadline: null,
+														},
+													],
+												});
+											} else {
+												onChange(null);
+											}
+										}}
+									/>
+								}
 							/>
-						}
+						)}
 					/>
 					{credit && (
 						<>

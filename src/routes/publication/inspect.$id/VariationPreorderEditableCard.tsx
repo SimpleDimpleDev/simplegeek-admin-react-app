@@ -171,7 +171,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 
 	useEffect(() => {
 		if (credit) {
-			const creditTotal = credit.payments
+			const creditTotal = credit.deposit + credit.payments
 				.map((payment) => Number(payment.sum))
 				.reduce((sum, current) => sum + current, 0);
 
