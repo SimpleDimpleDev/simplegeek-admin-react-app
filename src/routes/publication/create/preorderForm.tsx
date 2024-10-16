@@ -376,16 +376,16 @@ const ItemForm: React.FC<ItemFormProps> = ({
 					/>
 				</Stack>
 
-				<div className="gap-2 d-f fd-c">
-					<Controller
-						name={`items.${index}.credit`}
-						control={control}
-						render={({ field: { value, onChange }}) => (
+				<Controller
+					name={`items.${index}.credit`}
+					control={control}
+					render={({ field: { value: creditValue, onChange } }) => (
+						<div className="gap-2 d-f fd-c">
 							<FormControlLabel
 								label="Товар в рассрочку"
 								control={
 									<Checkbox
-										checked={value !== null}
+										checked={creditValue !== null}
 										onChange={(_, checked) => {
 											if (checked) {
 												onChange({
@@ -404,97 +404,104 @@ const ItemForm: React.FC<ItemFormProps> = ({
 									/>
 								}
 							/>
-						)}
-					/>
-					{credit && (
-						<>
-							<Typography>Рассрочка</Typography>
-							<div className="gap-1 d-f fd-c">
-								<div className="gap-1 d-f fd-r">
-									<Controller
-										name={`items.${index}.credit.deposit`}
-										control={control}
-										render={({ field: { value, onChange }, fieldState: { error } }) => (
-											<TextField
-												label="Депозит"
-												type="text"
-												value={value}
-												onChange={handleIntChange(onChange)}
-												variant="outlined"
-												error={!!error}
-												helperText={error?.message}
-												slotProps={{
-													input: {
-														endAdornment: <InputAdornment position="end">₽</InputAdornment>,
-													},
-												}}
-											/>
-										)}
-									/>
-								</div>
-								{creditPaymentsFields.map((field, paymentIndex) => (
-									<div className="gap-1 d-f fd-r" key={field.id}>
-										<Controller
-											key={field.id}
-											name={`items.${index}.credit.payments.${paymentIndex}.sum`}
-											control={control}
-											render={({ field: { value, onChange }, fieldState: { error } }) => (
-												<TextField
-													label="Сумма"
-													type="text"
-													value={value}
-													onChange={handleIntChange(onChange)}
-													variant="outlined"
-													error={!!error}
-													helperText={error?.message}
-													slotProps={{
-														input: {
-															endAdornment: (
-																<InputAdornment position="end">₽</InputAdornment>
-															),
-														},
-													}}
-												/>
-											)}
-										/>
-
-										<Controller
-											key={field.id}
-											name={`items.${index}.credit.payments.${paymentIndex}.deadline`}
-											control={control}
-											render={({ field: { value, onChange } }) => (
-												<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
-													<DatePicker
-														value={dayjs(value)}
-														onChange={(newValue) => {
-															onChange(newValue?.toDate());
+							{creditValue !== null && (
+								<>
+									<Typography>Рассрочка</Typography>
+									<div className="gap-1 d-f fd-c">
+										<div className="gap-1 d-f fd-r">
+											<Controller
+												name={`items.${index}.credit.deposit`}
+												control={control}
+												render={({ field: { value, onChange }, fieldState: { error } }) => (
+													<TextField
+														label="Депозит"
+														type="text"
+														value={value}
+														onChange={handleIntChange(onChange)}
+														variant="outlined"
+														error={!!error}
+														helperText={error?.message}
+														slotProps={{
+															input: {
+																endAdornment: (
+																	<InputAdornment position="end">₽</InputAdornment>
+																),
+															},
 														}}
 													/>
-												</LocalizationProvider>
-											)}
-										/>
-										{credit.payments.length > 1 && (
-											<Button
-												sx={{ color: "error.main" }}
-												style={{ width: "fit-content" }}
-												onClick={() => removeCreditPayment(paymentIndex)}
-											>
-												Удалить платеж
-											</Button>
-										)}
+												)}
+											/>
+										</div>
+										{creditPaymentsFields.map((field, paymentIndex) => (
+											<div className="gap-1 d-f fd-r" key={field.id}>
+												<Controller
+													key={field.id}
+													name={`items.${index}.credit.payments.${paymentIndex}.sum`}
+													control={control}
+													render={({ field: { value, onChange }, fieldState: { error } }) => (
+														<TextField
+															label="Сумма"
+															type="text"
+															value={value}
+															onChange={handleIntChange(onChange)}
+															variant="outlined"
+															error={!!error}
+															helperText={error?.message}
+															slotProps={{
+																input: {
+																	endAdornment: (
+																		<InputAdornment position="end">
+																			₽
+																		</InputAdornment>
+																	),
+																},
+															}}
+														/>
+													)}
+												/>
+
+												<Controller
+													key={field.id}
+													name={`items.${index}.credit.payments.${paymentIndex}.deadline`}
+													control={control}
+													render={({ field: { value, onChange } }) => (
+														<LocalizationProvider
+															dateAdapter={AdapterDayjs}
+															adapterLocale="ru"
+														>
+															<DatePicker
+																value={dayjs(value)}
+																onChange={(newValue) => {
+																	onChange(newValue?.toDate());
+																}}
+															/>
+														</LocalizationProvider>
+													)}
+												/>
+												{creditValue.payments.length > 1 && (
+													<Button
+														sx={{ color: "error.main" }}
+														style={{ width: "fit-content" }}
+														onClick={() => removeCreditPayment(paymentIndex)}
+													>
+														Удалить платеж
+													</Button>
+												)}
+											</div>
+										))}
+										<Button
+											sx={{ color: "success.main" }}
+											style={{ width: "fit-content" }}
+											onClick={() => appendCreditPayment({ sum: "", deadline: null })}
+										>
+											{"Добавить платеж"}
+										</Button>
 									</div>
-								))}
-								<Button
-									sx={{ color: "success.main" }}
-									style={{ width: "fit-content" }}
-									onClick={() => appendCreditPayment({ sum: "", deadline: null })}
-								>
-									{"Добавить платеж"}
-								</Button>
-							</div>
-						</>
+								</>
+							)}
+						</div>
 					)}
-				</div>
+				/>
 			</div>
 		</div>
 	);
