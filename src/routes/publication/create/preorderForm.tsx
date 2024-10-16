@@ -618,6 +618,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 						: null,
 				})),
 			};
+			console.log(formattedData);
 			onSubmit(PublicationCreateSchema.parse(formattedData));
 		},
 		[onSubmit]
