@@ -160,7 +160,6 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 
 	const isCredit = watch(`isCredit`);
 	const creditDeposit = watch(`creditDeposit`);
-	const creditPayments = watch(`creditPayments`);
 
 	const quantityIsUnlimited = watch(`unlimitedQuantity`);
 
@@ -168,11 +167,11 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 		if (isCredit) {
 			const creditTotal =
 				(creditDeposit ? Number(creditDeposit) : 0) +
-				creditPayments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
+				creditPaymentsFields.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
 
 			setValue(`price`, creditTotal.toString());
 		}
-	}, [setValue, isCredit, creditDeposit, creditPayments]);
+	}, [setValue, isCredit, creditDeposit, creditPaymentsFields]);
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -740,7 +739,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 															</LocalizationProvider>
 														)}
 													/>
-													{creditPayments.length > 1 && (
+													{creditPaymentsFields.length > 1 && (
 														<Button
 															disabled={!isEditing}
 															sx={{ color: "error.main" }}

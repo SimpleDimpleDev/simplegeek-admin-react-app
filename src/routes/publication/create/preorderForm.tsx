@@ -164,7 +164,6 @@ const ItemForm: React.FC<ItemFormProps> = ({
 
 	const isCredit = watch(`items.${index}.isCredit`);
 	const creditDeposit = watch(`items.${index}.creditDeposit`);
-	const creditPayments = watch(`items.${index}.creditPayments`);
 
 	const quantityIsUnlimited = watch(`items.${index}.unlimitedQuantity`);
 
@@ -172,11 +171,11 @@ const ItemForm: React.FC<ItemFormProps> = ({
 		if (isCredit) {
 			const creditTotal =
 				(creditDeposit ? Number(creditDeposit) : 0) +
-				creditPayments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
+				creditPaymentsFields.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
 
 			setValue(`items.${index}.price`, creditTotal.toString());
 		}
-	}, [index, setValue, isCredit, creditDeposit, creditPayments]);
+	}, [index, setValue, isCredit, creditDeposit, creditPaymentsFields]);
 
 	return (
 		<div key={index} className="gap-2 py-2 w-100 d-f fd-r">

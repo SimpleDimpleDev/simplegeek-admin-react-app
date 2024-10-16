@@ -153,7 +153,6 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 
 	const isCredit = watch(`isCredit`);
 	const creditDeposit = watch(`creditDeposit`);
-	const creditPayments = watch(`creditPayments`);
 
 	const quantityIsUnlimited = watch(`unlimitedQuantity`);
 
@@ -161,11 +160,11 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 		if (isCredit) {
 			const creditTotal =
 				(creditDeposit ? Number(creditDeposit) : 0) +
-				creditPayments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
+				creditPaymentsFields.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
 
 			setValue(`price`, creditTotal.toString());
 		}
-	}, [setValue, isCredit, creditDeposit, creditPayments]);
+	}, [setValue, isCredit, creditDeposit, creditPaymentsFields]);
 
 	return (
 		<form onSubmit={handleSubmit(formattedOnSubmit)} className="gap-2 py-2 w-100 d-f fd-c">
