@@ -6,6 +6,7 @@ import {
 	Button,
 	Checkbox,
 	Divider,
+	FormControlLabel,
 	IconButton,
 	InputAdornment,
 	Stack,
@@ -58,10 +59,13 @@ type VariationPreorderUpdateFormData = {
 		value: string;
 	} | null;
 	quantityRestriction: string | null;
-	creditPayments: {
-		sum: string;
-		deadline: Date | null;
-	}[];
+	credit: {
+		deposit: string;
+		payments: {
+			sum: string;
+			deadline: Date | null;
+		}[];
+	} | null;
 };
 
 const VariationPreorderUpdateResolver = z.object({
@@ -76,14 +80,21 @@ const VariationPreorderUpdateResolver = z.object({
 		.number()
 		.positive({ message: "Количество должно быть положительным числом" })
 		.nullable(),
-	creditPayments: z
+	credit: z
 		.object({
-			sum: z.coerce
-				.number({ message: "Укажите сумму кредитного платежа" })
+			deposit: z.coerce
+				.number({ message: "Укажите сумму депозита" })
 				.positive({ message: "Сумма должна быть положительным числом" }),
-			deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
+			payments: z
+				.object({
+					sum: z.coerce
+						.number({ message: "Укажите сумму кредитного платежа" })
+						.positive({ message: "Сумма должна быть положительным числом" }),
+					deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
+				})
+				.array(),
 		})
-		.array(),
+		.nullable(),
 });
 
 const getFormValues = (variation: CatalogItemGet): VariationPreorderUpdateFormData => ({
@@ -99,11 +110,15 @@ const getFormValues = (variation: CatalogItemGet): VariationPreorderUpdateFormDa
 		  }
 		: null,
 	quantityRestriction: variation.quantityRestriction?.toString() ?? null,
-	creditPayments:
-		variation.creditInfo?.payments.map((payment) => ({
-			sum: payment.sum.toString(),
-			deadline: payment.deadline,
-		})) ?? [],
+	credit: variation.creditInfo
+		? {
+				deposit: variation.creditInfo.deposit.toString(),
+				payments: variation.creditInfo.payments.map((payment) => ({
+					sum: payment.sum.toString(),
+					deadline: payment.deadline,
+				})),
+		  }
+		: null,
 });
 
 interface VariationPreorderEditableCardProps {
@@ -146,20 +161,23 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 		append: appendCreditPayment,
 		remove: removeCreditPayment,
 	} = useFieldArray({
-		name: `creditPayments`,
+		name: `credit.payments`,
 		control,
 	});
 
-	const creditPayments = watch(`creditPayments`);
-	const creditPaymentsTotal = creditPayments.reduce((acc, { sum }) => acc + (parseInt(sum) ?? 0), 0);
+	const credit = watch(`credit`);
 
 	const quantityIsUnlimited = watch(`unlimitedQuantity`);
 
 	useEffect(() => {
-		if (creditPayments.length > 0) {
-			setValue(`price`, creditPaymentsTotal.toString());
+		if (credit) {
+			const creditTotal = credit.payments
+				.map((payment) => Number(payment.sum))
+				.reduce((sum, current) => sum + current, 0);
+
+			setValue(`price`, creditTotal.toString());
 		}
-	}, [creditPaymentsTotal, setValue, creditPayments.length]);
+	}, [setValue, credit]);
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -172,20 +190,26 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 	}, [variation, reset, updateSuccess, updateError]);
 
 	const resolvedOnSubmit = (data: VariationPreorderUpdateFormData) => {
-        const formattedData = {
-            ...data,
-            creditInfo: {
-                payments: data.creditPayments.map((payment) => {
-                    const localDate = payment.deadline;
-                    return {
-                        ...payment,
-                        deadline:
-                            localDate &&
-                            `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, "0")}-${String(localDate.getDate()).padStart(2, "0")}`,
-                    };
-                }),
-            },
-        }
+		const formattedData = {
+			...data,
+			creditInfo: data.credit
+				? {
+						deposit: data.credit.deposit,
+						payments: data.credit.payments.map((payment) => {
+							const localDate = payment.deadline;
+							return {
+								...payment,
+								deadline:
+									localDate &&
+									`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
+										2,
+										"0"
+									)}-${String(localDate.getDate()).padStart(2, "0")}`,
+							};
+						}),
+				  }
+				: null,
+		};
 		onUpdate(CatalogItemUpdateSchema.parse(formattedData));
 		setIsEditing(false);
 	};
@@ -361,7 +385,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 									render={({ field: { value, onChange }, fieldState: { error } }) => (
 										<TextField
 											{...textFieldProps}
-											disabled={!isEditing || creditPayments.length > 0}
+											disabled={!isEditing || !!credit}
 											value={value}
 											onChange={handleIntChange(onChange)}
 											variant={"standard"}
@@ -613,88 +637,135 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 								/>
 							</Stack>
 							<div className="gap-2 d-f fd-c">
-								<div className="gap-2 d-f fd-c">
-									{creditPaymentsFields.length > 0 && (
-										<>
-											<Typography>Платежи рассрочки</Typography>
-											<div className="gap-1 d-f fd-c">
-												{creditPaymentsFields.map((field, paymentIndex) => (
-													<div className="gap-1 d-f fd-r" key={field.id}>
-														<Controller
-															key={field.id}
-															name={`creditPayments.${paymentIndex}.sum`}
-															control={control}
-															render={({
-																field: { value, onChange },
-																fieldState: { error },
-															}) => (
-																<TextField
+								<FormControlLabel
+									label="Товар в рассрочку"
+									control={
+										<Checkbox
+											checked={!!credit}
+											disabled={!isEditing}
+											onChange={(_, checked) => {
+												if (checked) {
+													setValue(`credit`, {
+														deposit: "",
+														payments: [
+															{
+																sum: "",
+																deadline: null,
+															},
+														],
+													});
+												} else {
+													setValue(`credit`, null);
+												}
+											}}
+										/>
+									}
+								/>
+								{credit && (
+									<>
+										<Typography>Рассрочка</Typography>
+										<div className="gap-1 d-f fd-c">
+											<div className="gap-1 d-f fd-r">
+												<Controller
+													name={`credit.deposit`}
+													control={control}
+													render={({ field: { value, onChange }, fieldState: { error } }) => (
+														<TextField
+															disabled={!isEditing}
+															label="Депозит"
+															type="text"
+															value={value}
+															onChange={handleIntChange(onChange)}
+															variant="outlined"
+															error={!!error}
+															helperText={error?.message}
+															slotProps={{
+																input: {
+																	endAdornment: (
+																		<InputAdornment position="end">
+																			₽
+																		</InputAdornment>
+																	),
+																},
+															}}
+														/>
+													)}
+												/>
+											</div>
+											{creditPaymentsFields.map((field, paymentIndex) => (
+												<div className="gap-1 d-f fd-r" key={field.id}>
+													<Controller
+														key={field.id}
+														name={`credit.payments.${paymentIndex}.sum`}
+														control={control}
+														render={({
+															field: { value, onChange },
+															fieldState: { error },
+														}) => (
+															<TextField
+																disabled={!isEditing}
+																label="Сумма"
+																type="text"
+																value={value}
+																onChange={handleIntChange(onChange)}
+																variant="outlined"
+																error={!!error}
+																helperText={error?.message}
+																slotProps={{
+																	input: {
+																		endAdornment: (
+																			<InputAdornment position="end">
+																				₽
+																			</InputAdornment>
+																		),
+																	},
+																}}
+															/>
+														)}
+													/>
+
+													<Controller
+														key={field.id}
+														name={`credit.payments.${paymentIndex}.deadline`}
+														control={control}
+														render={({ field: { value, onChange } }) => (
+															<LocalizationProvider
+																dateAdapter={AdapterDayjs}
+																adapterLocale="ru"
+															>
+																<DatePicker
 																	disabled={!isEditing}
-																	label="Сумма"
-																	type="text"
-																	value={value}
-																	onChange={handleIntChange(onChange)}
-																	variant="outlined"
-																	error={!!error}
-																	helperText={error?.message}
-																	slotProps={{
-																		input: {
-																			endAdornment: (
-																				<InputAdornment position="end">
-																					₽
-																				</InputAdornment>
-																			),
-																		},
+																	value={dayjs(value)}
+																	onChange={(newValue) => {
+																		onChange(newValue?.toDate());
 																	}}
 																/>
-															)}
-														/>
-
-														<Controller
-															key={field.id}
-															name={`creditPayments.${paymentIndex}.deadline`}
-															control={control}
-															render={({ field: { value, onChange } }) => (
-																<LocalizationProvider
-																	dateAdapter={AdapterDayjs}
-																	adapterLocale="ru"
-																>
-																	<DatePicker
-																		disabled={!isEditing}
-																		value={dayjs(value)}
-																		onChange={(newValue) => {
-																			onChange(newValue?.toDate());
-																		}}
-																	/>
-																</LocalizationProvider>
-															)}
-														/>
-
-														<Tooltip title="Удалить платеж">
-															<IconButton
-																disabled={!isEditing}
-																sx={{ color: "error.main" }}
-																onFocus={(event) => event.stopPropagation()}
-																onClick={() => removeCreditPayment(paymentIndex)}
-															>
-																<Delete />
-															</IconButton>
-														</Tooltip>
-													</div>
-												))}
-											</div>
-										</>
-									)}
-
-									<Button
-										disabled={!isEditing}
-										sx={{ color: "success.main" }}
-										style={{ width: "fit-content" }}
-										onClick={() => appendCreditPayment({ sum: "", deadline: null })}
-									>
-										{creditPaymentsFields.length === 0 ? "Товар в рассрочку" : "Добавить платеж"}
-									</Button>
-								</div>
+															</LocalizationProvider>
+														)}
+													/>
+													{credit.payments.length > 1 && (
+														<Button
+															disabled={!isEditing}
+															sx={{ color: "error.main" }}
+															style={{ width: "fit-content" }}
+															onClick={() => removeCreditPayment(paymentIndex)}
+														>
+															Удалить платеж
+														</Button>
+													)}
+												</div>
+											))}
+											<Button
+												disabled={!isEditing}
+												sx={{ color: "success.main" }}
+												style={{ width: "fit-content" }}
+												onClick={() => appendCreditPayment({ sum: "", deadline: null })}
+											>
+												{"Добавить платеж"}
+											</Button>
+										</div>
+									</>
+								)}
 							</div>
 						</Box>
 					</AccordionDetails>

@@ -70,10 +70,13 @@ type CatalogItemPublishPreorderFormData = {
 		value: string;
 	} | null;
 	quantityRestriction: string | null;
-	creditPayments: {
-		sum: string;
-		deadline: Date | null;
-	}[];
+	credit: {
+		deposit: string;
+		payments: {
+			sum: string;
+			deadline: Date | null;
+		}[];
+	} | null;
 };
 
 const CatalogItemPublishPreorderResolver = z.object({
@@ -88,14 +91,21 @@ const CatalogItemPublishPreorderResolver = z.object({
 		.number()
 		.positive({ message: "Количество должно быть положительным числом" })
 		.nullable(),
-	creditPayments: z
+	credit: z
 		.object({
-			sum: z.coerce
-				.number({ message: "Укажите сумму кредитного платежа" })
+			deposit: z.coerce
+				.number({ message: "Укажите сумму депозита" })
 				.positive({ message: "Сумма должна быть положительным числом" }),
-			deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
+			payments: z
+				.object({
+					sum: z.coerce
+						.number({ message: "Укажите сумму кредитного платежа" })
+						.positive({ message: "Сумма должна быть положительным числом" }),
+					deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
+				})
+				.array(),
 		})
-		.array(),
+		.nullable(),
 });
 
 type PublicationCreatePreorderFormData = {
@@ -153,20 +163,23 @@ const ItemForm: React.FC<ItemFormProps> = ({
 		append: appendCreditPayment,
 		remove: removeCreditPayment,
 	} = useFieldArray({
-		name: `items.${index}.creditPayments`,
+		name: `items.${index}.credit.payments`,
 		control,
 	});
 
-	const creditPayments = watch(`items.${index}.creditPayments`);
-	const creditPaymentsTotal = creditPayments.reduce((acc, { sum }) => acc + (parseInt(sum) ?? 0), 0);
+	const credit = watch(`items.${index}.credit`);
 
 	const quantityIsUnlimited = watch(`items.${index}.unlimitedQuantity`);
 
 	useEffect(() => {
-		if (creditPayments.length > 0) {
-			setValue(`items.${index}.price`, creditPaymentsTotal.toString());
+		if (credit) {
+			const creditTotal = credit.payments
+				.map((payment) => Number(payment.sum))
+				.reduce((sum, current) => sum + current, 0);
+
+			setValue(`items.${index}.price`, creditTotal.toString());
 		}
-	}, [creditPaymentsTotal, index, setValue, creditPayments.length]);
+	}, [index, setValue, credit]);
 
 	return (
 		<div key={index} className="gap-2 py-2 w-100 d-f fd-r">
@@ -307,7 +320,7 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								label="Цена"
 								type="text"
 								required
-								disabled={creditPayments?.length > 0}
+								disabled={!!credit}
 								value={isNaN(parseInt(value)) ? "" : value}
 								onChange={handleIntChange(onChange)}
 								variant="outlined"
@@ -364,74 +377,117 @@ const ItemForm: React.FC<ItemFormProps> = ({
 				</Stack>
 
 				<div className="gap-2 d-f fd-c">
-					<div className="gap-2 d-f fd-c">
-						{creditPaymentsFields.length > 0 && (
-							<>
-								<Typography>Платежи рассрочки</Typography>
-								<div className="gap-1 d-f fd-c">
-									{creditPaymentsFields.map((field, paymentIndex) => (
-										<div className="gap-1 d-f fd-r" key={field.id}>
-											<Controller
-												key={field.id}
-												name={`items.${index}.creditPayments.${paymentIndex}.sum`}
-												control={control}
-												render={({ field: { value, onChange }, fieldState: { error } }) => (
-													<TextField
-														label="Сумма"
-														type="text"
-														value={value}
-														onChange={handleIntChange(onChange)}
-														variant="outlined"
-														error={!!error}
-														helperText={error?.message}
-														slotProps={{
-															input: {
-																endAdornment: (
-																	<InputAdornment position="end">₽</InputAdornment>
-																),
-															},
+					<FormControlLabel
+						label="Товар в рассрочку"
+						control={
+							<Checkbox
+								checked={!!credit}
+								onChange={(_, checked) => {
+									if (checked) {
+										setValue(`items.${index}.credit`, {
+											deposit: "",
+											payments: [
+												{
+													sum: "",
+													deadline: null,
+												},
+											],
+										});
+									} else {
+										setValue(`items.${index}.credit`, null);
+									}
+								}}
+							/>
+						}
+					/>
+					{credit && (
+						<>
+							<Typography>Рассрочка</Typography>
+							<div className="gap-1 d-f fd-c">
+								<div className="gap-1 d-f fd-r">
+									<Controller
+										name={`items.${index}.credit.deposit`}
+										control={control}
+										render={({ field: { value, onChange }, fieldState: { error } }) => (
+											<TextField
+												label="Депозит"
+												type="text"
+												value={value}
+												onChange={handleIntChange(onChange)}
+												variant="outlined"
+												error={!!error}
+												helperText={error?.message}
+												slotProps={{
+													input: {
+														endAdornment: <InputAdornment position="end">₽</InputAdornment>,
+													},
+												}}
+											/>
+										)}
+									/>
+								</div>
+								{creditPaymentsFields.map((field, paymentIndex) => (
+									<div className="gap-1 d-f fd-r" key={field.id}>
+										<Controller
+											key={field.id}
+											name={`items.${index}.credit.payments.${paymentIndex}.sum`}
+											control={control}
+											render={({ field: { value, onChange }, fieldState: { error } }) => (
+												<TextField
+													label="Сумма"
+													type="text"
+													value={value}
+													onChange={handleIntChange(onChange)}
+													variant="outlined"
+													error={!!error}
+													helperText={error?.message}
+													slotProps={{
+														input: {
+															endAdornment: (
+																<InputAdornment position="end">₽</InputAdornment>
+															),
+														},
+													}}
+												/>
+											)}
+										/>
+
+										<Controller
+											key={field.id}
+											name={`items.${index}.credit.payments.${paymentIndex}.deadline`}
+											control={control}
+											render={({ field: { value, onChange } }) => (
+												<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
+													<DatePicker
+														value={dayjs(value)}
+														onChange={(newValue) => {
+															onChange(newValue?.toDate());
 														}}
 													/>
-												)}
-											/>
-
-											<Controller
-												key={field.id}
-												name={`items.${index}.creditPayments.${paymentIndex}.deadline`}
-												control={control}
-												render={({ field: { value, onChange } }) => (
-													<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
-														<DatePicker
-															value={dayjs(value)}
-															onChange={(newValue) => {
-																onChange(newValue?.toDate());
-															}}
-														/>
-													</LocalizationProvider>
-												)}
-											/>
-
+												</LocalizationProvider>
+											)}
+										/>
+										{credit.payments.length > 1 && (
 											<Button
 												sx={{ color: "error.main" }}
 												style={{ width: "fit-content" }}
 												onClick={() => removeCreditPayment(paymentIndex)}
 											>
-												Удалить
+												Удалить платеж
 											</Button>
-										</div>
-									))}
-								</div>
-							</>
-						)}
-
-						<Button
-							sx={{ color: "success.main" }}
-							style={{ width: "fit-content" }}
-							onClick={() => appendCreditPayment({ sum: "", deadline: null })}
-						>
-							{creditPaymentsFields.length === 0 ? "Товар в рассрочку" : "Добавить платеж"}
-						</Button>
-					</div>
+										)}
+									</div>
+								))}
+								<Button
+									sx={{ color: "success.main" }}
+									style={{ width: "fit-content" }}
+									onClick={() => appendCreditPayment({ sum: "", deadline: null })}
+								>
+									{"Добавить платеж"}
+								</Button>
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		</div>
@@ -481,7 +537,7 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 			quantity: "",
 			discount: null,
 			quantityRestriction: null,
-			creditPayments: [],
+			credit: null,
 		}));
 	} else {
 		defaultValues.items.push({
@@ -492,7 +548,7 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 			quantity: "",
 			discount: null,
 			quantityRestriction: null,
-			creditPayments: [],
+			credit: null,
 		});
 	}
 
@@ -540,17 +596,23 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 				items: data.items.map((itemVariation) => ({
 					...itemVariation,
 					productId: itemVariation.product?.id,
-					creditInfo: {
-						payments: itemVariation.creditPayments.map((payment) => {
-							const localDate = payment.deadline;
-							return {
-								...payment,
-								deadline:
-									localDate &&
-									`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, "0")}-${String(localDate.getDate()).padStart(2, "0")}`,
-							};
-						}),
-					},
+					creditInfo: itemVariation.credit
+						? {
+								deposit: itemVariation.credit.deposit,
+								payments: itemVariation.credit.payments.map((payment) => {
+									const localDate = payment.deadline;
+									return {
+										...payment,
+										deadline:
+											localDate &&
+											`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
+												2,
+												"0"
+											)}-${String(localDate.getDate()).padStart(2, "0")}`,
+									};
+								}),
+						  }
+						: null,
 				})),
 			};
 			onSubmit(PublicationCreateSchema.parse(formattedData));
@@ -776,7 +838,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 							quantity: "",
 							discount: null,
 							quantityRestriction: null,
-							creditPayments: [],
+							credit: null,
 						})
 					}
 				>
