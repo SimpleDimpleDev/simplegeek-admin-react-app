@@ -59,13 +59,12 @@ type VariationPreorderUpdateFormData = {
 		value: string;
 	} | null;
 	quantityRestriction: string | null;
-	credit: {
-		deposit: string;
-		payments: {
-			sum: string;
-			deadline: Date | null;
-		}[];
-	} | null;
+	isCredit: boolean;
+	creditDeposit: string | null;
+	creditPayments: {
+		sum: string;
+		deadline: Date | null;
+	}[];
 };
 
 const VariationPreorderUpdateResolver = z.object({
@@ -80,21 +79,17 @@ const VariationPreorderUpdateResolver = z.object({
 		.number()
 		.positive({ message: "Количество должно быть положительным числом" })
 		.nullable(),
-	credit: z
+	creditDeposit: z.coerce
+		.number({ message: "Укажите сумму депозита" })
+		.positive({ message: "Сумма должна быть положительным числом" }),
+	creditPayments: z
 		.object({
-			deposit: z.coerce
-				.number({ message: "Укажите сумму депозита" })
+			sum: z.coerce
+				.number({ message: "Укажите сумму кредитного платежа" })
 				.positive({ message: "Сумма должна быть положительным числом" }),
-			payments: z
-				.object({
-					sum: z.coerce
-						.number({ message: "Укажите сумму кредитного платежа" })
-						.positive({ message: "Сумма должна быть положительным числом" }),
-					deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
-				})
-				.array(),
+			deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
 		})
-		.nullable(),
+		.array(),
 });
 
 const getFormValues = (variation: CatalogItemGet): VariationPreorderUpdateFormData => ({
@@ -110,15 +105,13 @@ const getFormValues = (variation: CatalogItemGet): VariationPreorderUpdateFormDa
 		  }
 		: null,
 	quantityRestriction: variation.quantityRestriction?.toString() ?? null,
-	credit: variation.creditInfo
-		? {
-				deposit: variation.creditInfo.deposit.toString(),
-				payments: variation.creditInfo.payments.map((payment) => ({
-					sum: payment.sum.toString(),
-					deadline: payment.deadline,
-				})),
-		  }
-		: null,
+	isCredit: variation.creditInfo !== null,
+	creditDeposit: variation.creditInfo?.deposit.toString() ?? null,
+	creditPayments:
+		variation.creditInfo?.payments.map((payment) => ({
+			sum: payment.sum.toString(),
+			deadline: payment.deadline,
+		})) ?? [],
 });
 
 interface VariationPreorderEditableCardProps {
@@ -161,23 +154,25 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 		append: appendCreditPayment,
 		remove: removeCreditPayment,
 	} = useFieldArray({
-		name: `credit.payments`,
+		name: `creditPayments`,
 		control,
 	});
 
-	const credit = watch(`credit`);
+	const isCredit = watch(`isCredit`);
+	const creditDeposit = watch(`creditDeposit`);
+	const creditPayments = watch(`creditPayments`);
 
 	const quantityIsUnlimited = watch(`unlimitedQuantity`);
 
 	useEffect(() => {
-		if (credit) {
-			const creditTotal = credit.deposit + credit.payments
-				.map((payment) => Number(payment.sum))
-				.reduce((sum, current) => sum + current, 0);
+		if (isCredit) {
+			const creditTotal =
+				(creditDeposit ? Number(creditDeposit) : 0) +
+				creditPayments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
 
 			setValue(`price`, creditTotal.toString());
 		}
-	}, [setValue, credit]);
+	}, [setValue, isCredit, creditDeposit, creditPayments]);
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -192,23 +187,24 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 	const resolvedOnSubmit = (data: VariationPreorderUpdateFormData) => {
 		const formattedData = {
 			...data,
-			creditInfo: data.credit
-				? {
-						deposit: data.credit.deposit,
-						payments: data.credit.payments.map((payment) => {
-							const localDate = payment.deadline;
-							return {
-								...payment,
-								deadline:
-									localDate &&
-									`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
-										2,
-										"0"
-									)}-${String(localDate.getDate()).padStart(2, "0")}`,
-							};
-						}),
-				  }
-				: null,
+			creditInfo:
+				data.isCredit && data.creditDeposit !== null
+					? {
+							deposit: data.creditDeposit,
+							payments: data.creditPayments.map((payment) => {
+								const localDate = payment.deadline;
+								return {
+									...payment,
+									deadline:
+										localDate &&
+										`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
+											2,
+											"0"
+										)}-${String(localDate.getDate()).padStart(2, "0")}`,
+								};
+							}),
+					  }
+					: null,
 		};
 		onUpdate(CatalogItemUpdateSchema.parse(formattedData));
 		setIsEditing(false);
@@ -385,7 +381,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 									render={({ field: { value, onChange }, fieldState: { error } }) => (
 										<TextField
 											{...textFieldProps}
-											disabled={!isEditing || !!credit}
+											disabled={!isEditing || isCredit}
 											value={value}
 											onChange={handleIntChange(onChange)}
 											variant={"standard"}
@@ -641,33 +637,34 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 									label="Товар в рассрочку"
 									control={
 										<Checkbox
-											checked={!!credit}
+											checked={isCredit}
 											disabled={!isEditing}
 											onChange={(_, checked) => {
 												if (checked) {
-													setValue(`credit`, {
-														deposit: "",
-														payments: [
-															{
-																sum: "",
-																deadline: null,
-															},
-														],
-													});
+													setValue(`isCredit`, true);
+													setValue(`creditDeposit`, "");
+													setValue(`creditPayments`, [
+														{
+															sum: "",
+															deadline: null,
+														},
+													]);
 												} else {
-													setValue(`credit`, null);
+													setValue(`isCredit`, false);
+													setValue(`creditDeposit`, null);
+													setValue(`creditPayments`, []);
 												}
 											}}
 										/>
 									}
 								/>
-								{credit && (
+								{isCredit && (
 									<>
 										<Typography>Рассрочка</Typography>
 										<div className="gap-1 d-f fd-c">
 											<div className="gap-1 d-f fd-r">
 												<Controller
-													name={`credit.deposit`}
+													name={`creditDeposit`}
 													control={control}
 													render={({ field: { value, onChange }, fieldState: { error } }) => (
 														<TextField
@@ -696,7 +693,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 												<div className="gap-1 d-f fd-r" key={field.id}>
 													<Controller
 														key={field.id}
-														name={`credit.payments.${paymentIndex}.sum`}
+														name={`creditPayments.${paymentIndex}.sum`}
 														control={control}
 														render={({
 															field: { value, onChange },
@@ -726,7 +723,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 
 													<Controller
 														key={field.id}
-														name={`credit.payments.${paymentIndex}.deadline`}
+														name={`creditPayments.${paymentIndex}.deadline`}
 														control={control}
 														render={({ field: { value, onChange } }) => (
 															<LocalizationProvider
@@ -743,7 +740,7 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 															</LocalizationProvider>
 														)}
 													/>
-													{credit.payments.length > 1 && (
+													{creditPayments.length > 1 && (
 														<Button
 															disabled={!isEditing}
 															sx={{ color: "error.main" }}

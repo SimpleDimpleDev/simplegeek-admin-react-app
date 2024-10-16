@@ -36,13 +36,12 @@ type VariationAddPreorderFormData = {
 		value: string;
 	} | null;
 	quantityRestriction: string | null;
-	credit: {
-		deposit: string;
-		payments: {
-			sum: string;
-			deadline: Date | null;
-		}[];
-	} | null;
+	isCredit: boolean;
+	creditDeposit: string | null;
+	creditPayments: {
+		sum: string;
+		deadline: Date | null;
+	}[];
 };
 
 const VariationAddPreorderResolver = z.object({
@@ -57,21 +56,17 @@ const VariationAddPreorderResolver = z.object({
 		.number()
 		.positive({ message: "Количество должно быть положительным числом" })
 		.nullable(),
-	credit: z
+	creditDeposit: z.coerce
+		.number({ message: "Укажите сумму депозита" })
+		.positive({ message: "Сумма должна быть положительным числом" }),
+	creditPayments: z
 		.object({
-			deposit: z.coerce
-				.number({ message: "Укажите сумму депозита" })
+			sum: z.coerce
+				.number({ message: "Укажите сумму кредитного платежа" })
 				.positive({ message: "Сумма должна быть положительным числом" }),
-			payments: z
-				.object({
-					sum: z.coerce
-						.number({ message: "Укажите сумму кредитного платежа" })
-						.positive({ message: "Сумма должна быть положительным числом" }),
-					deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
-				})
-				.array(),
+			deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
 		})
-		.nullable(),
+		.array(),
 });
 
 interface VariationAddPreorderFormProps {
@@ -112,7 +107,9 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 			unlimitedQuantity: false,
 			discount: null,
 			quantityRestriction: null,
-			credit: null,
+			isCredit: false,
+			creditDeposit: null,
+			creditPayments: [],
 		},
 	});
 
@@ -121,23 +118,24 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 			const formattedData = {
 				...data,
 				productId: data.product?.id,
-				creditInfo: data.credit
-					? {
-							deposit: data.credit.deposit,
-							payments: data.credit.payments.map((payment) => {
-								const localDate = payment.deadline;
-								return {
-									...payment,
-									deadline:
-										localDate &&
-										`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
-											2,
-											"0"
-										)}-${String(localDate.getDate()).padStart(2, "0")}`,
-								};
-							}),
-					  }
-					: null,
+				creditInfo:
+					data.isCredit && data.creditDeposit !== null
+						? {
+								deposit: data.creditDeposit,
+								payments: data.creditPayments.map((payment) => {
+									const localDate = payment.deadline;
+									return {
+										...payment,
+										deadline:
+											localDate &&
+											`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
+												2,
+												"0"
+											)}-${String(localDate.getDate()).padStart(2, "0")}`,
+									};
+								}),
+						  }
+						: null,
 			};
 			onSubmit(CatalogItemPublishSchema.parse(formattedData));
 		},
@@ -149,23 +147,25 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 		append: appendCreditPayment,
 		remove: removeCreditPayment,
 	} = useFieldArray({
-		name: `credit.payments`,
+		name: `creditPayments`,
 		control,
 	});
 
-	const credit = watch(`credit`);
+	const isCredit = watch(`isCredit`);
+	const creditDeposit = watch(`creditDeposit`);
+	const creditPayments = watch(`creditPayments`);
 
 	const quantityIsUnlimited = watch(`unlimitedQuantity`);
 
 	useEffect(() => {
-		if (credit) {
-			const creditTotal = credit.deposit + credit.payments
-				.map((payment) => Number(payment.sum))
-				.reduce((sum, current) => sum + current, 0);
+		if (isCredit) {
+			const creditTotal =
+				(creditDeposit ? Number(creditDeposit) : 0) +
+				creditPayments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
 
 			setValue(`price`, creditTotal.toString());
 		}
-	}, [setValue, credit]);
+	}, [setValue, isCredit, creditDeposit, creditPayments]);
 
 	return (
 		<form onSubmit={handleSubmit(formattedOnSubmit)} className="gap-2 py-2 w-100 d-f fd-c">
@@ -300,7 +300,7 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 									label="Цена"
 									type="text"
 									required
-									disabled={!!credit}
+									disabled={isCredit}
 									value={isNaN(parseInt(value)) ? "" : value}
 									onChange={handleIntChange(onChange)}
 									variant="outlined"
@@ -361,32 +361,33 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 							label="Товар в рассрочку"
 							control={
 								<Checkbox
-									checked={!!credit}
+									checked={isCredit}
 									onChange={(_, checked) => {
 										if (checked) {
-											setValue(`credit`, {
-												deposit: "",
-												payments: [
-													{
-														sum: "",
-														deadline: null,
-													},
-												],
-											});
+											setValue(`isCredit`, true);
+											setValue(`creditDeposit`, "");
+											setValue(`creditPayments`, [
+												{
+													sum: "",
+													deadline: null,
+												},
+											]);
 										} else {
-											setValue(`credit`, null);
+											setValue(`isCredit`, false);
+											setValue(`creditDeposit`, null);
+											setValue(`creditPayments`, []);
 										}
 									}}
 								/>
 							}
 						/>
-						{credit && (
+						{isCredit && (
 							<>
 								<Typography>Рассрочка</Typography>
 								<div className="gap-1 d-f fd-c">
 									<div className="gap-1 d-f fd-r">
 										<Controller
-											name={`credit.deposit`}
+											name={`creditDeposit`}
 											control={control}
 											render={({ field: { value, onChange }, fieldState: { error } }) => (
 												<TextField
@@ -412,7 +413,7 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 										<div className="gap-1 d-f fd-r" key={field.id}>
 											<Controller
 												key={field.id}
-												name={`credit.payments.${paymentIndex}.sum`}
+												name={`creditPayments.${paymentIndex}.sum`}
 												control={control}
 												render={({ field: { value, onChange }, fieldState: { error } }) => (
 													<TextField
@@ -436,7 +437,7 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 
 											<Controller
 												key={field.id}
-												name={`credit.payments.${paymentIndex}.deadline`}
+												name={`creditPayments.${paymentIndex}.deadline`}
 												control={control}
 												render={({ field: { value, onChange } }) => (
 													<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="ru">
@@ -449,7 +450,7 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 													</LocalizationProvider>
 												)}
 											/>
-											{credit.payments.length > 1 && (
+											{creditPaymentsFields.length > 1 && (
 												<Button
 													sx={{ color: "error.main" }}
 													style={{ width: "fit-content" }}

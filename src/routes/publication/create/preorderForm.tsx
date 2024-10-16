@@ -90,21 +90,17 @@ const CatalogItemPublishPreorderResolver = z.object({
 		.number()
 		.positive({ message: "Количество должно быть положительным числом" })
 		.nullable(),
-	credit: z
+	creditDeposit: z.coerce
+		.number({ message: "Укажите сумму депозита" })
+		.positive({ message: "Сумма должна быть положительным числом" }),
+	creditPayments: z
 		.object({
-			deposit: z.coerce
-				.number({ message: "Укажите сумму депозита" })
+			sum: z.coerce
+				.number({ message: "Укажите сумму кредитного платежа" })
 				.positive({ message: "Сумма должна быть положительным числом" }),
-			payments: z
-				.object({
-					sum: z.coerce
-						.number({ message: "Укажите сумму кредитного платежа" })
-						.positive({ message: "Сумма должна быть положительным числом" }),
-					deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
-				})
-				.array(),
+			deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
 		})
-		.nullable(),
+		.array(),
 });
 
 type PublicationCreatePreorderFormData = {
@@ -174,9 +170,9 @@ const ItemForm: React.FC<ItemFormProps> = ({
 
 	useEffect(() => {
 		if (isCredit) {
-			const creditTotal = creditDeposit
-				? Number(creditDeposit)
-				: 0 + creditPayments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
+			const creditTotal =
+				(creditDeposit ? Number(creditDeposit) : 0) +
+				creditPayments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
 
 			setValue(`items.${index}.price`, creditTotal.toString());
 		}
@@ -386,11 +382,13 @@ const ItemForm: React.FC<ItemFormProps> = ({
 								onChange={(_, checked) => {
 									if (checked) {
 										setValue(`items.${index}.isCredit`, true);
-										setValue(`items.${index}.creditDeposit`, "")
-										setValue(`items.${index}.creditPayments`, [{
-											sum: "",
-											deadline: null
-										}])
+										setValue(`items.${index}.creditDeposit`, "");
+										setValue(`items.${index}.creditPayments`, [
+											{
+												sum: "",
+												deadline: null,
+											},
+										]);
 									} else {
 										setValue(`items.${index}.isCredit`, false);
 										setValue(`items.${index}.creditDeposit`, null);
