@@ -161,14 +161,16 @@ const ItemForm: React.FC<ItemFormProps> = ({
 		name: `items.${index}.creditPayments`,
 		control,
 	});
-	
+
 	const quantityIsUnlimited = watch(`items.${index}.unlimitedQuantity`);
 
 	const isCredit = watch(`items.${index}.isCredit`);
 	const creditDeposit = watch(`items.${index}.creditDeposit`);
 	const creditDepositTotal = creditDeposit ? Number(creditDeposit) : 0;
 	const creditPayments = watch(`items.${index}.creditPayments`);
-	const creditPaymentsTotal = creditPayments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
+	const creditPaymentsTotal = creditPayments
+		.map((payment) => Number(payment.sum))
+		.reduce((sum, current) => sum + current, 0);
 
 	useEffect(() => {
 		if (isCredit) {
@@ -597,24 +599,23 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 				items: data.items.map((itemVariation) => ({
 					...itemVariation,
 					productId: itemVariation.product?.id,
-					creditInfo:
-						itemVariation.isCredit && itemVariation.creditDeposit !== null
-							? {
-									deposit: itemVariation.creditDeposit,
-									payments: itemVariation.creditPayments.map((payment) => {
-										const localDate = payment.deadline;
-										return {
-											...payment,
-											deadline:
-												localDate &&
-												`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
-													2,
-													"0"
-												)}-${String(localDate.getDate()).padStart(2, "0")}`,
-										};
-									}),
-							  }
-							: null,
+					creditInfo: itemVariation.isCredit
+						? {
+								deposit: itemVariation.creditDeposit,
+								payments: itemVariation.creditPayments.map((payment) => {
+									const localDate = payment.deadline;
+									return {
+										...payment,
+										deadline:
+											localDate &&
+											`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
+												2,
+												"0"
+											)}-${String(localDate.getDate()).padStart(2, "0")}`,
+									};
+								}),
+						  }
+						: null,
 				})),
 			};
 			onSubmit(PublicationCreateSchema.parse(formattedData));
