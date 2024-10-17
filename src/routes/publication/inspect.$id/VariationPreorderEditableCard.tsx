@@ -79,6 +79,7 @@ const VariationPreorderUpdateResolver = z.object({
 		.number()
 		.positive({ message: "Количество должно быть положительным числом" })
 		.nullable(),
+	isCredit: z.boolean(),
 	creditDeposit: z.coerce
 		.number({ message: "Укажите сумму депозита" })
 		.positive({ message: "Сумма должна быть положительным числом" }),

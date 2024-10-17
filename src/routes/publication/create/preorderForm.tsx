@@ -90,6 +90,7 @@ const CatalogItemPublishPreorderResolver = z.object({
 		.number()
 		.positive({ message: "Количество должно быть положительным числом" })
 		.nullable(),
+	isCredit: z.boolean(),
 	creditDeposit: z.coerce
 		.number({ message: "Укажите сумму депозита" })
 		.positive({ message: "Сумма должна быть положительным числом" }),
@@ -594,32 +595,31 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 }) => {
 	const formattedOnSubmit = useCallback(
 		(data: PublicationCreatePreorderFormData) => {
-			console.log(data);
 			const formattedData = {
 				...data,
 				items: data.items.map((itemVariation) => ({
 					...itemVariation,
 					productId: itemVariation.product?.id,
-					creditInfo: itemVariation.isCredit
-						? {
-								deposit: itemVariation.creditDeposit,
-								payments: itemVariation.creditPayments.map((payment) => {
-									const localDate = payment.deadline;
-									return {
-										...payment,
-										deadline:
-											localDate &&
-											`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
-												2,
-												"0"
-											)}-${String(localDate.getDate()).padStart(2, "0")}`,
-									};
-								}),
-						  }
-						: null,
+					creditInfo:
+						itemVariation.isCredit && itemVariation.creditDeposit !== null
+							? {
+									deposit: itemVariation.creditDeposit,
+									payments: itemVariation.creditPayments.map((payment) => {
+										const localDate = payment.deadline;
+										return {
+											...payment,
+											deadline:
+												localDate &&
+												`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
+													2,
+													"0"
+												)}-${String(localDate.getDate()).padStart(2, "0")}`,
+										};
+									}),
+							  }
+							: null,
 				})),
 			};
-			console.log(formattedData);
 			onSubmit(PublicationCreateSchema.parse(formattedData));
 		},
 		[onSubmit]

@@ -24,6 +24,7 @@ import { getImageUrl } from "@utils/image";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 
+// TODO: category isActive
 const columns: GridColDef<CategoryGet>[] = [
 	{
 		field: "title",
