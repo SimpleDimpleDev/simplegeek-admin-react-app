@@ -1,41 +1,35 @@
 import { AdminGetBaseSchema } from "./Admin";
-import { InvoiceGetSchema } from "./Payment";
 import { z } from "zod";
 
-export const PreorderStatusSchema = z.enum([
-	"NEW",
-	"FUNDING",
-	"WAITING_FOR_RELEASE",
-	"FOREIGN_SHIPPING",
-	"LOCAL_SHIPPING",
-	"DISPATCH",
-	"FINISHED",
-]);
-export const ShippingCostIncludedSchema = z.enum(["FOREIGN", "FULL", "NOT"]);
+export const PreorderStatusSchema = z
+	.enum(["NEW", "FUNDING", "WAITING_FOR_RELEASE", "FOREIGN_SHIPPING", "LOCAL_SHIPPING", "DISPATCH", "FINISHED"])
+	.describe("PreorderStatus");
 
-export const PreorderCreateSchema = z.object({
-	title: z.string(),
-	expectedArrival: z.string().nullable(),
-});
+export const ShippingCostIncludedSchema = z.enum(["FOREIGN", "FULL", "NOT"]).describe("ShippingCostIncluded");
+
+export const PreorderCreateSchema = z
+	.object({
+		title: z.string(),
+		expectedArrival: z.string().nullable(),
+	})
+	.describe("PreorderCreate");
 
 export const PreorderGetSchema = AdminGetBaseSchema.extend({
 	title: z.string(),
 	status: PreorderStatusSchema,
 	expectedArrival: z.string().nullable(),
-});
+}).describe("PreorderGet");
 
-export const PreorderListGetSchema = z.object({
-	items: PreorderGetSchema.array(),
-});
+export const PreorderListGetSchema = z
+	.object({
+		items: PreorderGetSchema.array(),
+	})
+	.describe("PreorderListGet");
 
-export const PreorderUpdateSchema = z.object({
-	id: z.string(),
-	title: z.string(),
-	expectedArrival: z.string().nullable(),
-});
-
-export const PreorderOrderGetSchema = PreorderGetSchema.extend({
-	shippingCostIncluded: ShippingCostIncludedSchema,
-	foreignShippingInvoice: InvoiceGetSchema.nullable(),
-	localShippingInvoice: InvoiceGetSchema.nullable(),
-});
+export const PreorderUpdateSchema = z
+	.object({
+		id: z.string(),
+		title: z.string(),
+		expectedArrival: z.string().nullable(),
+	})
+	.describe("PreorderUpdate");

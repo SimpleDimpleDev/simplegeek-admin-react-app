@@ -105,7 +105,7 @@ export default function FaqRoute() {
 				onClose={closeDeletionDialog}
 				confirmButton={{
 					text: "Удалить",
-					onClick: () => deleteFAQItems(selectedItemIds.map(String)),
+					onClick: () => deleteFAQItems({ids: selectedItemIds.map(String)}),
 				}}
 				declineButton={{
 					text: "Отмена",

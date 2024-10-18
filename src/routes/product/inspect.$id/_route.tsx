@@ -121,7 +121,7 @@ export default function ProductInspectRoute() {
 													Масса
 												</Typography>
 												<Typography variant="subtitle0">
-													{product.physicalProperties.mass || "-"}
+													{product.physicalProperties.weight || "-"}
 												</Typography>
 											</div>
 										</div>

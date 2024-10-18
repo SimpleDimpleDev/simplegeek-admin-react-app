@@ -1,13 +1,14 @@
-import { FAQItemListGetSchema } from "@schemas/FAQ";
+import { FAQItemCreateSchema, FAQItemListGetSchema } from "@schemas/FAQ";
+
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
 
 export const FAQItemApi = adminApi.injectEndpoints({
 	endpoints: (build) => ({
-		createFAQItem: build.mutation({
+		createFAQItem: build.mutation<void, z.infer<typeof FAQItemCreateSchema>>({
 			query: (item) => ({
-				url: "/admin/faq",
+				url: "/admin/faq-item",
 				method: "POST",
 				body: item,
 			}),
@@ -23,18 +24,18 @@ export const FAQItemApi = adminApi.injectEndpoints({
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "FAQItem", id: item.id })),
 		}),
 
-		updateFAQItem: build.mutation({
+		updateFAQItem: build.mutation<void, z.infer<typeof FAQItemCreateSchema>>({
 			query: (item) => ({
-				url: "/admin/faq",
+				url: "/admin/faq-item",
 				method: "PUT",
 				body: item,
 			}),
 			invalidatesTags: ["FAQItem"],
 		}),
 
-		deleteFAQItems: build.mutation({
-			query: (ids: string[]) => ({
-				url: "/admin/faq",
+		deleteFAQItems: build.mutation<void, { ids: string[] }>({
+			query: ({ ids }) => ({
+				url: "/admin/faq-item",
 				method: "DELETE",
 				body: { ids },
 			}),

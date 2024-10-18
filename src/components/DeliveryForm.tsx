@@ -145,13 +145,7 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 							handleChooseCdekAddress({ deliveryType, tariff, address });
 						}}
 						onReady={() => {}}
-						// TODO: mass vs weight
-						packages={packages.map((pkg) => ({
-							width: pkg.width,
-							height: pkg.height,
-							length: pkg.length,
-							weight: pkg.mass,
-						}))}
+						packages={packages}
 					/>
 				</Box>
 			</Modal>

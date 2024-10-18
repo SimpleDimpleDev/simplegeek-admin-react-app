@@ -32,7 +32,7 @@ type ProductUpdateFormData = {
 		width: string;
 		height: string;
 		length: string;
-		mass: string;
+		weight: string;
 	} | null;
 	images: {
 		id: string;
@@ -65,7 +65,7 @@ const ProductUpdateResolver = z.object({
 			length: z.coerce
 				.number({ message: "Укажите длину" })
 				.positive({ message: "Длина должна быть положительным числом" }),
-			mass: z.coerce
+			weight: z.coerce
 				.number({ message: "Укажите массу" })
 				.positive({ message: "Масса должна быть положительным числом" }),
 		})
@@ -118,7 +118,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 					width: product.physicalProperties.width.toString(),
 					height: product.physicalProperties.height.toString(),
 					length: product.physicalProperties.length.toString(),
-					mass: product.physicalProperties.mass.toString(),
+					weight: product.physicalProperties.weight.toString(),
 			  }
 			: null,
 		images: product.images.map((image) => ({
@@ -263,7 +263,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 														width: "",
 														height: "",
 														length: "",
-														mass: "",
+														weight: "",
 													});
 												}
 											}}
@@ -349,7 +349,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 							/>
 
 							<Controller
-								name="physicalProperties.mass"
+								name="physicalProperties.weight"
 								control={control}
 								render={({ field: { onChange, value }, fieldState: { error } }) => (
 									<TextField

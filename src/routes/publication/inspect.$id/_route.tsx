@@ -211,7 +211,7 @@ export default function PublicationInspectRoute() {
 				) : publication.preorder === null ? (
 					<div className="bg-primary p-2 w-max h-max ai-c d-f jc-c">
 						<VariationAddStockForm
-							onSubmit={(data) => addVariation({ publicationId: publicationId, data })}
+							onSubmit={(data, isActive) => addVariation({ publicationId: publicationId, data, isActive })}
 							onClose={closeAddVariationModal}
 							categoryId={publication.items.at(0)?.product.category.id || ""}
 							selectedProducts={publication.items.map((item) => item.product)}
@@ -221,7 +221,7 @@ export default function PublicationInspectRoute() {
 				) : (
 					<div className="bg-primary p-2 w-max h-max ai-c d-f jc-c">
 						<VariationAddPreorderForm
-							onSubmit={(data) => addVariation({ publicationId: publicationId, data })}
+							onSubmit={(data, isActive) => addVariation({ publicationId: publicationId, data, isActive })}
 							onClose={closeAddVariationModal}
 							categoryId={publication.items.at(0)?.product.category.id || ""}
 							selectedProducts={publication.items.map((item) => item.product)}

@@ -42,6 +42,7 @@ type VariationAddPreorderFormData = {
 		sum: string;
 		deadline: Date | null;
 	}[];
+	isActive: boolean;
 };
 
 const VariationAddPreorderResolver = z.object({
@@ -68,10 +69,11 @@ const VariationAddPreorderResolver = z.object({
 			deadline: z.date({ message: "Укажите срок действия кредитного платежа" }),
 		})
 		.array(),
+	isActive: z.boolean(),
 });
 
 interface VariationAddPreorderFormProps {
-	onSubmit: (data: z.infer<typeof CatalogItemPublishSchema>) => void;
+	onSubmit: (data: z.infer<typeof CatalogItemPublishSchema>, isActive: boolean) => void;
 	onClose: () => void;
 	categoryId: string;
 	selectedProducts: ProductGet[];
@@ -111,6 +113,7 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 			isCredit: false,
 			creditDeposit: null,
 			creditPayments: [],
+			isActive: true,
 		},
 	});
 
@@ -138,7 +141,7 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 						  }
 						: null,
 			};
-			onSubmit(CatalogItemPublishSchema.parse(formattedData));
+			onSubmit(CatalogItemPublishSchema.parse(formattedData), data.isActive);
 		},
 		[onSubmit]
 	);
@@ -153,12 +156,15 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 	});
 
 	const quantityIsUnlimited = watch(`unlimitedQuantity`);
+	const addActive = watch(`isActive`);
 
 	const isCredit = watch(`isCredit`);
 	const creditDeposit = watch(`creditDeposit`);
 	const creditDepositTotal = creditDeposit ? Number(creditDeposit) : 0;
 	const creditPayments = watch(`creditPayments`);
-	const creditPaymentsTotal = creditPayments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
+	const creditPaymentsTotal = creditPayments
+		.map((payment) => Number(payment.sum))
+		.reduce((sum, current) => sum + current, 0);
 
 	useEffect(() => {
 		if (isCredit) {
@@ -475,12 +481,30 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 				</div>
 			</div>
 			<div className="gap-2 d-f fd-r">
-				<Button variant="contained" type="submit" disabled={!isDirty}>
-					{"Добавить"}
-				</Button>
 				<Button variant="contained" onClick={onClose} color="error">
 					{"Отмена"}
 				</Button>
+				<Button variant="contained" type="submit" disabled={!isDirty}>
+					{addActive ? "Добавить": "Создать"}
+				</Button>
+				<Controller
+					name="isActive"
+					control={control}
+					render={({ field: { value: isActive, onChange: onActiveChange } }) => (
+						<FormControlLabel
+							value={!isActive}
+							onChange={(_, checked) => {
+								if (checked) {
+									onActiveChange(false);
+								} else {
+									onActiveChange(true);
+								}
+							}}
+							control={<Checkbox />}
+							label="Создать скрытой"
+						/>
+					)}
+				/>
 			</div>
 		</form>
 	);

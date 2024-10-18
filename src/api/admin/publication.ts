@@ -71,12 +71,15 @@ export const publicationApi = adminApi.injectEndpoints({
 			transformResponse: (response) => validateData(MaxRatingGetSchema, response),
 		}),
 
-		addVariation: build.mutation<void, { data: z.infer<typeof CatalogItemPublishSchema>; publicationId: string }>({
-			query: ({ data, publicationId }) => ({
+		addVariation: build.mutation<
+			void,
+			{ data: z.infer<typeof CatalogItemPublishSchema>; publicationId: string; isActive: boolean }
+		>({
+			query: ({ data, publicationId, isActive }) => ({
 				url: "/admin/catalog-item",
 				method: "POST",
 				body: data,
-				params: { publicationId },
+				params: { publicationId, isActive },
 			}),
 			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),

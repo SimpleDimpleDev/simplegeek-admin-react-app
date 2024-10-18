@@ -3,6 +3,7 @@ import {
 	Button,
 	Checkbox,
 	Divider,
+	FormControlLabel,
 	InputAdornment,
 	Stack,
 	Switch,
@@ -31,6 +32,7 @@ type VariationAddStockFormData = {
 		value: string;
 	} | null;
 	quantityRestriction: string | null;
+	isActive: boolean;
 };
 
 const VariationAddStockResolver = z.object({
@@ -47,10 +49,11 @@ const VariationAddStockResolver = z.object({
 		.number()
 		.positive({ message: "Количество должно быть положительным числом" })
 		.nullable(),
+	isActive: z.boolean({ message: "Укажите активность" }),
 });
 
 interface VariationAddStockFormProps {
-	onSubmit: (data: z.infer<typeof CatalogItemPublishSchema>) => void;
+	onSubmit: (data: z.infer<typeof CatalogItemPublishSchema>, isActive: boolean) => void;
 	onClose: () => void;
 	categoryId: string;
 	selectedProducts: ProductGet[];
@@ -85,6 +88,7 @@ const VariationAddStockForm: React.FC<VariationAddStockFormProps> = ({
 			quantity: "",
 			discount: null,
 			quantityRestriction: null,
+			isActive: true,
 		},
 	});
 
@@ -95,7 +99,7 @@ const VariationAddStockForm: React.FC<VariationAddStockFormProps> = ({
 				productId: data.product?.id,
 				creditInfo: null,
 			};
-			onSubmit(CatalogItemPublishSchema.parse(formattedData));
+			onSubmit(CatalogItemPublishSchema.parse(formattedData), data.isActive);
 		},
 		[onSubmit]
 	);
@@ -104,6 +108,8 @@ const VariationAddStockForm: React.FC<VariationAddStockFormProps> = ({
 
 	const discount = watch(`discount`);
 	const priceString = watch(`price`);
+
+	const addActive = watch(`isActive`);
 
 	const priceAfterDiscount = useMemo(() => {
 		if (!discount) return null;
@@ -331,12 +337,30 @@ const VariationAddStockForm: React.FC<VariationAddStockFormProps> = ({
 				</Stack>
 			</div>
 			<div className="gap-2 d-f fd-r">
-				<Button variant="contained" type="submit" disabled={!isDirty}>
-					{"Добавить"}
-				</Button>
 				<Button variant="contained" onClick={onClose} color="error">
 					{"Отмена"}
 				</Button>
+				<Button variant="contained" type="submit" disabled={!isDirty}>
+					{addActive ? "Добавить" : "Создать"}
+				</Button>
+				<Controller
+					name="isActive"
+					control={control}
+					render={({ field: { value: isActive, onChange: onActiveChange } }) => (
+						<FormControlLabel
+							value={!isActive}
+							onChange={(_, checked) => {
+								if (checked) {
+									onActiveChange(false);
+								} else {
+									onActiveChange(true);
+								}
+							}}
+							control={<Checkbox />}
+							label="Создать скрытой"
+						/>
+					)}
+				/>
 			</div>
 		</form>
 	);

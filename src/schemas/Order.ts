@@ -1,9 +1,10 @@
 import { CreditGetSchema, InvoiceGetSchema } from "./Payment";
-import { DeliveryOrderSchema, DeliverySchema } from "./Delivery";
+import { PreorderGetSchema, ShippingCostIncludedSchema } from "./Preorder";
 
 import { AdminGetBaseSchema } from "./Admin";
+import { DeliverySchema } from "./Delivery";
 import { IdSchema } from "./Primitives";
-import { PreorderOrderGetSchema } from "./Preorder";
+import { PhysicalPropertiesSchema } from "./PhysicalProperties";
 import { UserGetSchema } from "./User";
 import { z } from "zod";
 
@@ -21,20 +22,41 @@ export const OrderCreateSchema = z.object({
 	delivery: DeliverySchema.nullable(),
 });
 
-export const OrderItemGetSchema = z.object({
-	id: IdSchema,
-	title: z.string(),
-	image: z.string(),
-	quantity: z.number(),
-	sum: z.number(),
-	credit: CreditGetSchema.nullable(),
-});
+export const OrderItemGetSchema = z.object(
+	{
+		id: IdSchema,
+		catalogItemLink: z.string().nullable(),
+		catalogItemId: z.string().nullable(),
+		title: z.string(),
+		image: z.string(),
+		quantity: z.number(),
+		sum: z.number(),
+		credit: CreditGetSchema.nullable(),
+		physicalProperties: PhysicalPropertiesSchema.nullable(),
+	},
+	{ description: "OrderItemGet" }
+);
+
+export const OrderDeliveryGetSchema = DeliverySchema.extend({
+	tracking: z
+		.object({
+			code: z.string(),
+			link: z.string(),
+		})
+		.nullable(),
+}).describe("OrderDelivery");
+
+export const OrderPreorderGetSchema = PreorderGetSchema.extend({
+	shippingCostIncluded: ShippingCostIncludedSchema,
+	foreignShippingInvoice: InvoiceGetSchema.nullable(),
+	localShippingInvoice: InvoiceGetSchema.nullable(),
+}).describe("OrderPreorderGet");
 
 export const OrderGetSchema = AdminGetBaseSchema.extend({
 	user: UserGetSchema,
 	status: OrderStatusSchema,
-	delivery: DeliveryOrderSchema.nullable(),
-	preorder: PreorderOrderGetSchema.nullable(),
+	delivery: OrderDeliveryGetSchema.nullable(),
+	preorder: OrderPreorderGetSchema.nullable(),
 	items: OrderItemGetSchema.array(),
 	initialInvoice: InvoiceGetSchema,
 });

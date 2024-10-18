@@ -54,7 +54,7 @@ type ProductCreateFormData = {
 		width: string;
 		height: string;
 		length: string;
-		mass: string;
+		weight: string;
 	} | null;
 	images: {
 		properties: ImageEditProps;
@@ -85,7 +85,7 @@ const ProductCreateResolver = z.object({
 			length: z.coerce
 				.number({ message: "Укажите длину" })
 				.positive({ message: "Длина должна быть положительным числом" }),
-			mass: z.coerce
+			weight: z.coerce
 				.number({ message: "Укажите массу" })
 				.positive({ message: "Масса должна быть положительным числом" }),
 		})
@@ -144,7 +144,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 			width: "",
 			height: "",
 			length: "",
-			mass: "",
+			weight: "",
 		},
 		images: [],
 		filterGroups: [],
@@ -388,7 +388,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 														width: "",
 														height: "",
 														length: "",
-														mass: "",
+														weight: "",
 													});
 												}
 											}}
@@ -473,7 +473,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 								/>
 
 								<Controller
-									name="physicalProperties.mass"
+									name="physicalProperties.weight"
 									control={control}
 									render={({ field: { onChange, value }, fieldState: { error } }) => (
 										<TextField
