@@ -38,6 +38,6 @@ export const CreditGetSchema = z
 		payments: z.object({
 			invoice: InvoiceGetSchema,
 			deadline: ISOToDateSchema,
-		}),
+		}).array(),
 	})
 	.describe("CreditGet");
