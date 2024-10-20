@@ -8,4 +8,5 @@ export const CreateResponseSchema = z.object({
 export const ApiErrorSchema = z.object({
 	title: z.string(),
 	message: z.string(),
+	details: z.string().array().nullable(),
 });

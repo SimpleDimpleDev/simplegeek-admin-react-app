@@ -250,9 +250,12 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 		}
 	};
 
-	const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
+	const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
 		if (event.key === "Enter") {
-			event.preventDefault();
+			const target = event.target as HTMLElement;
+			if (target.tagName === "FORM") {
+				event.preventDefault();
+			}
 		}
 	};
 
