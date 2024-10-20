@@ -1,12 +1,9 @@
 import { Straighten } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import {
-
 	type GridColDef,
 	type GridLocaleText,
-
 	DataGrid,
-
 	GridRowSelectionModel,
 	useGridApiRef,
 	GridRowIdGetter,
@@ -216,9 +213,9 @@ const AdminTable = ({
 	const apiRef = useGridApiRef();
 	return (
 		<>
-			<div className="d-f fd-c gap-2 pt-2">
+			<div className="gap-2 pt-2 d-f fd-c">
 				<div className="w-100 d-f fd-r jc-sb">
-					<div className="d-f fd-r gap-1 ai-c">
+					<div className="gap-1 ai-c d-f fd-r">
 						<IconButton
 							onClick={() =>
 								apiRef.current.autosizeColumns({
@@ -233,7 +230,7 @@ const AdminTable = ({
 						</IconButton>
 						{leftHeaderButtons}
 					</div>
-					<div className="d-f fd-r gap-1 ai-c">{headerButtons}</div>
+					<div className="gap-1 ai-c d-f fd-r">{headerButtons}</div>
 				</div>
 			</div>
 
@@ -247,6 +244,11 @@ const AdminTable = ({
 					onRowSelectionModelChange={onRowSelect}
 					hideFooter
 					getRowId={getRowId}
+					initialState={{
+						sorting: {
+							sortModel: [{ field: "createdAt", sort: "desc" }],
+						},
+					}}
 					sx={{
 						"& .MuiDataGrid-columnHeaderTitle": {
 							fontSize: 14,
