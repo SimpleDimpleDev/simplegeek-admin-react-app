@@ -76,9 +76,10 @@ export default function UserInspectRoute() {
 	};
 
 	const handleUpdateRole = () => {
+		if (!user) return;
 		if (!roleEditing) return;
 		if (selectedRole === "UNDEFINED") return;
-		updateUserRole({ role: selectedRole });
+		updateUserRole({ id: user.id, role: selectedRole });
 	};
 
 	return (

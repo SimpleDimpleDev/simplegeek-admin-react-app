@@ -25,11 +25,11 @@ export const userApi = adminApi.injectEndpoints({
 			providesTags: ["User"],
 		}),
 
-		updateUserRole: build.mutation<void, { role: z.infer<typeof UserRoleSchema> }>({
-			query: ({ role }) => ({
+		updateUserRole: build.mutation<void, { id: string; role: z.infer<typeof UserRoleSchema> }>({
+			query: ({ id, role }) => ({
 				url: "/admin/user/role",
 				method: "PATCH",
-				body: { role },
+				body: { id, role },
 			}),
 		}),
 	}),
