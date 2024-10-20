@@ -20,6 +20,7 @@ function App() {
 		return <LoadingSpinner isLoading />;
 	}
 
+	console.log("user", user);
 	if (!user.identity || !user.identity.isAdmin) {
 		window.location.href = "https://simplegeek.ru";
 	}
