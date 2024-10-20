@@ -102,34 +102,36 @@ export default function UserInspectRoute() {
 								<Typography variant="h5">Пользователь {user.email} </Typography>
 							</div>
 							<div className="section">
-								<FormControl disabled={!roleEditing}>
-									<InputLabel id="demo-simple-select-label">Статус заказа</InputLabel>
-									<Select
-										labelId="demo-simple-select-label"
-										id="demo-simple-select"
-										value={selectedRole}
-										label="Статус заказа"
-										onChange={handleSelectRole}
-									>
-										{Array.from(userRoleTitles.entries()).map(([role, roleTitle]) => (
-											<MenuItem value={role}>{roleTitle}</MenuItem>
-										))}
-									</Select>
-								</FormControl>
-								{roleEditing ? (
-									<>
-										<IconButton sx={{ color: "success.main" }} onClick={handleUpdateRole}>
-											<Check />
+								<div className="gap-1 ai-c d-f fd-r">
+									<FormControl disabled={!roleEditing}>
+										<InputLabel id="demo-simple-select-label">Роль</InputLabel>
+										<Select
+											labelId="demo-simple-select-label"
+											id="demo-simple-select"
+											value={selectedRole}
+											label="Роль"
+											onChange={handleSelectRole}
+										>
+											{Array.from(userRoleTitles.entries()).map(([role, roleTitle]) => (
+												<MenuItem value={role}>{roleTitle}</MenuItem>
+											))}
+										</Select>
+									</FormControl>
+									{roleEditing ? (
+										<>
+											<IconButton sx={{ color: "success.main" }} onClick={handleUpdateRole}>
+												<Check />
+											</IconButton>
+											<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditRole}>
+												<Close />
+											</IconButton>
+										</>
+									) : (
+										<IconButton onClick={handleStartEditRole}>
+											<Edit />
 										</IconButton>
-										<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditRole}>
-											<Close />
-										</IconButton>
-									</>
-								) : (
-									<IconButton onClick={handleStartEditRole}>
-										<Edit />
-									</IconButton>
-								)}
+									)}
+								</div>
 								<Typography variant="h5">Информация</Typography>
 								<Typography variant="body1">Email: {user.email}</Typography>
 								<Typography variant="body1">VK ID: {user.vkId ?? "Не подключён"}</Typography>

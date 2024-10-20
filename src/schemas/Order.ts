@@ -25,7 +25,6 @@ export const OrderCreateSchema = z.object({
 export const OrderItemGetSchema = z.object(
 	{
 		id: IdSchema,
-		catalogItemLink: z.string().nullable(),
 		title: z.string(),
 		image: z.string(),
 		quantity: z.number(),

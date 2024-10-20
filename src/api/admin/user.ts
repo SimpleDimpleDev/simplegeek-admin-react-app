@@ -31,6 +31,7 @@ export const userApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				body: { id, role },
 			}),
+			invalidatesTags: (_result, _error, { id }) => [{ type: "User", id }],
 		}),
 	}),
 });
