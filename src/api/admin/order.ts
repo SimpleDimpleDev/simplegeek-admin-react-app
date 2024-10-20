@@ -8,7 +8,7 @@ export const orderApi = adminApi.injectEndpoints({
 	endpoints: (build) => ({
 		getOrder: build.query<z.infer<typeof OrderGetSchema>, { orderId: string }>({
 			query: ({ orderId }) => ({
-				url: `/admin/order`,
+				url: "/admin/order",
 				params: { id: orderId },
 				method: "GET",
 			}),
@@ -18,7 +18,7 @@ export const orderApi = adminApi.injectEndpoints({
 
 		getOrderEditableProps: build.query<z.infer<typeof OrderEditablePropsGetSchema>, { orderId: string }>({
 			query: ({ orderId }) => ({
-				url: `/admin/order/editable-props`,
+				url: "/admin/order/editable-props",
 				params: { id: orderId },
 				method: "GET",
 			}),
@@ -27,7 +27,7 @@ export const orderApi = adminApi.injectEndpoints({
 
 		updateOrderStatus: build.mutation<void, z.infer<typeof OrderUpdateStatusSchema>>({
 			query: (body) => ({
-				url: `/admin/order/status`,
+				url: "/admin/order/status",
 				method: "PATCH",
 				body,
 			}),
@@ -36,7 +36,7 @@ export const orderApi = adminApi.injectEndpoints({
 
 		updateOrderDelivery: build.mutation<void, z.infer<typeof OrderUpdateDeliverySchema>>({
 			query: (body) => ({
-				url: `/admin/order/delivery`,
+				url: "/admin/order/delivery",
 				method: "PATCH",
 				body,
 			}),

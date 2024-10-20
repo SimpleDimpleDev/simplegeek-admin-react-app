@@ -1,17 +1,20 @@
 import { AdminGetBaseSchema } from "./Admin";
 import { z } from "zod";
 
-export const UserAuthoritySchema = z
+export const UserIdentitySchema = z
 	.object({
 		email: z.string(),
 		isAdmin: z.boolean(),
 	})
-	.describe("UserAuthority");
+	.describe("UserIdentity");
+
+export const UserRoleSchema = z.enum(["Admin", "Customer"]);
 
 export const UserGetSchema = AdminGetBaseSchema.extend({
 	email: z.string(),
 	verified: z.boolean(),
 	vkId: z.string().nullable(),
+	role: UserRoleSchema,
 }).describe("UserGet");
 
 export const UserListGetSchema = z

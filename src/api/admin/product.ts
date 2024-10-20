@@ -50,7 +50,7 @@ export const productApi = adminApi.injectEndpoints({
 
 		getProduct: build.query<z.infer<typeof ProductGetSchema>, { productId: string }>({
 			query: ({ productId }) => ({
-				url: `/admin/product`,
+				url: "/admin/product",
 				params: { id: productId },
 				method: "GET",
 			}),
@@ -92,7 +92,7 @@ export const productApi = adminApi.injectEndpoints({
 
 		deleteProduct: build.mutation<void, { productId: string }>({
 			query: ({ productId }) => ({
-				url: `/admin/product`,
+				url: "/admin/product",
 				method: "DELETE",
 				params: { id: productId },
 			}),

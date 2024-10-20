@@ -1,6 +1,6 @@
 import { Configuration, FrontendApi } from "@ory/client";
 
-import { UserAuthority } from "@appTypes/User";
+import { UserIdentity } from "@appTypes/User";
 import { isAxiosError } from "axios";
 
 const oryClient = new FrontendApi(
@@ -15,11 +15,11 @@ const oryClient = new FrontendApi(
 export class AuthApiClient {
 	private static client: FrontendApi = oryClient;
 
-	public static async getUserAuthority(): Promise<UserAuthority | null> {
+	public static async getUserAuthority(): Promise<UserIdentity | null> {
 		try {
 			const oryResponse = await this.client.toSession();
 			const session = oryResponse.data || null;
-			const userAuthority: UserAuthority | null = session?.identity
+			const userAuthority: UserIdentity | null = session?.identity
 				? {
 						email: session.identity.traits.email!,
 						isAdmin: session.identity.schema_id === "Admin",

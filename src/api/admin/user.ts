@@ -1,4 +1,4 @@
-import { UserGetSchema, UserListGetSchema } from "@schemas/User";
+import { UserGetSchema, UserListGetSchema, UserRoleSchema } from "@schemas/User";
 
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
@@ -8,7 +8,7 @@ export const userApi = adminApi.injectEndpoints({
 	endpoints: (build) => ({
 		getUser: build.query<z.infer<typeof UserGetSchema>, { userId: string }>({
 			query: ({ userId }) => ({
-				url: `/admin/user`,
+				url: "/admin/user",
 				params: { id: userId },
 				method: "GET",
 			}),
@@ -24,7 +24,15 @@ export const userApi = adminApi.injectEndpoints({
 			transformResponse: (response) => validateData(UserListGetSchema, response),
 			providesTags: ["User"],
 		}),
+
+		updateUserRole: build.mutation<void, { role: z.infer<typeof UserRoleSchema> }>({
+			query: ({ role }) => ({
+				url: "/admin/user/role",
+				method: "PATCH",
+				body: { role },
+			}),
+		}),
 	}),
 });
 
-export const { useGetUserQuery, useGetUserListQuery } = userApi;
+export const { useGetUserQuery, useGetUserListQuery, useUpdateUserRoleMutation } = userApi;

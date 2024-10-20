@@ -7,8 +7,10 @@ import { LoadingSpinner } from "@components/LoadingSpinner";
 import { UserGet } from "@appTypes/User";
 import { useGetUserListQuery } from "@api/admin/user";
 import { useNavigate } from "react-router-dom";
+import { userRoleTitles } from "src/constants";
 
 const columns: GridColDef<UserGet>[] = [
+	{ field: "role", headerName: "Роль", renderCell: ({row}) => userRoleTitles.get(row.role) },
 	{ field: "email", headerName: "Email" },
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
