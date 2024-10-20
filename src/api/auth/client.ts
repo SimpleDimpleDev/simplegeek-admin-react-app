@@ -23,6 +23,7 @@ export class AuthApiClient {
 				? {
 						email: session.identity.traits.email!,
 						isAdmin: session.identity.schema_id === "Admin",
+						id: session.identity.id,
 				  }
 				: null;
 			return userIdentity;

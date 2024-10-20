@@ -17,8 +17,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { DateFormatter } from "@utils/format";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import { RootState } from "@state/store";
 import { UserRoleSchema } from "@schemas/User";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSelector } from "react-redux";
 import { useSnackbar } from "@hooks/useSnackbar";
 import { userRoleTitles } from "src/constants";
 import { z } from "zod";
@@ -29,6 +31,8 @@ export default function UserInspectRoute() {
 	const userId = params.id;
 	if (!userId) throw new Response("No user id provided", { status: 404 });
 	const { data: user, isLoading: userIsLoading } = useGetUserQuery({ userId });
+
+	const currentUser = useSelector((state: RootState) => state.user);
 
 	const [
 		updateUserRole,
@@ -102,37 +106,40 @@ export default function UserInspectRoute() {
 								<Typography variant="h5">Пользователь {user.email} </Typography>
 							</div>
 							<div className="section">
-								<div className="gap-1 ai-c d-f fd-r">
-									<FormControl disabled={!roleEditing}>
-										<InputLabel id="demo-simple-select-label">Роль</InputLabel>
-										<Select
-											labelId="demo-simple-select-label"
-											id="demo-simple-select"
-											value={selectedRole}
-											label="Роль"
-											onChange={handleSelectRole}
-										>
-											{Array.from(userRoleTitles.entries()).map(([role, roleTitle]) => (
-												<MenuItem value={role}>{roleTitle}</MenuItem>
-											))}
-										</Select>
-									</FormControl>
-									{roleEditing ? (
-										<>
-											<IconButton sx={{ color: "success.main" }} onClick={handleUpdateRole}>
-												<Check />
+								{currentUser.identity?.id === user.id ? (
+									<Typography variant="body1">Вы</Typography>
+								) : (
+									<div className="gap-1 ai-c d-f fd-r">
+										<FormControl disabled={!roleEditing}>
+											<InputLabel id="demo-simple-select-label">Роль</InputLabel>
+											<Select
+												labelId="demo-simple-select-label"
+												id="demo-simple-select"
+												value={selectedRole}
+												label="Роль"
+												onChange={handleSelectRole}
+											>
+												{Array.from(userRoleTitles.entries()).map(([role, roleTitle]) => (
+													<MenuItem value={role}>{roleTitle}</MenuItem>
+												))}
+											</Select>
+										</FormControl>
+										{roleEditing ? (
+											<>
+												<IconButton sx={{ color: "success.main" }} onClick={handleUpdateRole}>
+													<Check />
+												</IconButton>
+												<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditRole}>
+													<Close />
+												</IconButton>
+											</>
+										) : (
+											<IconButton onClick={handleStartEditRole}>
+												<Edit />
 											</IconButton>
-											<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditRole}>
-												<Close />
-											</IconButton>
-										</>
-									) : (
-										<IconButton onClick={handleStartEditRole}>
-											<Edit />
-										</IconButton>
-									)}
-								</div>
-								<Typography variant="h5">Информация</Typography>
+										)}
+									</div>
+								)}
 								<Typography variant="body1">Email: {user.email}</Typography>
 								<Typography variant="body1">VK ID: {user.vkId ?? "Не подключён"}</Typography>
 								<Typography variant="body1">
