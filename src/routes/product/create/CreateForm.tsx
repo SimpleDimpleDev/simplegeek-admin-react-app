@@ -253,9 +253,12 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
 		if (event.key === "Enter") {
 			const target = event.target as HTMLElement;
-			if (target.tagName === "FORM") {
-				event.preventDefault();
+			// Allow default behavior for textarea
+			if (target.tagName === "TEXTAREA") {
+				return; // Do nothing, allow new line
 			}
+			event.preventDefault(); // Prevent the default form submission for other inputs
+			event.stopPropagation(); // Stop the event from bubbling up
 		}
 	};
 
