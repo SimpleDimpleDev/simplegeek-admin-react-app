@@ -15,17 +15,17 @@ const oryClient = new FrontendApi(
 export class AuthApiClient {
 	private static client: FrontendApi = oryClient;
 
-	public static async getUserAuthority(): Promise<UserIdentity | null> {
+	public static async getUser(): Promise<UserIdentity | null> {
 		try {
 			const oryResponse = await this.client.toSession();
 			const session = oryResponse.data || null;
-			const userAuthority: UserIdentity | null = session?.identity
+			const userIdentity: UserIdentity | null = session?.identity
 				? {
 						email: session.identity.traits.email!,
 						isAdmin: session.identity.schema_id === "Admin",
 				  }
 				: null;
-			return userAuthority;
+			return userIdentity;
 		} catch (e) {
 			if (isAxiosError(e)) {
 				if (e.code === "ECONNREFUSED") {
