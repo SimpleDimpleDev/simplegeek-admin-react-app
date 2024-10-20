@@ -107,7 +107,7 @@ export default function UserInspectRoute() {
 							</div>
 							<div className="section">
 								{currentUser.identity?.id === user.id ? (
-									<Typography variant="body1">Вы</Typography>
+									<Typography variant="h5">Вы - {userRoleTitles.get(user.role)}</Typography>
 								) : (
 									<div className="gap-1 ai-c d-f fd-r">
 										<FormControl disabled={!roleEditing}>
