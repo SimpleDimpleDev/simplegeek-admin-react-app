@@ -9,7 +9,7 @@ interface UserState {
 
 const initialState: UserState = {
 	identity: null,
-	loading: false,
+	loading: true,
 };
 
 export const userSlice = createSlice({
