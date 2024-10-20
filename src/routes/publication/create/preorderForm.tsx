@@ -93,7 +93,8 @@ const CatalogItemPublishPreorderResolver = z.object({
 	isCredit: z.boolean(),
 	creditDeposit: z.coerce
 		.number({ message: "Укажите сумму депозита" })
-		.positive({ message: "Сумма должна быть положительным числом" }),
+		.positive({ message: "Сумма должна быть положительным числом" })
+		.nullable(),
 	creditPayments: z
 		.object({
 			sum: z.coerce

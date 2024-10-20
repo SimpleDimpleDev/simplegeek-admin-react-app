@@ -38,6 +38,59 @@ import { handleIntChange } from "@utils/forms";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+interface getDefaultFormValuesArgs {
+	products: ProductGet[];
+	productIds?: string[];
+}
+
+const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs) => {
+	const defaultValues: PublicationCreateStockFormData = {
+		link: null,
+		categoryId: null,
+		shippingCostIncluded: null,
+		items: [],
+		isActive: true,
+	};
+
+	if (productIds) {
+		let categoryId;
+		const productsToAdd: ProductGet[] = [];
+
+		for (const product of products) {
+			if (productIds.includes(product.id)) {
+				const productCategoryId = product.category.id;
+				if (categoryId) {
+					if (categoryId !== productCategoryId) {
+						break;
+					}
+				} else {
+					categoryId = productCategoryId;
+				}
+				productsToAdd.push(product);
+			}
+		}
+		defaultValues.categoryId = categoryId || null;
+		defaultValues.items = productsToAdd.map((product) => ({
+			product,
+			rating: "0",
+			price: "",
+			discount: null,
+			quantity: "",
+			quantityRestriction: null,
+		}));
+	} else {
+		defaultValues.items.push({
+			product: null,
+			rating: "0",
+			price: "",
+			discount: null,
+			quantity: "",
+			quantityRestriction: null,
+		});
+	}
+	return defaultValues;
+};
+
 type CatalogItemPublishStockFormData = {
 	product: ProductGet | null;
 	rating: string;
@@ -77,7 +130,7 @@ type PublicationCreateStockFormData = {
 const PublicationCreateStockResolver = z.object({
 	link: SlugResolver,
 	categoryId: z.string({ message: "Выберите категорию" }).min(1, { message: "Выберите категорию" }),
-	deliveryCostIncluded: z.null(),
+	shippingCostIncluded: z.null(),
 	items: CatalogItemPublishStockResolver.array().nonempty({
 		message: "У публикации должен быть хотя бы один товар",
 	}),
@@ -350,59 +403,6 @@ const ItemForm: React.FC<ItemFormProps> = ({
 			</div>
 		</div>
 	);
-};
-
-interface getDefaultFormValuesArgs {
-	products: ProductGet[];
-	productIds?: string[];
-}
-
-const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs) => {
-	const defaultValues: PublicationCreateStockFormData = {
-		link: null,
-		categoryId: null,
-		shippingCostIncluded: null,
-		items: [],
-		isActive: true,
-	};
-
-	if (productIds) {
-		let categoryId;
-		const productsToAdd: ProductGet[] = [];
-
-		for (const product of products) {
-			if (productIds.includes(product.id)) {
-				const productCategoryId = product.category.id;
-				if (categoryId) {
-					if (categoryId !== productCategoryId) {
-						break;
-					}
-				} else {
-					categoryId = productCategoryId;
-				}
-				productsToAdd.push(product);
-			}
-		}
-		defaultValues.categoryId = categoryId || null;
-		defaultValues.items = productsToAdd.map((product) => ({
-			product,
-			rating: "0",
-			price: "",
-			discount: null,
-			quantity: "",
-			quantityRestriction: null,
-		}));
-	} else {
-		defaultValues.items.push({
-			product: null,
-			rating: "0",
-			price: "",
-			discount: null,
-			quantity: "",
-			quantityRestriction: null,
-		});
-	}
-	return defaultValues;
 };
 
 type PublicationCreateStockFormProps = {
