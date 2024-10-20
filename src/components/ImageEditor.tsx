@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import CanvasPreview from "./CanvasPreview";
 import { Search } from "@mui/icons-material";
 
-const MOVE_DISTANCE = 0.1;
+const MOVE_DISTANCE = 0.3;
 
 function getDefaultCrop(mediaWidth: number, mediaHeight: number, cropWidth: number, cropHeight: number): Crop {
 	const cropPercentageHeight = (cropHeight / mediaHeight) * 100;
@@ -88,9 +88,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 		e.preventDefault();
 		if (!scale) return;
 		if (e.deltaY > 0) {
-			setScale(scale * 1.001);
+			setScale(scale * 1.01);
 		} else {
-			setScale(scale / 1.001);
+			setScale(scale / 1.01);
 		}
 	};
 
@@ -131,12 +131,12 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 		<div
 			ref={containerRef}
 			tabIndex={0}
-			className="d-f fd-c gap-1 ai-c bg-primary w-mc h-mc py-2 px-4 br-3"
+			className="gap-1 bg-primary px-4 py-2 w-mc h-mc ai-c br-3 d-f fd-c"
 			onKeyDown={handleKeyDown}
 			onWheel={handleScale}
 		>
 			<Typography variant="h6">Редактируйте изображение</Typography>
-			<div className="w-100 d-f fd-c js-sb gap-1">
+			<div className="gap-1 w-100 d-f fd-c js-sb">
 				<div>
 					<Typography variant="body1" sx={{ color: "typography.secondary" }}>
 						Используйте колёсико мыши для более точного изменения масштаба.
@@ -144,7 +144,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 					</Typography>
 				</div>
 
-				<div className="d-f fd-r ai-c gap-1">
+				<div className="gap-1 ai-c d-f fd-r">
 					<Search />
 					<Slider
 						value={scale}
@@ -157,7 +157,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 					/>
 				</div>
 			</div>
-			<div className="d-f fd-r gap-1">
+			<div className="gap-1 d-f fd-r">
 				{!!imageSrc && (
 					<ReactCrop
 						style={{ height: 768, width: 768 }}

@@ -101,7 +101,12 @@ interface ProductUpdateFormProps {
 	onSubmit: (data: ProductUpdate) => void;
 }
 
-export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, onSubmit, filterGroupList, filterGroupListIsLoading }) => {
+export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({
+	product,
+	onSubmit,
+	filterGroupList,
+	filterGroupListIsLoading,
+}) => {
 	const resolvedOnSubmit = (data: ProductUpdateFormData) => {
 		onSubmit(ProductUpdateSchema.parse(data));
 	};
@@ -164,7 +169,10 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 	} = useFieldArray({ control, name: "filterGroups" });
 
 	useEffect(() => {
-		setValue("images", product.images.map((image) => ({ id: image.id, index: image.index, url: image.url })));
+		setValue(
+			"images",
+			product.images.map((image) => ({ id: image.id, index: image.index, url: image.url }))
+		);
 	}, [product, setValue]);
 
 	const selectedFilterGroups = watch("filterGroups");
@@ -182,9 +190,15 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 		}
 	};
 
-	const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
+	const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
 		if (event.key === "Enter") {
-			event.preventDefault();
+			const target = event.target as HTMLElement;
+			// Allow default behavior for textarea
+			if (target.tagName === "TEXTAREA") {
+				return; // Do nothing, allow new line
+			}
+			event.preventDefault(); // Prevent the default form submission for other inputs
+			event.stopPropagation(); // Stop the event from bubbling up
 		}
 	};
 
@@ -298,7 +312,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 										slotProps={{
 											input: {
 												endAdornment: <Typography variant="body1">см</Typography>,
-											}
+											},
 										}}
 									/>
 								)}
@@ -320,7 +334,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 										slotProps={{
 											input: {
 												endAdornment: <Typography variant="body1">см</Typography>,
-											}
+											},
 										}}
 									/>
 								)}
@@ -342,7 +356,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 										slotProps={{
 											input: {
 												endAdornment: <Typography variant="body1">см</Typography>,
-											}
+											},
 										}}
 									/>
 								)}
@@ -364,7 +378,7 @@ export const ProductUpdateForm: React.FC<ProductUpdateFormProps> = ({ product, o
 										slotProps={{
 											input: {
 												endAdornment: <Typography variant="body1">г</Typography>,
-											}
+											},
 										}}
 									/>
 								)}
