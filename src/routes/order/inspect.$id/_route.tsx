@@ -21,6 +21,7 @@ import {
 } from "@api/admin/order";
 import { useNavigate, useParams } from "react-router-dom";
 
+import ActionDialog from "@components/ActionDialog";
 import { DeliveryForm } from "@components/DeliveryForm";
 import { DeliveryService } from "@appTypes/Delivery";
 import { LoadingOverlay } from "@components/LoadingOverlay";
@@ -74,6 +75,8 @@ export default function OrderInspectRoute() {
 	const showLoadingOverlay = statusUpdateIsLoading || deliveryUpdateIsLoading;
 
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
+
+	const [selfPickupConfirmDialogOpened, setSelfPickupConfirmDialogOpened] = useState(false);
 
 	const [statusEditing, setStatusEditing] = useState(false);
 	const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "UNDEFINED">("UNDEFINED");
@@ -130,6 +133,20 @@ export default function OrderInspectRoute() {
 		<>
 			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar open={snackbarOpened} autoHideDuration={2000} onClose={closeSnackbar} message={snackbarMessage} />
+			<ActionDialog
+				title="Выдать заказ?"
+				helperText="Вы собираетесь выдать этот заказ. Это действие необратимо."
+				opened={selfPickupConfirmDialogOpened}
+				onClose={() => setSelfPickupConfirmDialogOpened(false)}
+				confirmButton={{
+					text: "Удалить",
+					onClick: () => alert("TODO"),
+				}}
+				declineButton={{
+					text: "Отмена",
+					onClick: () => setSelfPickupConfirmDialogOpened(false),
+				}}
+			/>
 			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 				<Button onClick={() => navigate("/order/table")} sx={{ width: "fit-content", color: "warning.main" }}>
 					<ChevronLeft />К списку всех заказов
@@ -244,7 +261,7 @@ export default function OrderInspectRoute() {
 								{/* Initial Payment(Deposit) */}
 								<Paper sx={{ p: 2 }}>
 									<Typography variant="subtitle0">Депозит</Typography>
-									<Typography variant="body1">Сумма: {order.initialInvoice.amount}</Typography>
+									<Typography variant="body1">Сумма: {order.initialInvoice.amount}₽</Typography>
 									<Typography variant="body1">
 										Создан:{" "}
 										{new Intl.DateTimeFormat("ru", {
@@ -263,138 +280,159 @@ export default function OrderInspectRoute() {
 								</Paper>
 							</div>
 
-							{/* Delivery */}
-							<Paper sx={{ p: 2 }}>
-								{order.delivery ? (
-									editableProps.delivery ? (
-										<DeliveryForm
-											delivery={order.delivery}
-											onChange={(data) => {
-												updateDelivery({
-													id: order.id,
-													delivery: data,
-												});
-											}}
-											packages={[]}
-										/>
-									) : (
-										<Stack
-											gap={1}
-											direction={"column"}
-											divider={<Divider orientation="horizontal" flexItem />}
-										>
-											<div className="gap-2 d-f fd-c">
-												<Typography variant={"subtitle0"}>Доставка</Typography>
-												<div className={`d-f fd-r jc-sb`}>
-													<div className="gap-05 w-100 d-f fd-c">
-														<Typography
-															variant="body1"
-															sx={{ color: "typography.secondary" }}
-														>
-															Способ получения
-														</Typography>
-														<Typography variant="body1">
-															{deliveryServiceMapping[order.delivery.service]}
-														</Typography>
+							<div className="gap-2 d-f fd-r">
+								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
+									{/* Delivery */}
+									<Paper sx={{ p: 2 }}>
+										{order.delivery ? (
+											editableProps.delivery ? (
+												<DeliveryForm
+													delivery={order.delivery}
+													onChange={(data) => {
+														updateDelivery({
+															id: order.id,
+															delivery: data,
+														});
+													}}
+													packages={[]}
+												/>
+											) : (
+												<Stack
+													gap={1}
+													direction={"column"}
+													divider={<Divider orientation="horizontal" flexItem />}
+												>
+													<div className="gap-2 d-f fd-c">
+														<Typography variant={"subtitle0"}>Доставка</Typography>
+														<div className={`d-f fd-r jc-sb`}>
+															<div className="gap-05 w-100 d-f fd-c">
+																<Typography
+																	variant="body1"
+																	sx={{ color: "typography.secondary" }}
+																>
+																	Способ получения
+																</Typography>
+																<Typography variant="body1">
+																	{deliveryServiceMapping[order.delivery.service]}
+																</Typography>
+															</div>
+															<div className="gap-05 w-100 d-f fd-c">
+																<Typography
+																	variant="body1"
+																	sx={{ color: "typography.secondary" }}
+																>
+																	Пункт выдачи
+																</Typography>
+																<Typography variant="body1">
+																	{order.delivery.point?.code}
+																</Typography>
+															</div>
+														</div>
+														<div className="gap-05 d-f fd-c">
+															<Typography
+																variant="body1"
+																sx={{ color: "typography.secondary" }}
+															>
+																Адрес
+															</Typography>
+															<Typography variant="body1">
+																{order.delivery.point?.address}
+															</Typography>
+														</div>
 													</div>
-													<div className="gap-05 w-100 d-f fd-c">
-														<Typography
-															variant="body1"
-															sx={{ color: "typography.secondary" }}
-														>
-															Пункт выдачи
-														</Typography>
-														<Typography variant="body1">
-															{order.delivery.point?.code}
-														</Typography>
+													<div className="gap-2 d-f fd-c">
+														<Typography variant="subtitle0">Получатель</Typography>
+														<div className={`d-f fd-r jc-sb`}>
+															<div className="gap-05 w-100 d-f fd-c">
+																<Typography
+																	variant="body1"
+																	sx={{ color: "typography.secondary" }}
+																>
+																	ФИО
+																</Typography>
+																<Typography variant="subtitle0">
+																	{order.delivery.recipient.fullName}
+																</Typography>
+															</div>
+															<div className="gap-05 w-100 d-f fd-c">
+																<Typography
+																	variant="body1"
+																	sx={{ color: "typography.secondary" }}
+																>
+																	Номер телефона
+																</Typography>
+																<Typography variant="body1">
+																	{order.delivery.recipient.phone}
+																</Typography>
+															</div>
+														</div>
 													</div>
-												</div>
-												<div className="gap-05 d-f fd-c">
-													<Typography variant="body1" sx={{ color: "typography.secondary" }}>
-														Адрес
+												</Stack>
+											)
+										) : (
+											<>
+												<Typography variant="subtitle0">
+													Доставка оформляется после полной оплаты заказа и его прибытия на
+													склад.
+												</Typography>
+												<div className="gap-1 d-f fd-r">
+													<Typography
+														variant="subtitle1"
+														sx={{ color: "typography.secondary" }}
+													>
+														На складе ожидается:
 													</Typography>
 													<Typography variant="body1">
-														{order.delivery.point?.address}
+														{order.preorder?.expectedArrival ?? "Неизвестно"}
 													</Typography>
 												</div>
-											</div>
-											<div className="gap-2 d-f fd-c">
-												<Typography variant="subtitle0">Получатель</Typography>
-												<div className={`d-f fd-r jc-sb`}>
-													<div className="gap-05 w-100 d-f fd-c">
-														<Typography
-															variant="body1"
-															sx={{ color: "typography.secondary" }}
-														>
-															ФИО
-														</Typography>
-														<Typography variant="subtitle0">
-															{order.delivery.recipient.fullName}
-														</Typography>
-													</div>
-													<div className="gap-05 w-100 d-f fd-c">
-														<Typography
-															variant="body1"
-															sx={{ color: "typography.secondary" }}
-														>
-															Номер телефона
-														</Typography>
-														<Typography variant="body1">
-															{order.delivery.recipient.phone}
-														</Typography>
-													</div>
-												</div>
-											</div>
-										</Stack>
-									)
-								) : (
-									<>
-										<Typography variant="subtitle0">
-											Доставка оформляется после полной оплаты заказа и его прибытия на склад.
-										</Typography>
-										<div className="gap-1 d-f fd-r">
-											<Typography variant="subtitle1" sx={{ color: "typography.secondary" }}>
-												На складе ожидается:
-											</Typography>
-											<Typography variant="body1">
-												{order.preorder?.expectedArrival ?? "Неизвестно"}
-											</Typography>
-										</div>
-									</>
-								)}
-							</Paper>
+											</>
+										)}
+									</Paper>
 
-							{/* Items */}
-							<Paper sx={{ p: 2 }}>
-								<Typography variant="subtitle0">
-									{order.items.length} {getRuGoodsWord(order.items.length)}
-								</Typography>
-								<Stack divider={<Divider />}>
-									{order.items.map((item) => (
-										<div className="gap-1 py-1 d-f fd-c" key={item.id}>
-											<div className="w-100 d-f fd-r jc-sb">
-												<div className="gap-1 w-100 d-f fd-r">
-													<div className="br-2" style={{ width: 96, height: 96 }}>
-														<img
-															className="contain"
-															src={getImageUrl(item.image, "small")}
-														/>
-													</div>
-													<div className="d-f fd-c jc-sb">
-														<div className="gap-1">
-															<Typography variant="subtitle0">{item.title}</Typography>
-															<Typography variant="body1">{item.quantity} шт.</Typography>
+									{/* Items */}
+									<Paper sx={{ p: 2 }}>
+										<Typography variant="subtitle0">
+											{order.items.length} {getRuGoodsWord(order.items.length)}
+										</Typography>
+										<Stack divider={<Divider />}>
+											{order.items.map((item) => (
+												<div className="gap-1 py-1 d-f fd-c" key={item.id}>
+													<div className="w-100 d-f fd-r jc-sb">
+														<div className="gap-1 w-100 d-f fd-r">
+															<div className="br-2" style={{ width: 96, height: 96 }}>
+																<img
+																	className="contain"
+																	src={getImageUrl(item.image, "small")}
+																/>
+															</div>
+															<div className="d-f fd-c jc-sb">
+																<div className="gap-1">
+																	<Typography variant="subtitle0">
+																		{item.title}
+																	</Typography>
+																	<Typography variant="body1">
+																		{item.quantity} шт.
+																	</Typography>
+																</div>
+															</div>
+														</div>
+														<div className="d-f fd-r fs-0">
+															<Typography variant="h6">{item.sum} ₽</Typography>
 														</div>
 													</div>
 												</div>
-												<div className="d-f fd-r fs-0">
-													<Typography variant="h6">{item.sum} ₽</Typography>
-												</div>
-											</div>
-										</div>
-									))}
-								</Stack>
-							</Paper>
+											))}
+										</Stack>
+									</Paper>
+								</div>
+								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
+									<Paper sx={{ p: 2 }}>
+										<Typography variant="subtitle0">События</Typography>
+										Сюда события
+									</Paper>
+								</div>
+							</div>
 						</div>
 					)}
 				</LoadingSpinner>
