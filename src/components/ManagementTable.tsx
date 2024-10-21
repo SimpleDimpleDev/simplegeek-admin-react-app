@@ -13,7 +13,7 @@ import {
 	GridFilterModel,
 } from "@mui/x-data-grid";
 
-import { ReactNode, useCallback, useEffect } from "react";
+import { ReactNode, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
@@ -195,9 +195,8 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	aggregationFunctionLabelSize: "size",
 };
 
-const setFiltersToParams = (prevParams: URLSearchParams, model: GridFilterModel): void => {
+const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): void => {
 	const existingFilters = new Map<string, { operator: string; value: string }>();
-	const params = new URLSearchParams(prevParams);
 
 	params.forEach((value, key) => {
 		if (key === "f[]") {
@@ -265,26 +264,20 @@ const AdminTable = ({
 	data,
 	selectedRows,
 	onRowSelect,
-	initialFilters,
 	leftHeaderButtons,
 	headerButtons,
 	getRowId,
 }: Props) => {
 	const apiRef = useGridApiRef();
 	const [searchParams, setSearchParams] = useSearchParams();
-	useEffect(() => {
-		setSearchParams((prev) => {
-			setFiltersToParams(prev, { items: initialFilters || [] });
-			return prev;
-		});
-	}, [initialFilters, setSearchParams]);
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const setSearch = useCallback(
 		debounce((model: GridFilterModel) => {
 			console.log(model);
 			setSearchParams((prev) => {
-				setFiltersToParams(prev, model);
+				const params = new URLSearchParams(prev);
+				setFiltersToParams(params, model);
 				return prev;
 			});
 		}, 1000),
