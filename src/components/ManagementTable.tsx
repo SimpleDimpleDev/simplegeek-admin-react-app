@@ -198,12 +198,13 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): void => {
 	const existingFilters = new Map<string, { operator: string; value: string }>();
 	params.forEach((value, key) => {
-		if (key !== "f[]") return;
-		const filterParts = value.split(":");
-		existingFilters.set(filterParts[0], {
-			operator: filterParts[1],
-			value: filterParts[2],
-		});
+		if (key === "f[]") {
+			const filterParts = value.split(":");
+			existingFilters.set(filterParts[0], {
+				operator: filterParts[1],
+				value: filterParts[2],
+			});
+		}
 	});
 	// Update or add new filters
 	model.items.forEach((filter) => {
@@ -281,6 +282,7 @@ const AdminTable = ({
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const setSearch = useCallback(
 		debounce((model: GridFilterModel) => {
+			console.log(model);
 			setSearchParams((prev) => {
 				setFiltersToParams(prev, model);
 				return prev;
