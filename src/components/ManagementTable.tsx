@@ -1,5 +1,5 @@
 import { Straighten } from "@mui/icons-material";
-import { debounce, IconButton, Typography } from "@mui/material";
+import { IconButton, Typography } from "@mui/material";
 import {
 	type GridColDef,
 	type GridLocaleText,
@@ -198,10 +198,11 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): void => {
 	const filterItems = model.items;
 
-	params.delete("f");
 	if (filterItems.length > 0) {
 		const filter = filterItems[0];
-		params.append("f", `${filter.field}:${filter.operator}:${filter.value}`);
+		params.set("f", `${filter.field}:${filter.operator}:${filter.value}`);
+	} else {
+		params.delete("f");
 	}
 
 	params.delete("q[]");
@@ -260,16 +261,13 @@ const AdminTable = ({
 	const apiRef = useGridApiRef();
 	const [searchParams, setSearchParams] = useSearchParams();
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const setSearch = useCallback(
-		debounce((model: GridFilterModel) => {
-			console.log(model);
+		(model: GridFilterModel) =>
 			setSearchParams((prev) => {
 				setFiltersToParams(prev, model);
 				return prev;
-			});
-		}, 1000),
-		[]
+			}),
+		[setSearchParams]
 	);
 
 	return (
