@@ -1,5 +1,5 @@
 import { Straighten } from "@mui/icons-material";
-import { IconButton, Typography } from "@mui/material";
+import { debounce, IconButton, Typography } from "@mui/material";
 import {
 	type GridColDef,
 	type GridLocaleText,
@@ -13,7 +13,7 @@ import {
 	GridFilterModel,
 } from "@mui/x-data-grid";
 
-import { ReactNode } from "react";
+import { ReactNode, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
@@ -195,51 +195,28 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	aggregationFunctionLabelSize: "size",
 };
 
-// const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): void => {
-// 	const existingFilters = new Map<string, { operator: string; value: string }>();
+const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): void => {
+	const filterItems = model.items;
 
-// 	console.log("setFiltersToParams before", { params: Array.from(params.entries()), model });
+	params.delete("f");
+	if (filterItems.length > 0) {
+		const filter = filterItems[0];
+		params.append("f", `${filter.field}:${filter.operator}:${filter.value}`);
+	}
 
-// 	params.forEach((value, key) => {
-// 		if (key === "f[]") {
-// 			const filterParts = value.split(":");
-// 			existingFilters.set(filterParts[0], {
-// 				operator: filterParts[1],
-// 				value: filterParts[2],
-// 			});
-// 		}
-// 	});
-// 	// Update or add new filters
-// 	model.items.forEach((filter) => {
-// 		existingFilters.set(filter.field, {
-// 			operator: filter.operator,
-// 			value: filter.value,
-// 		});
-// 	});
-// 	// Clear existing filters in params
-// 	params.delete("f[]");
-// 	// Set new filters in params
-// 	existingFilters.forEach((value, key) => {
-// 		params.append("f[]", `${key}:${value.operator}:${value.value}`);
-// 	});
-
-// 	if (model.quickFilterValues && model.quickFilterValues.length > 0) {
-// 		model.quickFilterValues.forEach((value) => params.append("q[]", value));
-// 	} else {
-// 		params.delete("q[]");
-// 	}
-
-// 	console.log("setFiltersToParams after", { params: Array.from(params.entries()) });
-// };
+	params.delete("q[]");
+	if (model.quickFilterValues && model.quickFilterValues.length > 0) {
+		model.quickFilterValues.forEach((value) => params.append("q[]", value));
+	}
+};
 
 const getFiltersFromParams = (params: URLSearchParams): GridFilterModel => {
 	const items: GridFilterItem[] = [];
 	let quickFilterValues: string[] | undefined = undefined;
 
-	const paramFilterItems = params.getAll("f[]");
-	paramFilterItems.forEach((value) => {
-		const filterParts = value.split(":");
-		console.log({ filterParts });
+	const paramFilterItem = params.get("f");
+	if (paramFilterItem) {
+		const filterParts = paramFilterItem.split(":");
 		if (filterParts.length === 3) {
 			items.push({
 				field: filterParts[0],
@@ -247,7 +224,7 @@ const getFiltersFromParams = (params: URLSearchParams): GridFilterModel => {
 				value: filterParts[2],
 			});
 		}
-	});
+	}
 
 	const paramQuickFilterValues = params.getAll("q[]");
 	if (paramQuickFilterValues.length > 0) {
@@ -281,21 +258,19 @@ const AdminTable = ({
 	getRowId,
 }: Props) => {
 	const apiRef = useGridApiRef();
-	const [searchParams] = useSearchParams();
+	const [searchParams, setSearchParams] = useSearchParams();
 
-	// // eslint-disable-next-line react-hooks/exhaustive-deps
-	// const setSearch = useCallback(
-	// 	debounce((model: GridFilterModel) => {
-	// 		console.log(model);
-	// 		setSearchParams((prev) => {
-	// 			const params = new URLSearchParams(prev);
-	// 			console.log({ newParams: params });
-	// 			setFiltersToParams(params, model);
-	// 			return prev;
-	// 		});
-	// 	}, 1000),
-	// 	[]
-	// );
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const setSearch = useCallback(
+		debounce((model: GridFilterModel) => {
+			console.log(model);
+			setSearchParams((prev) => {
+				setFiltersToParams(prev, model);
+				return prev;
+			});
+		}, 1000),
+		[]
+	);
 
 	return (
 		<>
@@ -329,7 +304,7 @@ const AdminTable = ({
 					rowSelectionModel={selectedRows}
 					onRowSelectionModelChange={onRowSelect}
 					filterModel={getFiltersFromParams(searchParams)}
-					onFilterModelChange={(model) => console.log({ model })}
+					onFilterModelChange={setSearch}
 					hideFooter
 					getRowId={getRowId}
 					initialState={{
