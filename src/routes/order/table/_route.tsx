@@ -14,6 +14,7 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
 		field: "user",
 		headerName: "Пользователь",
+		flex: 1,
 		valueGetter: (_, row) => {
 			return row.user.email;
 		},
@@ -21,6 +22,7 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
 		field: "status",
 		headerName: "Статус",
+		flex: 1,
 		renderCell: ({ row: { status } }) => {
 			return <div className="w-100 h-100 ai-c d-f jc-c">{orderStatusBadges[status]}</div>;
 		},
@@ -33,6 +35,7 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
 		field: "deliveryService",
 		headerName: "Сервис доставки",
+		flex: 1,
 		valueGetter: (_, row) => (row.delivery ? row.delivery.service : "UNASSIGNED"),
 		renderCell: ({ row: { delivery } }) => {
 			if (!delivery) return deliveryServiceTitles.get("UNASSIGNED");
@@ -47,6 +50,7 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
 		field: "orderType",
 		headerName: "Тип заказа",
+		flex: 1,
 		renderCell: ({ row: { preorder } }) => {
 			if (!preorder) return "Розница";
 			return `Предзаказ: ${preorder.title}`;
@@ -55,12 +59,13 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
 		field: "orderItems",
 		headerName: "Товары",
+		flex: 1,
 		valueGetter: (_, row) => {
 			return row.items.map((item) => item.title).join(", ");
 		},
 		renderCell: ({ row: { items } }) => {
 			return (
-				<div className="h-mc ai-c d-f jc-s">
+				<div className="py-1 ai-c d-f fd-c jc-s">
 					{items.map((item) => (
 						<Typography key={item.id}>
 							{item.quantity} x {item.title}
@@ -70,8 +75,8 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 			);
 		},
 	},
-	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
-	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
+	{ field: "createdAt", headerName: "Создан", flex: 1, type: "dateTime" },
+	{ field: "updatedAt", headerName: "Обновлен", flex: 1, type: "dateTime" },
 ];
 
 export default function OrderTableRoute() {
