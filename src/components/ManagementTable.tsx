@@ -194,9 +194,31 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 };
 
 const setFiltersToParams = (params: URLSearchParams, filters: GridFilterItem[]): void => {
+	const existingFilters = new Map<string, { operator: string; value: string }>();
+
+	params.forEach((value, key) => {
+		if (key !== "filter[]") return;
+		const filterParts = value.split(":");
+		existingFilters.set(filterParts[0], {
+			operator: filterParts[1],
+			value: filterParts[2],
+		});
+	});
+
+	// Update or add new filters
 	filters.forEach((filter) => {
-		const paramValue = `${filter.field}:${filter.operator}:${filter.value}`;
-		params.append("filter[]", paramValue);
+		existingFilters.set(filter.field, {
+			operator: filter.operator,
+			value: filter.value,
+		});
+	});
+
+    // Clear existing filters in params
+    params.delete("filter[]");
+
+	// Set new filters in params
+	existingFilters.forEach((value, key) => {
+		params.append("filter[]", `${key}:${value.operator}:${value.value}`);
 	});
 };
 
