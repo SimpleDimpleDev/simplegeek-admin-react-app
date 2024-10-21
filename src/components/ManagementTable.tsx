@@ -1,5 +1,5 @@
 import { Straighten } from "@mui/icons-material";
-import { IconButton } from "@mui/material";
+import { debounce, IconButton, Typography } from "@mui/material";
 import {
 	type GridColDef,
 	type GridLocaleText,
@@ -9,9 +9,11 @@ import {
 	GridRowIdGetter,
 	GridValidRowModel,
 	GridFilterItem,
+	GridToolbar,
+	GridFilterModel,
 } from "@mui/x-data-grid";
 
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
 const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
@@ -193,47 +195,29 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	aggregationFunctionLabelSize: "size",
 };
 
-const setFiltersToParams = (params: URLSearchParams, filters: GridFilterItem[]): void => {
-	const existingFilters = new Map<string, { operator: string; value: string }>();
-
-	params.forEach((value, key) => {
-		if (key !== "filter[]") return;
-		const filterParts = value.split(":");
-		existingFilters.set(filterParts[0], {
-			operator: filterParts[1],
-			value: filterParts[2],
-		});
-	});
-
-	// Update or add new filters
-	filters.forEach((filter) => {
-		existingFilters.set(filter.field, {
-			operator: filter.operator,
-			value: filter.value,
-		});
-	});
-
-    // Clear existing filters in params
-    params.delete("filter[]");
-
-	// Set new filters in params
-	existingFilters.forEach((value, key) => {
-		params.append("filter[]", `${key}:${value.operator}:${value.value}`);
-	});
-};
-
 const getFiltersFromParams = (params: URLSearchParams): GridFilterItem[] => {
 	const filters: GridFilterItem[] = [];
-	params.forEach((value, key) => {
-		if (key !== "filter[]") return;
+	const filterValues = params.getAll("filter[]");
+	filterValues.forEach((value) => {
 		const filterParts = value.split(":");
-		filters.push({
-			field: filterParts[0],
-			operator: filterParts[1],
-			value: filterParts[2],
-		});
+		if (filterParts.length === 3) {
+			filters.push({
+				field: filterParts[0],
+
+				operator: filterParts[1],
+
+				value: filterParts[2],
+			});
+		}
 	});
 	return filters;
+};
+
+const setFiltersToParams = (params: URLSearchParams, filters: GridFilterItem[]): void => {
+	params.delete("filter[]");
+	filters.forEach((filter) => {
+		params.append("filter[]", `${filter.field}:${filter.operator}:${filter.value}`);
+	});
 };
 
 interface Props {
@@ -265,6 +249,17 @@ const AdminTable = ({
 			return prev;
 		});
 	}, [initialFilters, setSearchParams]);
+
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const setSearch = useCallback(
+		debounce((model: GridFilterModel) => {
+			setSearchParams((prev) => {
+				setFiltersToParams(prev, model.items);
+				return prev;
+			});
+		}, 200),
+		[]
+	);
 
 	return (
 		<>
@@ -298,12 +293,7 @@ const AdminTable = ({
 					rowSelectionModel={selectedRows}
 					onRowSelectionModelChange={onRowSelect}
 					filterModel={{ items: getFiltersFromParams(searchParams) }}
-					onFilterModelChange={(model) => {
-						setSearchParams((prev) => {
-							setFiltersToParams(prev, model.items);
-							return prev;
-						});
-					}}
+					onFilterModelChange={(model) => setSearch(model)}
 					hideFooter
 					getRowId={getRowId}
 					initialState={{
@@ -328,8 +318,20 @@ const AdminTable = ({
 					}}
 					autosizeOnMount={true}
 					getRowClassName={() => "bg-primary"}
-					slots={{ noRowsOverlay: () => <h1> nothing here </h1> }}
+					slots={{
+						noRowsOverlay: () => (
+							<div className="w-100 h-100 ai-c d-f jc-c">
+								<Typography variant="body1">Нет данных</Typography>
+							</div>
+						),
+						toolbar: GridToolbar,
+					}}
 					localeText={GRID_DEFAULT_LOCALE_TEXT}
+					slotProps={{
+						toolbar: {
+							showQuickFilter: true,
+						},
+					}}
 				/>
 			</div>
 		</>
