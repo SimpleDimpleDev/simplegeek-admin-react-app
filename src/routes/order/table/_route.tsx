@@ -45,6 +45,24 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		})),
 	},
 	{
+		field: "orderItems",
+		headerName: "Товары",
+		valueGetter: (_, row) => {
+			return row.items.map((item) => item.title).join(", ");
+		},
+		renderCell: ({ row: { items } }) => {
+			return (
+				<div className="h-mc">
+					{items.map((item) => (
+						<Typography key={item.id}>
+							{item.quantity} x {item.title}
+						</Typography>
+					))}
+				</div>
+			);
+		},
+	},
+	{
 		field: "preorder",
 		headerName: "Тип заказа",
 		renderCell: ({ row: { preorder } }) => {
