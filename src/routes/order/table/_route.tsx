@@ -36,8 +36,13 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		field: "deliveryService",
 		headerName: "Сервис доставки",
 		display: "flex",
-		valueGetter: (_, row) =>
-			row.delivery ? deliveryServiceTitles.get(row.delivery.service) : deliveryServiceTitles.get("UNASSIGNED"),
+		valueGetter: (_, row) => {
+			if (row.delivery) {
+				return deliveryServiceTitles.get(row.delivery.service);
+			} else {
+				return deliveryServiceTitles.get("UNASSIGNED");
+			}
+		},
 		type: "singleSelect",
 		valueOptions: Array.from(deliveryServiceTitles.entries()).map(([service, title]) => ({
 			value: service,
@@ -70,7 +75,7 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 					))}
 				</div>
 			);
-		}
+		},
 	},
 	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
