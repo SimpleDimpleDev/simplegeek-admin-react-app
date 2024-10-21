@@ -145,64 +145,43 @@ export default function OrderInspectRoute() {
 							<div className="gap-1 py-2 d-f fd-c">
 								<Typography variant="h5">Заказ от {DateFormatter.DDMMYYYY(new Date())}</Typography>
 								<Typography variant="subtitle0">ID: {order.id}</Typography>
-								<Typography variant="subtitle0">Пользователь: {order.user.email}</Typography>
-								<div className="gap-1 ai-c d-f fd-r">
-									<Button
-										variant="contained"
-										onClick={() => navigate(`/user/inspect/${order.user.id}`)}
-									>
-										Подробнее
-									</Button>
-									<Button
-										variant="contained"
-										onClick={() => navigate(`/order/table?f=user:equals:${order.user.email}`)}
-									>
-										Заказы пользователя
-									</Button>
-								</div>
-							</div>
 
-							{/* Controls */}
-							<Paper sx={{ p: 2 }}>
-								<div className="gap-2 d-f fd-r">
-									{/* Status */}
-									<div className="gap-05 d-f fd-c">
-										<Typography variant="subtitle0">Статус заказа</Typography>
-										<div className="gap-2 ai-c d-f fd-r">
-											<Select
-												disabled={!statusEditing}
-												value={selectedStatus}
-												label="Статус заказа"
-												onChange={handleSelectStatus}
-											>
-												{editableProps.statuses.map((status) => (
-													<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
-												))}
-											</Select>
+								{/* Status */}
+								<div className="gap-05 d-f fd-c">
+									<Typography variant="subtitle0">Статус</Typography>
+									<div className="gap-2 ai-c d-f fd-r">
+										<Select
+											disabled={!statusEditing}
+											value={selectedStatus}
+											onChange={handleSelectStatus}
+										>
+											{editableProps.statuses.map((status) => (
+												<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
+											))}
+										</Select>
 
-											{statusEditing ? (
-												<>
-													<IconButton
-														sx={{ color: "success.main" }}
-														onClick={handleSaveStatus}
-													>
-														<Check />
-													</IconButton>
-													<IconButton
-														sx={{ color: "error.main" }}
-														onClick={handleCancelEditStatus}
-													>
-														<Close />
-													</IconButton>
-												</>
-											) : (
-												<IconButton onClick={handleStartEditStatus}>
-													<Edit />
+										{statusEditing ? (
+											<>
+												<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
+													<Check />
 												</IconButton>
-											)}
-										</div>
+												<IconButton
+													sx={{ color: "error.main" }}
+													onClick={handleCancelEditStatus}
+												>
+													<Close />
+												</IconButton>
+											</>
+										) : (
+											<IconButton onClick={handleStartEditStatus}>
+												<Edit />
+											</IconButton>
+										)}
 									</div>
+								</div>
 
+								{/* Controls */}
+								<div className="gap-2 d-f fd-r">
 									{order.delivery && (
 										<div className="gap-1 ai-c d-f fd-r">
 											{order.delivery.service === "SELF_PICKUP" ? (
@@ -233,6 +212,26 @@ export default function OrderInspectRoute() {
 											)}
 										</div>
 									)}
+								</div>
+							</div>
+
+							{/* User */}
+							<Paper sx={{ p: 2, width: "max-content" }}>
+								<Typography variant="subtitle0">Пользователь</Typography>
+								<Typography variant="body1">Email: {order.user.email}</Typography>
+								<div className="gap-1 ai-c d-f fd-r">
+									<Button
+										variant="contained"
+										onClick={() => navigate(`/user/inspect/${order.user.id}`)}
+									>
+										Профиль
+									</Button>
+									<Button
+										variant="contained"
+										onClick={() => navigate(`/order/table?f=user:equals:${order.user.email}`)}
+									>
+										Заказы
+									</Button>
 								</div>
 							</Paper>
 
