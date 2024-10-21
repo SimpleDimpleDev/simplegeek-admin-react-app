@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Straighten } from "@mui/icons-material";
 import { debounce, IconButton, Typography } from "@mui/material";
 import {
@@ -320,8 +321,8 @@ const AdminTable = ({
 					rowSelection={true}
 					rowSelectionModel={selectedRows}
 					onRowSelectionModelChange={onRowSelect}
-					filterModel={getFiltersFromParams(searchParams)}
-					onFilterModelChange={(model) => setSearch(model)}
+					// filterModel={getFiltersFromParams(searchParams)}
+					// onFilterModelChange={(model) => setSearch(model)}
 					hideFooter
 					getRowId={getRowId}
 					initialState={{
