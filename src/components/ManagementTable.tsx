@@ -329,7 +329,7 @@ const AdminTable = ({
 					rowSelectionModel={selectedRows}
 					onRowSelectionModelChange={onRowSelect}
 					filterModel={getFiltersFromParams(searchParams)}
-					// onFilterModelChange={(model) => setSearch(model)}
+					onFilterModelChange={(model) => console.log({ model })}
 					hideFooter
 					getRowId={getRowId}
 					initialState={{
