@@ -45,6 +45,14 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		})),
 	},
 	{
+		field: "orderType",
+		headerName: "Тип заказа",
+		renderCell: ({ row: { preorder } }) => {
+			if (!preorder) return "Розница";
+			return `Предзаказ: ${preorder.title}`;
+		},
+	},
+	{
 		field: "orderItems",
 		headerName: "Товары",
 		valueGetter: (_, row) => {
@@ -52,7 +60,7 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		},
 		renderCell: ({ row: { items } }) => {
 			return (
-				<div className="h-mc">
+				<div className="h-mc ai-c d-f jc-s">
 					{items.map((item) => (
 						<Typography key={item.id}>
 							{item.quantity} x {item.title}
@@ -60,14 +68,6 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 					))}
 				</div>
 			);
-		},
-	},
-	{
-		field: "preorder",
-		headerName: "Тип заказа",
-		renderCell: ({ row: { preorder } }) => {
-			if (!preorder) return "Розница";
-			return `Предзаказ: ${preorder.title}`;
 		},
 	},
 	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
