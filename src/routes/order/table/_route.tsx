@@ -36,11 +36,8 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		field: "deliveryService",
 		headerName: "Сервис доставки",
 		display: "flex",
-		valueGetter: (_, row) => {
-			if (!row.delivery) {
-				return String(deliveryServiceTitles.get("UNASSIGNED"));
-			}
-			return String(deliveryServiceTitles.get(row.delivery.service));
+		renderCell: ({ row: { delivery } }) => {
+			return delivery ? deliveryServiceTitles.get(delivery.service) : "Не назначена";
 		},
 		type: "singleSelect",
 		valueOptions: Array.from(deliveryServiceTitles.entries()).map(([service, title]) => ({
