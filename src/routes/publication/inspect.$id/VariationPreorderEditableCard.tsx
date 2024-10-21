@@ -82,7 +82,8 @@ const VariationPreorderUpdateResolver = z.object({
 	isCredit: z.boolean(),
 	creditDeposit: z.coerce
 		.number({ message: "Укажите сумму депозита" })
-		.positive({ message: "Сумма должна быть положительным числом" }),
+		.positive({ message: "Сумма должна быть положительным числом" })
+		.nullable(),
 	creditPayments: z
 		.object({
 			sum: z.coerce
@@ -158,14 +159,16 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 		name: `creditPayments`,
 		control,
 	});
-	
+
 	const quantityIsUnlimited = watch(`unlimitedQuantity`);
 
 	const isCredit = watch(`isCredit`);
 	const creditDeposit = watch(`creditDeposit`);
 	const creditDepositTotal = creditDeposit ? Number(creditDeposit) : 0;
 	const creditPayments = watch(`creditPayments`);
-	const creditPaymentsTotal = creditPayments.map((payment) => Number(payment.sum)).reduce((sum, current) => sum + current, 0);
+	const creditPaymentsTotal = creditPayments
+		.map((payment) => Number(payment.sum))
+		.reduce((sum, current) => sum + current, 0);
 
 	useEffect(() => {
 		if (isCredit) {

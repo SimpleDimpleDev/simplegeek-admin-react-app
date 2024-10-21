@@ -1,21 +1,21 @@
 import { Button, Typography } from "@mui/material";
-import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
+import { GridColDef, GridFilterItem, GridRowSelectionModel } from "@mui/x-data-grid";
 import { deliveryServiceTitles, orderStatusTitles } from "src/constants";
 import { useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import AdminTable from "@components/ManagementTable";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { OrderGet } from "@appTypes/Order";
 import { orderStatusBadges } from "@components/Badges";
 import { useGetOrderListQuery } from "@api/admin/order";
-import { useNavigate } from "react-router-dom";
 
 const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
 		field: "user",
 		headerName: "Пользователь",
-		renderCell: ({ row: { user } }) => {
-			return user.email;
+		valueGetter: (_, row) => {
+			return row.user.email;
 		},
 	},
 	{
@@ -58,6 +58,8 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 
 export default function OrderTableRoute() {
 	const navigate = useNavigate();
+	const [params] = useSearchParams();
+	const inspectedUserEmail = params.get("userEmail");
 
 	const { data: orderList, isLoading: orderListIsLoading } = useGetOrderListQuery();
 
@@ -68,6 +70,18 @@ export default function OrderTableRoute() {
 		const selectedItemId = selectedItemIds[0];
 		return orderList?.items.find((order) => order.id === selectedItemId) || null;
 	}, [selectedItemIds, orderList]);
+
+	const initialFilters: GridFilterItem[] = useMemo(() => {
+		const filters: GridFilterItem[] = [];
+		if (inspectedUserEmail) {
+			filters.push({
+				field: "user",
+				value: inspectedUserEmail,
+				operator: "equals",
+			});
+		}
+		return filters;
+	}, [inspectedUserEmail]);
 
 	return (
 		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
@@ -110,19 +124,7 @@ export default function OrderTableRoute() {
 						data={orderList.items}
 						onRowSelect={setSelectedItemIds}
 						selectedRows={selectedItemIds}
-						headerButtons={
-							<>
-								<Button
-									variant="contained"
-									disabled={!selectedItemIds.length}
-									onClick={() => {
-										alert("Not implemented yet");
-									}}
-								>
-									Сформировать накладные
-								</Button>
-							</>
-						}
+						initialFilters={initialFilters}
 						leftHeaderButtons={
 							<>
 								<Button

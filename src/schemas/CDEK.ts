@@ -47,3 +47,10 @@ export const CDEKDeliveryDataFullSchema = z.object({
 	tariff: CDEKTariffSchema,
 	address: CDEKAddressSchema,
 });
+	
+export const CDEKWaybillPackageSchema = z.object({
+	length: z.number(),
+	width: z.number(),
+	height: z.number(),
+	weight: z.number(),
+});

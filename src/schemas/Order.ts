@@ -2,6 +2,7 @@ import { CreditGetSchema, InvoiceGetSchema } from "./Payment";
 import { PreorderGetSchema, ShippingCostIncludedSchema } from "./Preorder";
 
 import { AdminGetBaseSchema } from "./Admin";
+import { CDEKWaybillPackageSchema } from "./CDEK";
 import { DeliverySchema } from "./Delivery";
 import { IdSchema } from "./Primitives";
 import { PhysicalPropertiesSchema } from "./PhysicalProperties";
@@ -77,3 +78,15 @@ export const OrderUpdateDeliverySchema = z.object({
 	id: z.string(),
 	delivery: DeliverySchema,
 });
+
+export const OrderCDEKWaybillCreateSchema = z.object({
+	orderId: z.string(),
+	packages: CDEKWaybillPackageSchema.array(),
+});
+
+export const OrderCDEKWaybillPrintGetSchema = z
+	.object({
+		url: z.string(),
+		token: z.string(),
+	})
+	.describe("WaybillPrintGet");

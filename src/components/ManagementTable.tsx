@@ -8,9 +8,11 @@ import {
 	useGridApiRef,
 	GridRowIdGetter,
 	GridValidRowModel,
+	GridFilterItem,
 } from "@mui/x-data-grid";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	// Root
@@ -191,11 +193,33 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	aggregationFunctionLabelSize: "size",
 };
 
+const setFiltersToParams = (params: URLSearchParams, filters: GridFilterItem[]): void => {
+	filters.forEach((filter) => {
+		const paramValue = `${filter.field}:${filter.operator}:${filter.value}`;
+		params.append("filter[]", paramValue);
+	});
+};
+
+const getFiltersFromParams = (params: URLSearchParams): GridFilterItem[] => {
+	const filters: GridFilterItem[] = [];
+	params.forEach((value, key) => {
+		if (key !== "filter[]") return;
+		const filterParts = value.split(":");
+		filters.push({
+			field: filterParts[0],
+			operator: filterParts[1],
+			value: filterParts[2],
+		});
+	});
+	return filters;
+};
+
 interface Props {
 	columns: GridColDef[];
 	data: GridValidRowModel[];
-	onRowSelect: (ids: GridRowSelectionModel) => void;
 	selectedRows: GridRowSelectionModel;
+	onRowSelect: (ids: GridRowSelectionModel) => void;
+	initialFilters?: GridFilterItem[];
 	leftHeaderButtons?: ReactNode;
 	headerButtons?: ReactNode;
 	getRowId?: GridRowIdGetter;
@@ -204,13 +228,22 @@ interface Props {
 const AdminTable = ({
 	columns,
 	data,
-	onRowSelect,
 	selectedRows,
+	onRowSelect,
+	initialFilters,
 	leftHeaderButtons,
 	headerButtons,
 	getRowId,
 }: Props) => {
 	const apiRef = useGridApiRef();
+	const [searchParams, setSearchParams] = useSearchParams();
+	useEffect(() => {
+		setSearchParams((prev) => {
+			setFiltersToParams(prev, initialFilters || []);
+			return prev;
+		});
+	}, [initialFilters, setSearchParams]);
+
 	return (
 		<>
 			<div className="gap-2 pt-2 d-f fd-c">
@@ -242,6 +275,13 @@ const AdminTable = ({
 					rowSelection={true}
 					rowSelectionModel={selectedRows}
 					onRowSelectionModelChange={onRowSelect}
+					filterModel={{ items: getFiltersFromParams(searchParams) }}
+					onFilterModelChange={(model) => {
+						setSearchParams((prev) => {
+							setFiltersToParams(prev, model.items);
+							return prev;
+						});
+					}}
 					hideFooter
 					getRowId={getRowId}
 					initialState={{
