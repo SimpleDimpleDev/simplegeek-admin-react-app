@@ -58,8 +58,19 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		headerName: "Товары",
 		display: "flex",
 		valueGetter: (_, row) => {
-			return row.items.map((item) => `${item.quantity} x ${item.title}`).join("\n");
+			return row.items.map((item) => item.title).join(", ");
 		},
+		renderCell: ({ row: { items } }) => {
+			return (
+				<div className="w-100 h-100 d-f fd-c">
+					{items.map((item) => (
+						<Typography key={item.id} color="black" variant="body2">
+							{item.title}
+						</Typography>
+					))}
+				</div>
+			);
+		}
 	},
 	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
