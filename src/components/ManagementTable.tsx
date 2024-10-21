@@ -10,9 +10,11 @@ import {
 	GridValidRowModel,
 	GridFilterItem,
 	GridToolbar,
+	GridFilterModel,
 } from "@mui/x-data-grid";
 
 import { ReactNode } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	// Root
@@ -230,25 +232,33 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 // 	console.log("setFiltersToParams after", { params: Array.from(params.entries()) });
 // };
 
-// const getFiltersFromParams = (params: URLSearchParams): GridFilterModel => {
-// 	const filters: GridFilterItem[] = [];
-// 	const filterValues = params.getAll("f[]");
-// 	filterValues.forEach((value) => {
-// 		const filterParts = value.split(":");
-// 		if (filterParts.length === 3) {
-// 			filters.push({
-// 				field: filterParts[0],
-// 				operator: filterParts[1],
-// 				value: filterParts[2],
-// 			});
-// 		}
-// 	});
-// 	const quickFilterValues = params.getAll("q[]");
-// 	return {
-// 		items: filters,
-// 		quickFilterValues,
-// 	};
-// };
+const getFiltersFromParams = (params: URLSearchParams): GridFilterModel => {
+	const items: GridFilterItem[] = [];
+	let quickFilterValues: string[] | undefined = undefined;
+
+	const paramFilterItems = params.getAll("f[]");
+	paramFilterItems.forEach((value) => {
+		const filterParts = value.split(":");
+		console.log({ filterParts });
+		if (filterParts.length === 3) {
+			items.push({
+				field: filterParts[0],
+				operator: filterParts[1],
+				value: filterParts[2],
+			});
+		}
+	});
+
+	const paramQuickFilterValues = params.getAll("q[]");
+	if (paramQuickFilterValues.length > 0) {
+		quickFilterValues = paramQuickFilterValues;
+	}
+
+	return {
+		items,
+		quickFilterValues,
+	};
+};
 
 interface Props {
 	columns: GridColDef[];
@@ -271,7 +281,7 @@ const AdminTable = ({
 	getRowId,
 }: Props) => {
 	const apiRef = useGridApiRef();
-	// const [searchParams, setSearchParams] = useSearchParams();
+	const [searchParams] = useSearchParams();
 
 	// // eslint-disable-next-line react-hooks/exhaustive-deps
 	// const setSearch = useCallback(
@@ -318,7 +328,7 @@ const AdminTable = ({
 					rowSelection={true}
 					rowSelectionModel={selectedRows}
 					onRowSelectionModelChange={onRowSelect}
-					// filterModel={getFiltersFromParams(searchParams)}
+					filterModel={getFiltersFromParams(searchParams)}
 					// onFilterModelChange={(model) => setSearch(model)}
 					hideFooter
 					getRowId={getRowId}
