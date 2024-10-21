@@ -198,7 +198,7 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): void => {
 	const existingFilters = new Map<string, { operator: string; value: string }>();
 
-	console.log("setFiltersToParams before", { params, model });
+	console.log("setFiltersToParams before", { params: Array.from(params.entries()), model });
 
 	params.forEach((value, key) => {
 		if (key === "f[]") {
@@ -229,7 +229,7 @@ const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): vo
 		params.delete("q[]");
 	}
 
-	console.log("setFiltersToParams after", { params });
+	console.log("setFiltersToParams after", { params: Array.from(params.entries()) });
 };
 
 const getFiltersFromParams = (params: URLSearchParams): GridFilterModel => {
