@@ -195,6 +195,31 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	aggregationFunctionLabelSize: "size",
 };
 
+const setFiltersToParams = (params: URLSearchParams, filters: GridFilterItem[]): void => {
+	const existingFilters = new Map<string, { operator: string; value: string }>();
+	params.forEach((value, key) => {
+		if (key !== "filter[]") return;
+		const filterParts = value.split(":");
+		existingFilters.set(filterParts[0], {
+			operator: filterParts[1],
+			value: filterParts[2],
+		});
+	});
+	// Update or add new filters
+	filters.forEach((filter) => {
+		existingFilters.set(filter.field, {
+			operator: filter.operator,
+			value: filter.value,
+		});
+	});
+	// Clear existing filters in params
+	params.delete("filter[]");
+	// Set new filters in params
+	existingFilters.forEach((value, key) => {
+		params.append("filter[]", `${key}:${value.operator}:${value.value}`);
+	});
+};
+
 const getFiltersFromParams = (params: URLSearchParams): GridFilterItem[] => {
 	const filters: GridFilterItem[] = [];
 	const filterValues = params.getAll("filter[]");
@@ -211,13 +236,6 @@ const getFiltersFromParams = (params: URLSearchParams): GridFilterItem[] => {
 		}
 	});
 	return filters;
-};
-
-const setFiltersToParams = (params: URLSearchParams, filters: GridFilterItem[]): void => {
-	params.delete("filter[]");
-	filters.forEach((filter) => {
-		params.append("filter[]", `${filter.field}:${filter.operator}:${filter.value}`);
-	});
 };
 
 interface Props {
