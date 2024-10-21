@@ -205,7 +205,7 @@ export default function OrderInspectRoute() {
 												<Button
 													variant="contained"
 													color="success"
-													onClick={() => alert(`self pickup issue: ${order.id}`)}
+													onClick={() => setSelfPickupConfirmDialogOpened(true)}
 													sx={{ color: "white" }}
 												>
 													Выдать заказ
@@ -429,7 +429,9 @@ export default function OrderInspectRoute() {
 								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
 									<Paper sx={{ p: 2 }}>
 										<Typography variant="subtitle0">События</Typography>
-										Сюда события
+										<div className="gap-1 d-f fd-c">
+											<div className="h-100">Сюда События</div>
+										</div>
 									</Paper>
 								</div>
 							</div>
