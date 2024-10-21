@@ -1,9 +1,7 @@
 import {
 	Button,
 	Divider,
-	FormControl,
 	IconButton,
-	InputLabel,
 	MenuItem,
 	Paper,
 	Select,
@@ -39,6 +37,9 @@ const deliveryServiceMapping: Record<DeliveryService, string> = {
 };
 
 export default function OrderInspectRoute() {
+	// TODO: fetch from backend
+	const hasGeneratedWaybillPrint = false;
+
 	const navigate = useNavigate();
 	const params = useParams();
 	const orderId = params.id;
@@ -142,48 +143,101 @@ export default function OrderInspectRoute() {
 						<div className="gap-2 d-f fd-c">
 							{/* Main info */}
 							<div className="gap-1 py-2 d-f fd-c">
-								<Typography variant="h3">Заказ от {DateFormatter.DDMMYYYY(new Date())}</Typography>
+								<Typography variant="h5">Заказ от {DateFormatter.DDMMYYYY(new Date())}</Typography>
 								<Typography variant="subtitle0">ID: {order.id}</Typography>
-								<Button variant="outlined" onClick={() => navigate(`/user/inspect/${order.user.id}`)}>
-									<Typography variant="subtitle0">Пользователь: {order.user.email}</Typography>
-								</Button>
+								<Typography variant="subtitle0">Пользователь: {order.user.email}</Typography>
+								<div className="gap-1 ai-c d-f fd-r">
+									<Button
+										variant="contained"
+										onClick={() => navigate(`/user/inspect/${order.user.id}`)}
+									>
+										Подробнее
+									</Button>
+									<Button
+										variant="contained"
+										onClick={() => navigate(`/order/table?f=user:equals:${order.user.email}`)}
+									>
+										Заказы пользователя
+									</Button>
+								</div>
 							</div>
 
+							{/* Controls */}
 							<Paper sx={{ p: 2 }}>
-								<div className="gap-2 ai-c d-f fd-r">
-									<FormControl disabled={!statusEditing}>
-										<InputLabel id="demo-simple-select-label">Статус заказа</InputLabel>
-										<Select
-											labelId="demo-simple-select-label"
-											id="demo-simple-select"
-											value={selectedStatus}
-											label="Статус заказа"
-											onChange={handleSelectStatus}
-										>
-											{editableProps.statuses.map((status) => (
-												<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
-											))}
-										</Select>
-									</FormControl>
-									{statusEditing ? (
-										<>
-											<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
-												<Check />
-											</IconButton>
-											<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditStatus}>
-												<Close />
-											</IconButton>
-										</>
-									) : (
-										<IconButton onClick={handleStartEditStatus}>
-											<Edit />
-										</IconButton>
+								<div className="gap-2 d-f fd-r">
+									{/* Status */}
+									<div className="gap-05 d-f fd-c">
+										<Typography variant="subtitle0">Статус заказа</Typography>
+										<div className="gap-2 ai-c d-f fd-r">
+											<Select
+												disabled={!statusEditing}
+												value={selectedStatus}
+												label="Статус заказа"
+												onChange={handleSelectStatus}
+											>
+												{editableProps.statuses.map((status) => (
+													<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
+												))}
+											</Select>
+
+											{statusEditing ? (
+												<>
+													<IconButton
+														sx={{ color: "success.main" }}
+														onClick={handleSaveStatus}
+													>
+														<Check />
+													</IconButton>
+													<IconButton
+														sx={{ color: "error.main" }}
+														onClick={handleCancelEditStatus}
+													>
+														<Close />
+													</IconButton>
+												</>
+											) : (
+												<IconButton onClick={handleStartEditStatus}>
+													<Edit />
+												</IconButton>
+											)}
+										</div>
+									</div>
+
+									{order.delivery && (
+										<div className="gap-1 ai-c d-f fd-r">
+											{order.delivery.service === "SELF_PICKUP" ? (
+												<Button
+													variant="contained"
+													color="success"
+													onClick={() => alert(`self pickup issue: ${order.id}`)}
+												>
+													Выдать заказ
+												</Button>
+											) : (
+												order.delivery.service === "CDEK" &&
+												(hasGeneratedWaybillPrint ? (
+													<Button
+														variant="contained"
+														onClick={() => alert(`cdek waybill get: ${order.id}`)}
+													>
+														Перейти к накладной СДЭК
+													</Button>
+												) : (
+													<Button
+														variant="contained"
+														onClick={() => alert(`cdek waybill generate: ${order.id}`)}
+													>
+														Сформировать накладную СДЭК
+													</Button>
+												))
+											)}
+										</div>
 									)}
 								</div>
 							</Paper>
 
 							{/* Delivery */}
-							<Paper>
+							<Paper sx={{ p: 2 }}>
 								{order.delivery ? (
 									editableProps.delivery ? (
 										<DeliveryForm
@@ -203,7 +257,7 @@ export default function OrderInspectRoute() {
 											divider={<Divider orientation="horizontal" flexItem />}
 										>
 											<div className="gap-2 d-f fd-c">
-												<Typography variant={"h5"}>Доставка</Typography>
+												<Typography variant={"subtitle0"}>Доставка</Typography>
 												<div className={`d-f fd-r jc-sb`}>
 													<div className="gap-05 w-100 d-f fd-c">
 														<Typography
@@ -212,7 +266,7 @@ export default function OrderInspectRoute() {
 														>
 															Способ получения
 														</Typography>
-														<Typography variant="subtitle0">
+														<Typography variant="body1">
 															{deliveryServiceMapping[order.delivery.service]}
 														</Typography>
 													</div>
@@ -238,7 +292,7 @@ export default function OrderInspectRoute() {
 												</div>
 											</div>
 											<div className="gap-2 d-f fd-c">
-												<Typography variant="h5">Получатель</Typography>
+												<Typography variant="subtitle0">Получатель</Typography>
 												<div className={`d-f fd-r jc-sb`}>
 													<div className="gap-05 w-100 d-f fd-c">
 														<Typography
@@ -267,9 +321,9 @@ export default function OrderInspectRoute() {
 										</Stack>
 									)
 								) : (
-									<div className="gap-1">
-										<Typography variant="subtitle1">
-											Доставка оформляется после полной оплаты товара и приезда его на склад
+									<>
+										<Typography variant="subtitle0">
+											Доставка оформляется после полной оплаты заказа и его прибытия на склад.
 										</Typography>
 										<div className="gap-1 d-f fd-r">
 											<Typography variant="subtitle1" sx={{ color: "typography.secondary" }}>
@@ -279,30 +333,39 @@ export default function OrderInspectRoute() {
 												{order.preorder?.expectedArrival ?? "Неизвестно"}
 											</Typography>
 										</div>
-									</div>
+									</>
 								)}
 							</Paper>
 
-							{/* Initial Payment */}
+							{/* Initial Payment(Deposit) */}
 							<Paper sx={{ p: 2 }}>
-								<Typography variant="h5">Платёж</Typography>
+								<Typography variant="subtitle0">Депозит</Typography>
 								<Typography variant="body1">Сумма: {order.initialInvoice.amount}</Typography>
 								<Typography variant="body1">
-									Создан: {DateFormatter.DDMMYYYY(order.initialInvoice.createdAt)}
+									Создан:{" "}
+									{new Intl.DateTimeFormat("ru", {
+										year: "numeric",
+										month: "numeric",
+										day: "numeric",
+										hour: "numeric",
+										minute: "numeric",
+										second: "numeric",
+									}).format(order.initialInvoice.createdAt)}
 								</Typography>
-								<Typography variant="body1">
-									Оплачено: {order.initialInvoice.isPaid ? <Check /> : <Close />}
-								</Typography>
+								<div className="gap-1 ai-c d-f fd-r">
+									<Typography variant="body1">Оплачено:</Typography>
+									{order.initialInvoice.isPaid ? <Check /> : <Close />}
+								</div>
 							</Paper>
 
 							{/* Items */}
 							<Paper sx={{ p: 2 }}>
-								<Typography variant="h5">
+								<Typography variant="subtitle0">
 									{order.items.length} {getRuGoodsWord(order.items.length)}
 								</Typography>
 								<Stack divider={<Divider />}>
 									{order.items.map((item) => (
-										<div className="gap-1 pt-1 d-f fd-c" key={item.id}>
+										<div className="gap-1 py-1 d-f fd-c" key={item.id}>
 											<div className="w-100 d-f fd-r jc-sb">
 												<div className="gap-1 w-100 d-f fd-r">
 													<div className="br-2" style={{ width: 96, height: 96 }}>
@@ -313,13 +376,13 @@ export default function OrderInspectRoute() {
 													</div>
 													<div className="d-f fd-c jc-sb">
 														<div className="gap-1">
-															<Typography variant="h6">{item.title}</Typography>
+															<Typography variant="subtitle0">{item.title}</Typography>
 															<Typography variant="body1">{item.quantity} шт.</Typography>
 														</div>
 													</div>
 												</div>
 												<div className="d-f fd-r fs-0">
-													<Typography variant="subtitle1">{item.sum} ₽</Typography>
+													<Typography variant="h6">{item.sum} ₽</Typography>
 												</div>
 											</div>
 										</div>
