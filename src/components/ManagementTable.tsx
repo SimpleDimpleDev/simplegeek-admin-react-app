@@ -195,8 +195,10 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	aggregationFunctionLabelSize: "size",
 };
 
-const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): void => {
+const setFiltersToParams = (prevParams: URLSearchParams, model: GridFilterModel): void => {
 	const existingFilters = new Map<string, { operator: string; value: string }>();
+	const params = new URLSearchParams(prevParams);
+
 	params.forEach((value, key) => {
 		if (key === "f[]") {
 			const filterParts = value.split(":");
@@ -220,7 +222,7 @@ const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): vo
 		params.append("f[]", `${key}:${value.operator}:${value.value}`);
 	});
 
-	if (model.quickFilterValues) {
+	if (model.quickFilterValues && model.quickFilterValues.length > 0) {
 		model.quickFilterValues.forEach((value) => params.append("q[]", value));
 	} else {
 		params.delete("q[]");
@@ -235,9 +237,7 @@ const getFiltersFromParams = (params: URLSearchParams): GridFilterModel => {
 		if (filterParts.length === 3) {
 			filters.push({
 				field: filterParts[0],
-
 				operator: filterParts[1],
-
 				value: filterParts[2],
 			});
 		}
@@ -287,7 +287,7 @@ const AdminTable = ({
 				setFiltersToParams(prev, model);
 				return prev;
 			});
-		}, 500),
+		}, 1000),
 		[]
 	);
 
