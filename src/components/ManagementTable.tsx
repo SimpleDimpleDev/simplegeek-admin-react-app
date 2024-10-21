@@ -195,10 +195,10 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	aggregationFunctionLabelSize: "size",
 };
 
-const setFiltersToParams = (params: URLSearchParams, filters: GridFilterItem[]): void => {
+const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): void => {
 	const existingFilters = new Map<string, { operator: string; value: string }>();
 	params.forEach((value, key) => {
-		if (key !== "filter[]") return;
+		if (key !== "f[]") return;
 		const filterParts = value.split(":");
 		existingFilters.set(filterParts[0], {
 			operator: filterParts[1],
@@ -206,23 +206,29 @@ const setFiltersToParams = (params: URLSearchParams, filters: GridFilterItem[]):
 		});
 	});
 	// Update or add new filters
-	filters.forEach((filter) => {
+	model.items.forEach((filter) => {
 		existingFilters.set(filter.field, {
 			operator: filter.operator,
 			value: filter.value,
 		});
 	});
 	// Clear existing filters in params
-	params.delete("filter[]");
+	params.delete("f[]");
 	// Set new filters in params
 	existingFilters.forEach((value, key) => {
-		params.append("filter[]", `${key}:${value.operator}:${value.value}`);
+		params.append("f[]", `${key}:${value.operator}:${value.value}`);
 	});
+
+	if (model.quickFilterValues) {
+		model.quickFilterValues.forEach((value) => params.append("q[]", value));
+	} else {
+		params.delete("q[]");
+	}
 };
 
-const getFiltersFromParams = (params: URLSearchParams): GridFilterItem[] => {
+const getFiltersFromParams = (params: URLSearchParams): GridFilterModel => {
 	const filters: GridFilterItem[] = [];
-	const filterValues = params.getAll("filter[]");
+	const filterValues = params.getAll("f[]");
 	filterValues.forEach((value) => {
 		const filterParts = value.split(":");
 		if (filterParts.length === 3) {
@@ -235,7 +241,11 @@ const getFiltersFromParams = (params: URLSearchParams): GridFilterItem[] => {
 			});
 		}
 	});
-	return filters;
+	const quickFilterValues = params.getAll("q[]");
+	return {
+		items: filters,
+		quickFilterValues,
+	};
 };
 
 interface Props {
@@ -263,7 +273,7 @@ const AdminTable = ({
 	const [searchParams, setSearchParams] = useSearchParams();
 	useEffect(() => {
 		setSearchParams((prev) => {
-			setFiltersToParams(prev, initialFilters || []);
+			setFiltersToParams(prev, { items: initialFilters || [] });
 			return prev;
 		});
 	}, [initialFilters, setSearchParams]);
@@ -272,10 +282,10 @@ const AdminTable = ({
 	const setSearch = useCallback(
 		debounce((model: GridFilterModel) => {
 			setSearchParams((prev) => {
-				setFiltersToParams(prev, model.items);
+				setFiltersToParams(prev, model);
 				return prev;
 			});
-		}, 200),
+		}, 500),
 		[]
 	);
 
@@ -310,7 +320,7 @@ const AdminTable = ({
 					rowSelection={true}
 					rowSelectionModel={selectedRows}
 					onRowSelectionModelChange={onRowSelect}
-					filterModel={{ items: getFiltersFromParams(searchParams) }}
+					filterModel={getFiltersFromParams(searchParams)}
 					onFilterModelChange={(model) => setSearch(model)}
 					hideFooter
 					getRowId={getRowId}
