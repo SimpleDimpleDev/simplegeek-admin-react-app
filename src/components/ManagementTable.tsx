@@ -327,7 +327,7 @@ const AdminTable = ({
 						expand: true,
 					}}
 					autosizeOnMount={true}
-					// getRowClassName={() => "bg-primary"}
+					getRowClassName={() => "bg-primary"}
 					slots={{
 						noRowsOverlay: () => (
 							<div className="w-100 h-100 ai-c d-f jc-c">
