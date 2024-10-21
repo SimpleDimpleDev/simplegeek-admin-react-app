@@ -62,10 +62,10 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		},
 		renderCell: ({ row: { items } }) => {
 			return (
-				<div className="w-100 h-100 d-f fd-c">
+				<div className="py-1 w-100 h-100 d-f fd-c">
 					{items.map((item) => (
 						<Typography key={item.id} color="black" variant="body2">
-							{item.title}
+							{item.quantity} x {item.title}
 						</Typography>
 					))}
 				</div>
