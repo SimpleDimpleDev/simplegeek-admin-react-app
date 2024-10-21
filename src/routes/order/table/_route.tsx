@@ -14,7 +14,7 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
 		field: "user",
 		headerName: "Пользователь",
-		display: 'flex',
+		display: "flex",
 		valueGetter: (_, row) => {
 			return row.user.email;
 		},
@@ -22,7 +22,7 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
 		field: "status",
 		headerName: "Статус",
-		display: 'flex',
+		display: "flex",
 		renderCell: ({ row: { status } }) => {
 			return <div className="w-100 h-100 ai-c d-f jc-c">{orderStatusBadges[status]}</div>;
 		},
@@ -35,12 +35,9 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
 		field: "deliveryService",
 		headerName: "Сервис доставки",
-		display: 'flex',
-		valueGetter: (_, row) => (row.delivery ? row.delivery.service : "UNASSIGNED"),
-		renderCell: ({ row: { delivery } }) => {
-			if (!delivery) return deliveryServiceTitles.get("UNASSIGNED");
-			return deliveryServiceTitles.get(delivery.service);
-		},
+		display: "flex",
+		valueGetter: (_, row) =>
+			row.delivery ? deliveryServiceTitles.get(row.delivery.service) : deliveryServiceTitles.get("UNASSIGNED"),
 		type: "singleSelect",
 		valueOptions: Array.from(deliveryServiceTitles.entries()).map(([service, title]) => ({
 			value: service,
@@ -50,33 +47,22 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
 		field: "orderType",
 		headerName: "Тип заказа",
-		display: 'flex',
-		renderCell: ({ row: { preorder } }) => {
-			if (!preorder) return "Розница";
-			return `Предзаказ: ${preorder.title}`;
+		display: "flex",
+		valueGetter: (_, row) => {
+			if (!row.preorder) return "Розница";
+			return `Предзаказ: ${row.preorder.title}`;
 		},
 	},
 	{
 		field: "orderItems",
 		headerName: "Товары",
-		display: 'flex',
+		display: "flex",
 		valueGetter: (_, row) => {
-			return row.items.map((item) => item.title).join(", ");
-		},
-		renderCell: ({ row: { items } }) => {
-			return (
-				<div className="py-1 ai-c d-f fd-c jc-s">
-					{items.map((item) => (
-						<Typography key={item.id}>
-							{item.quantity} x {item.title}
-						</Typography>
-					))}
-				</div>
-			);
+			return row.items.map((item) => `${item.quantity} x ${item.title}`).join("\n");
 		},
 	},
-	{ field: "createdAt", headerName: "Создан", display: 'flex', type: "dateTime" },
-	{ field: "updatedAt", headerName: "Обновлен", display: 'flex', type: "dateTime" },
+	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
+	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
 ];
 
 export default function OrderTableRoute() {
