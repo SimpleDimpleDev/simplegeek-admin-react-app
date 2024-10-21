@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Straighten } from "@mui/icons-material";
-import { debounce, IconButton, Typography } from "@mui/material";
+import { IconButton, Typography } from "@mui/material";
 import {
 	type GridColDef,
 	type GridLocaleText,
@@ -11,11 +10,9 @@ import {
 	GridValidRowModel,
 	GridFilterItem,
 	GridToolbar,
-	GridFilterModel,
 } from "@mui/x-data-grid";
 
-import { ReactNode, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { ReactNode } from "react";
 
 const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	// Root
@@ -196,62 +193,62 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	aggregationFunctionLabelSize: "size",
 };
 
-const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): void => {
-	const existingFilters = new Map<string, { operator: string; value: string }>();
+// const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): void => {
+// 	const existingFilters = new Map<string, { operator: string; value: string }>();
 
-	console.log("setFiltersToParams before", { params: Array.from(params.entries()), model });
+// 	console.log("setFiltersToParams before", { params: Array.from(params.entries()), model });
 
-	params.forEach((value, key) => {
-		if (key === "f[]") {
-			const filterParts = value.split(":");
-			existingFilters.set(filterParts[0], {
-				operator: filterParts[1],
-				value: filterParts[2],
-			});
-		}
-	});
-	// Update or add new filters
-	model.items.forEach((filter) => {
-		existingFilters.set(filter.field, {
-			operator: filter.operator,
-			value: filter.value,
-		});
-	});
-	// Clear existing filters in params
-	params.delete("f[]");
-	// Set new filters in params
-	existingFilters.forEach((value, key) => {
-		params.append("f[]", `${key}:${value.operator}:${value.value}`);
-	});
+// 	params.forEach((value, key) => {
+// 		if (key === "f[]") {
+// 			const filterParts = value.split(":");
+// 			existingFilters.set(filterParts[0], {
+// 				operator: filterParts[1],
+// 				value: filterParts[2],
+// 			});
+// 		}
+// 	});
+// 	// Update or add new filters
+// 	model.items.forEach((filter) => {
+// 		existingFilters.set(filter.field, {
+// 			operator: filter.operator,
+// 			value: filter.value,
+// 		});
+// 	});
+// 	// Clear existing filters in params
+// 	params.delete("f[]");
+// 	// Set new filters in params
+// 	existingFilters.forEach((value, key) => {
+// 		params.append("f[]", `${key}:${value.operator}:${value.value}`);
+// 	});
 
-	if (model.quickFilterValues && model.quickFilterValues.length > 0) {
-		model.quickFilterValues.forEach((value) => params.append("q[]", value));
-	} else {
-		params.delete("q[]");
-	}
+// 	if (model.quickFilterValues && model.quickFilterValues.length > 0) {
+// 		model.quickFilterValues.forEach((value) => params.append("q[]", value));
+// 	} else {
+// 		params.delete("q[]");
+// 	}
 
-	console.log("setFiltersToParams after", { params: Array.from(params.entries()) });
-};
+// 	console.log("setFiltersToParams after", { params: Array.from(params.entries()) });
+// };
 
-const getFiltersFromParams = (params: URLSearchParams): GridFilterModel => {
-	const filters: GridFilterItem[] = [];
-	const filterValues = params.getAll("f[]");
-	filterValues.forEach((value) => {
-		const filterParts = value.split(":");
-		if (filterParts.length === 3) {
-			filters.push({
-				field: filterParts[0],
-				operator: filterParts[1],
-				value: filterParts[2],
-			});
-		}
-	});
-	const quickFilterValues = params.getAll("q[]");
-	return {
-		items: filters,
-		quickFilterValues,
-	};
-};
+// const getFiltersFromParams = (params: URLSearchParams): GridFilterModel => {
+// 	const filters: GridFilterItem[] = [];
+// 	const filterValues = params.getAll("f[]");
+// 	filterValues.forEach((value) => {
+// 		const filterParts = value.split(":");
+// 		if (filterParts.length === 3) {
+// 			filters.push({
+// 				field: filterParts[0],
+// 				operator: filterParts[1],
+// 				value: filterParts[2],
+// 			});
+// 		}
+// 	});
+// 	const quickFilterValues = params.getAll("q[]");
+// 	return {
+// 		items: filters,
+// 		quickFilterValues,
+// 	};
+// };
 
 interface Props {
 	columns: GridColDef[];
@@ -274,21 +271,21 @@ const AdminTable = ({
 	getRowId,
 }: Props) => {
 	const apiRef = useGridApiRef();
-	const [searchParams, setSearchParams] = useSearchParams();
+	// const [searchParams, setSearchParams] = useSearchParams();
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const setSearch = useCallback(
-		debounce((model: GridFilterModel) => {
-			console.log(model);
-			setSearchParams((prev) => {
-				const params = new URLSearchParams(prev);
-				console.log({ newParams: params });
-				setFiltersToParams(params, model);
-				return prev;
-			});
-		}, 1000),
-		[]
-	);
+	// // eslint-disable-next-line react-hooks/exhaustive-deps
+	// const setSearch = useCallback(
+	// 	debounce((model: GridFilterModel) => {
+	// 		console.log(model);
+	// 		setSearchParams((prev) => {
+	// 			const params = new URLSearchParams(prev);
+	// 			console.log({ newParams: params });
+	// 			setFiltersToParams(params, model);
+	// 			return prev;
+	// 		});
+	// 	}, 1000),
+	// 	[]
+	// );
 
 	return (
 		<>
