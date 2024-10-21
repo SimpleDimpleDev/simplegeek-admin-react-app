@@ -142,7 +142,7 @@ export default function OrderInspectRoute() {
 					) : (
 						<div className="gap-2 d-f fd-c">
 							{/* Main info */}
-							<div className="gap-1 py-2 d-f fd-c">
+							<div className="gap-1 pt-2 d-f fd-c">
 								<Typography variant="h5">Заказ от {DateFormatter.DDMMYYYY(new Date())}</Typography>
 								<Typography variant="subtitle0">ID: {order.id}</Typography>
 
@@ -189,6 +189,7 @@ export default function OrderInspectRoute() {
 													variant="contained"
 													color="success"
 													onClick={() => alert(`self pickup issue: ${order.id}`)}
+													sx={{ color: "white" }}
 												>
 													Выдать заказ
 												</Button>
@@ -215,25 +216,52 @@ export default function OrderInspectRoute() {
 								</div>
 							</div>
 
-							{/* User */}
-							<Paper sx={{ p: 2, width: "max-content" }}>
-								<Typography variant="subtitle0">Пользователь</Typography>
-								<Typography variant="body1">Email: {order.user.email}</Typography>
-								<div className="gap-1 ai-c d-f fd-r">
-									<Button
-										variant="contained"
-										onClick={() => navigate(`/user/inspect/${order.user.id}`)}
-									>
-										Профиль
-									</Button>
-									<Button
-										variant="contained"
-										onClick={() => navigate(`/order/table?f=user:equals:${order.user.email}`)}
-									>
-										Заказы
-									</Button>
-								</div>
-							</Paper>
+							<div className="gap-2 d-f fd-r">
+								{/* User */}
+								<Paper sx={{ p: 2, width: "max-content" }}>
+									<div className="gap-1 d-f fd-c">
+										<Typography variant="subtitle0">Пользователь</Typography>
+										<Typography variant="body1">Email: {order.user.email}</Typography>
+										<div className="gap-1 ai-c d-f fd-r">
+											<Button
+												variant="contained"
+												onClick={() => navigate(`/user/inspect/${order.user.id}`)}
+											>
+												Профиль
+											</Button>
+											<Button
+												variant="contained"
+												onClick={() =>
+													navigate(`/order/table?f=user:equals:${order.user.email}`)
+												}
+											>
+												Заказы
+											</Button>
+										</div>
+									</div>
+								</Paper>
+
+								{/* Initial Payment(Deposit) */}
+								<Paper sx={{ p: 2 }}>
+									<Typography variant="subtitle0">Депозит</Typography>
+									<Typography variant="body1">Сумма: {order.initialInvoice.amount}</Typography>
+									<Typography variant="body1">
+										Создан:{" "}
+										{new Intl.DateTimeFormat("ru", {
+											year: "numeric",
+											month: "numeric",
+											day: "numeric",
+											hour: "numeric",
+											minute: "numeric",
+											second: "numeric",
+										}).format(order.initialInvoice.createdAt)}
+									</Typography>
+									<div className="gap-1 ai-c d-f fd-r">
+										<Typography variant="body1">Оплачено:</Typography>
+										{order.initialInvoice.isPaid ? <Check /> : <Close />}
+									</div>
+								</Paper>
+							</div>
 
 							{/* Delivery */}
 							<Paper sx={{ p: 2 }}>
@@ -334,27 +362,6 @@ export default function OrderInspectRoute() {
 										</div>
 									</>
 								)}
-							</Paper>
-
-							{/* Initial Payment(Deposit) */}
-							<Paper sx={{ p: 2 }}>
-								<Typography variant="subtitle0">Депозит</Typography>
-								<Typography variant="body1">Сумма: {order.initialInvoice.amount}</Typography>
-								<Typography variant="body1">
-									Создан:{" "}
-									{new Intl.DateTimeFormat("ru", {
-										year: "numeric",
-										month: "numeric",
-										day: "numeric",
-										hour: "numeric",
-										minute: "numeric",
-										second: "numeric",
-									}).format(order.initialInvoice.createdAt)}
-								</Typography>
-								<div className="gap-1 ai-c d-f fd-r">
-									<Typography variant="body1">Оплачено:</Typography>
-									{order.initialInvoice.isPaid ? <Check /> : <Close />}
-								</div>
 							</Paper>
 
 							{/* Items */}
