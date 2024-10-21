@@ -305,6 +305,7 @@ const AdminTable = ({
 					onFilterModelChange={setSearch}
 					hideFooter
 					getRowId={getRowId}
+					getRowHeight={() => "auto"}
 					initialState={{
 						sorting: {
 							sortModel: [{ field: "createdAt", sort: "desc" }],
