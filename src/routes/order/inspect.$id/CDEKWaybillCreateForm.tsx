@@ -1,4 +1,4 @@
-import { Add, Remove } from "@mui/icons-material";
+import { Add, Delete } from "@mui/icons-material";
 import { Button, Divider, IconButton, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 
@@ -160,11 +160,13 @@ export default function CDEKWaybillCreateForm({ orderId, onSubmit }: CDEKWaybill
 								/>
 							)}
 						/>
-						<Tooltip title="Удалить коробку">
-							<IconButton onClick={() => removePackage(index)}>
-								<Remove />
-							</IconButton>
-						</Tooltip>
+						{packages.length > 1 && (
+							<Tooltip title="Удалить коробку">
+								<IconButton onClick={() => removePackage(index)}>
+									<Delete />
+								</IconButton>
+							</Tooltip>
+						)}
 					</div>
 				))}
 			</Stack>
