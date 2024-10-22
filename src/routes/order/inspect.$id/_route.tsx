@@ -16,6 +16,8 @@ import { useCallback, useEffect, useState } from "react";
 import {
 	useGetOrderEditablePropsQuery,
 	useGetOrderQuery,
+	useIssueSelfPickupOrdersMutation,
+	useRefundOrderMutation,
 	useUpdateOrderDeliveryMutation,
 	useUpdateOrderStatusMutation,
 } from "@api/admin/order";
@@ -72,11 +74,29 @@ export default function OrderInspectRoute() {
 		},
 	] = useUpdateOrderDeliveryMutation();
 
-	const showLoadingOverlay = statusUpdateIsLoading || deliveryUpdateIsLoading;
+	const [
+		issueSelfPickup,
+		{
+			isLoading: selfPickupIssueIsLoading,
+			isSuccess: selfPickupIssueIsSuccess,
+			isError: selfPickupIssueIsError,
+			error: selfPickupIssueError,
+		},
+	] = useIssueSelfPickupOrdersMutation();
+	const [
+		refundOrder,
+		{
+			isLoading: refundOrderIsLoading,
+			isSuccess: refundOrderIsSuccess,
+			isError: refundOrderIsError,
+			error: refundOrderError,
+		},
+	] = useRefundOrderMutation();
 
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
-	const [selfPickupConfirmDialogOpened, setSelfPickupConfirmDialogOpened] = useState(false);
+	const [selfPickupIssueConfirmDialogOpened, setSelfPickupIssueConfirmDialogOpened] = useState(false);
+	const [refundConfirmDialogOpened, setRefundConfirmDialogOpened] = useState(false);
 
 	const [statusEditing, setStatusEditing] = useState(false);
 	const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "UNDEFINED">("UNDEFINED");
@@ -112,6 +132,16 @@ export default function OrderInspectRoute() {
 		setStatusEditing(false);
 	}, [order?.status]);
 
+	const handleIssueSelfPickup = () => {
+		if (!order) return;
+		issueSelfPickup({ orderIds: [order.id] });
+	};
+
+	const handleRefund = () => {
+		if (!order) return;
+		refundOrder({ orderId: order.id });
+	};
+
 	useMutationFeedback({
 		title: "Обновление статуса",
 		isSuccess: statusUpdateIsSuccess,
@@ -129,6 +159,31 @@ export default function OrderInspectRoute() {
 		feedbackFn: showSnackbarMessage,
 	});
 
+	useMutationFeedback({
+		title: "Выдача самовывоза",
+		isSuccess: selfPickupIssueIsSuccess,
+		isError: selfPickupIssueIsError,
+		error: selfPickupIssueError,
+		feedbackFn: showSnackbarMessage,
+		successAction: () => {
+			setSelfPickupIssueConfirmDialogOpened(false);
+		},
+	});
+
+	useMutationFeedback({
+		title: "Возврат заказа",
+		isSuccess: refundOrderIsSuccess,
+		isError: refundOrderIsError,
+		error: refundOrderError,
+		feedbackFn: showSnackbarMessage,
+		successAction: () => {
+			setRefundConfirmDialogOpened(false);
+		},
+	});
+
+	const showLoadingOverlay =
+		statusUpdateIsLoading || deliveryUpdateIsLoading || selfPickupIssueIsLoading || refundOrderIsLoading;
+
 	return (
 		<>
 			<LoadingOverlay isOpened={showLoadingOverlay} />
@@ -136,17 +191,32 @@ export default function OrderInspectRoute() {
 			<ActionDialog
 				title="Выдать заказ?"
 				helperText="Вы собираетесь выдать этот заказ. Это действие необратимо."
-				opened={selfPickupConfirmDialogOpened}
-				onClose={() => setSelfPickupConfirmDialogOpened(false)}
+				opened={selfPickupIssueConfirmDialogOpened}
+				onClose={() => setSelfPickupIssueConfirmDialogOpened(false)}
 				confirmButton={{
-					text: "Удалить",
-					onClick: () => alert("TODO"),
+					text: "Выдать",
+					onClick: handleIssueSelfPickup,
 				}}
 				declineButton={{
 					text: "Отмена",
-					onClick: () => setSelfPickupConfirmDialogOpened(false),
+					onClick: () => setSelfPickupIssueConfirmDialogOpened(false),
 				}}
 			/>
+			<ActionDialog
+				title="Вернуть заказ?"
+				helperText="Вы собираетесь вернуть этот заказ. Это действие необратимо."
+				opened={refundConfirmDialogOpened}
+				onClose={() => setRefundConfirmDialogOpened(false)}
+				confirmButton={{
+					text: "Удалить",
+					onClick: handleRefund,
+				}}
+				declineButton={{
+					text: "Отмена",
+					onClick: () => setRefundConfirmDialogOpened(false),
+				}}
+			/>
+
 			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 				<Button onClick={() => navigate("/order/table")} sx={{ width: "fit-content", color: "warning.main" }}>
 					<ChevronLeft />К списку всех заказов
@@ -198,14 +268,14 @@ export default function OrderInspectRoute() {
 								</div>
 
 								{/* Controls */}
-								<div className="gap-2 d-f fd-r">
+								<div className="gap-1 ai-c d-f fd-r">
 									{order.delivery && (
-										<div className="gap-1 ai-c d-f fd-r">
+										<>
 											{order.delivery.service === "SELF_PICKUP" ? (
 												<Button
 													variant="contained"
 													color="success"
-													onClick={() => setSelfPickupConfirmDialogOpened(true)}
+													onClick={() => setSelfPickupIssueConfirmDialogOpened(true)}
 													sx={{ color: "white" }}
 												>
 													Выдать заказ
@@ -228,8 +298,16 @@ export default function OrderInspectRoute() {
 													</Button>
 												))
 											)}
-										</div>
+										</>
 									)}
+									<Button
+										variant="contained"
+										color="error"
+										onClick={() => setRefundConfirmDialogOpened(true)}
+										sx={{ color: "white" }}
+									>
+										Вернуть заказ
+									</Button>
 								</div>
 							</div>
 

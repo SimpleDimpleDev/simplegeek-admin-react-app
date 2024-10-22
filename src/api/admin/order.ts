@@ -1,4 +1,12 @@
-import { OrderCDEKWaybillCreateSchema, OrderCDEKWaybillPrintGetSchema, OrderEditablePropsGetSchema, OrderGetSchema, OrderListGetSchema, OrderUpdateDeliverySchema, OrderUpdateStatusSchema } from "@schemas/Order";
+import {
+	OrderCDEKWaybillCreateSchema,
+	OrderCDEKWaybillPrintGetSchema,
+	OrderEditablePropsGetSchema,
+	OrderGetSchema,
+	OrderListGetSchema,
+	OrderUpdateDeliverySchema,
+	OrderUpdateStatusSchema,
+} from "@schemas/Order";
 
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
@@ -52,13 +60,22 @@ export const orderApi = adminApi.injectEndpoints({
 			invalidatesTags: (_result, _error, { id }) => [{ type: "Order", id }],
 		}),
 
-		issueOrders: build.mutation<void, { orderIds: string[] }>({
+		issueSelfPickupOrders: build.mutation<void, { orderIds: string[] }>({
 			query: ({ orderIds }) => ({
 				url: "/admin/order/issue",
 				method: "POST",
 				body: { orderIds },
 			}),
 			invalidatesTags: (_result, _error, { orderIds }) => orderIds.map((id) => ({ type: "Order", id })),
+		}),
+
+		refundOrder: build.mutation<void, { orderId: string }>({
+			query: ({ orderId }) => ({
+				url: "/admin/order/refund",
+				method: "POST",
+				body: { orderId },
+			}),
+			invalidatesTags: (_result, _error, { orderId }) => [{ type: "Order", id: orderId }],
 		}),
 
 		createOrderCDEKWaybill: build.mutation<void, z.infer<typeof OrderCDEKWaybillCreateSchema>>({
@@ -83,8 +100,15 @@ export const orderApi = adminApi.injectEndpoints({
 
 export const {
 	useGetOrderQuery,
+	useGetOrderListQuery,
 	useGetOrderEditablePropsQuery,
+	
 	useUpdateOrderDeliveryMutation,
 	useUpdateOrderStatusMutation,
-	useGetOrderListQuery,
+
+	useIssueSelfPickupOrdersMutation,
+	useRefundOrderMutation,
+
+	useCreateOrderCDEKWaybillMutation,
+	useGetOrderCDEKWaybillPrintQuery,
 } = orderApi;
