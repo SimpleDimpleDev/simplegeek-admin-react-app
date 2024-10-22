@@ -11,12 +11,13 @@ import ManagementModal from "@components/ManagementModal";
 import { PreorderCreateForm } from "./CreateForm";
 import { PreorderGet } from "@appTypes/Preorder";
 import { preorderStatusBadges } from "@components/Badges";
+import { preorderStatusTitles } from "src/constants";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "@hooks/useSnackbar";
 
 const columns: GridColDef<PreorderGet>[] = [
-	{ field: "title", headerName: "Название" },
+	{ field: "title", headerName: "Название", display: "flex" },
 	{
 		field: "status",
 		headerName: "Статус",
@@ -24,6 +25,11 @@ const columns: GridColDef<PreorderGet>[] = [
 		renderCell: ({ row: { status } }) => {
 			return <div className="w-100 h-100 ai-c d-f jc-c">{preorderStatusBadges[status]}</div>;
 		},
+		type: "singleSelect",
+		valueOptions: Array.from(preorderStatusTitles.entries()).map(([status, title]) => ({
+			value: status,
+			label: title,
+		})),
 	},
 	{ field: "expectedArrival", headerName: "Ожидаемая дата доставки", display: "flex" },
 	{ field: "createdAt", headerName: "Создан", type: "dateTime", display: "flex" },
