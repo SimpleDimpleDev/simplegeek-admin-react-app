@@ -200,7 +200,8 @@ const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): vo
 
 	if (filterItems.length > 0) {
 		const filter = filterItems[0];
-		params.set("f", `${filter.field}:${filter.operator}:${filter.value}`);
+		const filterValue = filter.value?.toString() ?? "";
+		params.set("f", `${filter.field}:${filter.operator}:${filterValue}`);
 	} else {
 		params.delete("f");
 	}
