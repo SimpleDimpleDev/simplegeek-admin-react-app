@@ -4,7 +4,10 @@ import { useMemo, useState } from "react";
 
 import { Add } from "@mui/icons-material";
 import AdminTable from "@components/ManagementTable";
+import { CreditInfo } from "@appTypes/Payment";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import { PreorderGet } from "@appTypes/Preorder";
+import { ProductGet } from "@appTypes/Product";
 import { PublicationGet } from "@appTypes/Publication";
 import { getImageUrl } from "@utils/image";
 import { useGetPublicationListQuery } from "@api/admin/publication";
@@ -14,57 +17,73 @@ interface TableRowData {
 	link: string;
 	publicationId: string;
 	variationIndex: number | null;
-	productTitle: string;
-	imageUrl: string;
-	categoryTitle: string;
+	product: ProductGet;
 	price: number;
 	discount: {
 		type: "FIXED" | "PERCENTAGE";
 		value: number;
 	} | null;
-	preorderTitle: string;
-	hasCredit: boolean;
+	preorder: PreorderGet | null;
+	creditInfo: CreditInfo | null;
 	quantity: number | null;
 	createdAt: Date;
 	updatedAt: Date;
 }
 
-const columns: GridColDef[] = [
+const columns: GridColDef<TableRowData>[] = [
 	{
 		field: "link",
-		headerName: "Ссылка",	
+		headerName: "Ссылка",
+		display: "flex",
 	},
 	{
-		field: "productTitle",
+		field: "product",
 		headerName: "Товар",
+		display: "flex",
+		valueGetter: (_, row) => row.product.title,
 		renderCell: (params) => (
 			<div className="gap-1 ai-c d-f fd-r">
 				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden" }}>
-					<img className="contain" src={params.row.imageUrl} />
+					<img className="contain" src={getImageUrl(params.row.product.images[0].url, "small")} />
 				</div>
-				{params.row.productTitle}
+				{params.row.product.title}
 			</div>
 		),
 	},
-	{ field: "categoryTitle", headerName: "Категория" },
+	{
+		field: "category",
+		headerName: "Категория",
+		display: "flex",
+		valueGetter: (_, row) => row.product.category.title,
+	},
 	{ field: "price", headerName: "Цена", type: "number", renderCell: (params) => `${params.row.price} ₽` },
 	{
-		field: "preorderTitle",
+		field: "type",
 		headerName: "Тип",
+		display: "flex",
+		valueGetter: (_, row) => {
+			if (!row.preorder) return "Розница";
+			return `Предзаказ: ${row.preorder.title}`;
+		},
 	},
 	{
-		field: "hasCredit",
+		field: "credit",
 		headerName: "Рассрочка",
+		display: "flex",
 		type: "boolean",
+		valueGetter: (_, row) => {
+			return !!row.creditInfo;
+		},
 	},
 	{
 		field: "quantity",
 		headerName: "Количество",
+		display: "flex",
 		type: "number",
-		renderCell: (params) => (params.row.quantity ? `${params.row.quantity} шт.` : "Неограниченно"),
+		valueGetter: (_, row) => (row.quantity ? `${row.quantity} шт.` : "Неограниченно"),
 	},
-	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
-	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
+	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
+	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
 ];
 
 const formatPublications = (publications: PublicationGet[]): TableRowData[] => {
@@ -74,13 +93,11 @@ const formatPublications = (publications: PublicationGet[]): TableRowData[] => {
 				link: publication.link,
 				publicationId: publication.id,
 				variationIndex: item.variationIndex,
-				productTitle: item.product.title,
-				imageUrl: getImageUrl(item.product.images.at(0)?.url || "", "small"),
-				categoryTitle: item.product.category.title,
+				product: item.product,
 				price: item.price,
 				discount: item.discount,
-				preorderTitle: publication.preorder?.title || "Розница",
-				hasCredit: item.creditInfo ? true : false,
+				preorder: publication.preorder,
+				creditInfo: item.creditInfo,
 				quantity: item.quantity,
 				createdAt: item.createdAt,
 				updatedAt: item.updatedAt,

@@ -14,6 +14,7 @@ const columns: GridColDef<ProductGet>[] = [
 	{
 		field: "title",
 		headerName: "Название",
+		display: "flex",
 		renderCell: (params) => (
 			<div className="gap-1 ai-c d-f fd-r">
 				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden" }}>
@@ -23,10 +24,10 @@ const columns: GridColDef<ProductGet>[] = [
 			</div>
 		),
 	},
-	{ field: "category", headerName: "Категория", renderCell: (params) => params.row.category.title },
-	{ field: "isPublished", headerName: "Есть в публикации", type: "boolean" },
-	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
-	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
+	{ field: "category", headerName: "Категория", display: "flex", valueGetter: (_, row) => row.category.title },
+	{ field: "isPublished", headerName: "Есть в публикации", display: "flex", type: "boolean" },
+	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
+	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
 ];
 
 export default function ProductTableRoute() {

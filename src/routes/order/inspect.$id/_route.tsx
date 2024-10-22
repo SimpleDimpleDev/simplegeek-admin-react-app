@@ -208,7 +208,7 @@ export default function OrderInspectRoute() {
 				opened={refundConfirmDialogOpened}
 				onClose={() => setRefundConfirmDialogOpened(false)}
 				confirmButton={{
-					text: "Удалить",
+					text: "Вернуть",
 					onClick: handleRefund,
 				}}
 				declineButton={{

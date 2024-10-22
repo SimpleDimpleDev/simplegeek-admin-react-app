@@ -29,6 +29,7 @@ const columns: GridColDef<CategoryGet>[] = [
 	{
 		field: "title",
 		headerName: "Название",
+		display: "flex",
 		renderCell: (params) => (
 			<div className="gap-1 ai-c d-f fd-r">
 				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden" }}>
@@ -38,33 +39,41 @@ const columns: GridColDef<CategoryGet>[] = [
 			</div>
 		),
 	},
-	{ field: "link", headerName: "Ссылка" },
-	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
-	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
+	{ field: "link", headerName: "Ссылка", display: "flex" },
+	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
+	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
 ];
 
 export default function CategoryRoute() {
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
-	const [createCategory, { isLoading: createIsLoading, isSuccess: createSuccess, isError: createIsError, error: createError }] =
-		useCreateCategoryMutation();
-	const [updateCategory, { isLoading: updateIsLoading, isSuccess: updateSuccess, isError: updateIsError, error: updateError }] =
-		useUpdateCategoryMutation();
+	const [
+		createCategory,
+		{ isLoading: createIsLoading, isSuccess: createSuccess, isError: createIsError, error: createError },
+	] = useCreateCategoryMutation();
+	const [
+		updateCategory,
+		{ isLoading: updateIsLoading, isSuccess: updateSuccess, isError: updateIsError, error: updateError },
+	] = useUpdateCategoryMutation();
 	const [
 		changeImageCategory,
-		{ isLoading: changeImageIsLoading, isSuccess: changeImageSuccess, isError: changeImageIsError, error: changeImageError },
+		{
+			isLoading: changeImageIsLoading,
+			isSuccess: changeImageSuccess,
+			isError: changeImageIsError,
+			error: changeImageError,
+		},
 	] = useChangeImageCategoryMutation();
 
-	
 	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
 	const closeCreateModal = useCallback(() => {
 		setCreateModalOpened(false);
-	}, [])
+	}, []);
 
 	const [updateModalOpened, setUpdateModalOpened] = useState<boolean>(false);
 	const closeUpdateModal = useCallback(() => {
 		setUpdateModalOpened(false);
-	}, [])
-	
+	}, []);
+
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState<boolean>(false);
 	const closeDeletionDialog = useCallback(() => {
 		setDeletionDialogOpened(false);
@@ -90,8 +99,8 @@ export default function CategoryRoute() {
 		error: createError,
 		feedbackFn: showSnackbarMessage,
 		successAction: closeCreateModal,
-	})
-	
+	});
+
 	useMutationFeedback({
 		title: "Обновление категории",
 		isSuccess: updateSuccess,
@@ -99,7 +108,7 @@ export default function CategoryRoute() {
 		error: updateError,
 		feedbackFn: showSnackbarMessage,
 		successAction: closeUpdateModal,
-	})
+	});
 
 	useMutationFeedback({
 		title: "Изменение картинки категории",
@@ -108,29 +117,16 @@ export default function CategoryRoute() {
 		error: changeImageError,
 		feedbackFn: showSnackbarMessage,
 		successAction: closeUpdateModal,
-	})
+	});
 
 	return (
 		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
 			<LoadingOverlay isOpened={showLoadingOverlay} />
-			<Snackbar
-				open={snackbarOpened}
-				autoHideDuration={2000}
-				onClose={closeSnackbar}
-				message={snackbarMessage}
-			/>
-			<ManagementModal
-				title="Создать категорию"
-				opened={createModalOpened}
-				onClose={closeCreateModal}
-			>
+			<Snackbar open={snackbarOpened} autoHideDuration={2000} onClose={closeSnackbar} message={snackbarMessage} />
+			<ManagementModal title="Создать категорию" opened={createModalOpened} onClose={closeCreateModal}>
 				<CategoryCreateForm onSubmit={createCategory} />
 			</ManagementModal>
-			<ManagementModal
-				title="Изменить категорию"
-				opened={updateModalOpened}
-				onClose={closeUpdateModal}
-			>
+			<ManagementModal title="Изменить категорию" opened={updateModalOpened} onClose={closeUpdateModal}>
 				<LoadingSpinner isLoading={categoryListIsLoading}>
 					{!selectedCategory ? (
 						<Typography variant="h6">Что-то пошло не так</Typography>

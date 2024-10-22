@@ -20,13 +20,14 @@ const columns: GridColDef<PreorderGet>[] = [
 	{
 		field: "status",
 		headerName: "Статус",
+		display: "flex",
 		renderCell: ({ row: { status } }) => {
 			return <div className="w-100 h-100 ai-c d-f jc-c">{preorderStatusBadges[status]}</div>;
 		},
 	},
-	{ field: "expectedArrival", headerName: "Ожидаемая дата доставки" },
-	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
-	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
+	{ field: "expectedArrival", headerName: "Ожидаемая дата доставки", display: "flex" },
+	{ field: "createdAt", headerName: "Создан", type: "dateTime", display: "flex" },
+	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime", display: "flex" },
 ];
 
 export default function PreorderTableRoute() {

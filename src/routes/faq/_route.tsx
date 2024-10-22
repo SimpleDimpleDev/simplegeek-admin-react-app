@@ -15,8 +15,8 @@ import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 
 const columns: GridColDef<FAQItemGet>[] = [
-	{ field: "question", headerName: "Вопрос" },
-	{ field: "answer", headerName: "Ответ" },
+	{ field: "question", headerName: "Вопрос", display: "flex" },
+	{ field: "answer", headerName: "Ответ", display: "flex" },
 ];
 
 export default function FaqRoute() {
@@ -105,7 +105,7 @@ export default function FaqRoute() {
 				onClose={closeDeletionDialog}
 				confirmButton={{
 					text: "Удалить",
-					onClick: () => deleteFAQItems({ids: selectedItemIds.map(String)}),
+					onClick: () => deleteFAQItems({ ids: selectedItemIds.map(String) }),
 				}}
 				declineButton={{
 					text: "Отмена",

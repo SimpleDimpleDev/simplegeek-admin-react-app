@@ -310,6 +310,11 @@ const AdminTable = ({
 						sorting: {
 							sortModel: [{ field: "createdAt", sort: "desc" }],
 						},
+						columns: {
+							columnVisibilityModel: {
+								updatedAt: false,
+							},
+						},
 					}}
 					sx={{
 						"& .MuiDataGrid-columnHeaderTitle": {

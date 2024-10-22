@@ -25,25 +25,29 @@ const columns: GridColDef<FilterGroupGet>[] = [
 	{
 		field: "category",
 		headerName: "Категория",
-		renderCell: (params) => params.row.category?.title || "Без привязки",
+		display: "flex",
+		valueGetter: (_, row) => row.category?.title || "Без привязки",
 	},
 	{
 		field: "filters",
 		headerName: "Значения",
+		display: "flex",
+		sortable: false,
 		maxWidth: 600,
+		valueGetter: (_, row) => row.filters.join(", "),
 		renderCell: (params) => {
 			const valuesString = params.row.filters.map(({ value }) => value).join(", ");
 			return (
-				<div className="ai-c d-f jc-c">
+				<div className="w-100 h-100 ai-c d-f jc-c">
 					<Tooltip title={valuesString}>
-						<Typography>{valuesString}</Typography>
+						<Typography variant="body2" color="black">{valuesString}</Typography>
 					</Tooltip>
 				</div>
 			);
 		},
 	},
-	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
-	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
+	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
+	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
 ];
 
 export default function FilterRoute() {
