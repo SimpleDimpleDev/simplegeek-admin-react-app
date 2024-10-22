@@ -13,3 +13,10 @@ export const handleIntChange =
 			onChange(value);
 		}
 	};
+
+export const formatDateField = (date: Date) => {
+	const yearString = String(date.getFullYear());
+	const monthString = String(date.getMonth() + 1).padStart(2, "0");
+	const dayString = String(date.getDate()).padStart(2, "0");
+	return `${yearString}-${monthString}-${dayString}T00:00:00+00:00`;
+};

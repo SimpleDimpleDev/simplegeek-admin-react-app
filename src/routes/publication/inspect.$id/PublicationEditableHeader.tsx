@@ -4,7 +4,6 @@ import { Divider, IconButton, Paper, Stack, TextField, Tooltip, Typography } fro
 import { useEffect, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
-import { DateFormatter } from "@utils/format";
 import { PublicationGet } from "@appTypes/Publication";
 import { PublicationUpdateSchema } from "@schemas/Publication";
 import { SlugResolver } from "../utils";
@@ -157,7 +156,7 @@ const PublicationEditableHeader: React.FC<PublicationEditableHeaderProps> = ({
 							<Typography variant="body2" sx={{ color: "typography.secondary" }}>
 								Дата публикации
 							</Typography>
-							<Typography variant="subtitle0">{DateFormatter.DDMMYYYY(publication.createdAt)}</Typography>
+							<Typography variant="subtitle0">{new Intl.DateTimeFormat("ru-RU").format(publication.createdAt)}</Typography>
 						</div>
 						<div className="gap-1 pl-2 d-f fd-r jc-c">
 							{!isEditing ? (

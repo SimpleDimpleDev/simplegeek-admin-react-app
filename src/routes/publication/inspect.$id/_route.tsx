@@ -265,8 +265,6 @@ export default function PublicationInspectRoute() {
 											key={variation.id}
 											variation={variation}
 											onUpdate={handleUpdateVariation}
-											updateSuccess={updateVariationIsSuccess}
-											updateError={updateVariationIsError}
 											onDelete={handleDeleteVariation}
 											onActivate={handleActivateVariation}
 											onDeactivate={handleDeactivateVariation}
@@ -278,8 +276,6 @@ export default function PublicationInspectRoute() {
 											key={variation.id}
 											variation={variation}
 											onUpdate={handleUpdateVariation}
-											updateSuccess={updateVariationIsSuccess}
-											updateError={updateVariationIsError}
 											onDelete={handleDeleteVariation}
 											onActivate={handleActivateVariation}
 											onDeactivate={handleDeactivateVariation}

@@ -11,7 +11,6 @@ import {
 	Typography,
 } from "@mui/material";
 import { Check, ChevronLeft, Close, Edit } from "@mui/icons-material";
-import { DateFormatter, getRuGoodsWord } from "@utils/format";
 import { useCallback, useEffect, useState } from "react";
 import {
 	useGetOrderEditablePropsQuery,
@@ -30,6 +29,7 @@ import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { OrderStatus } from "@appTypes/Order";
 import { getImageUrl } from "@utils/image";
+import { getRuGoodsWord } from "@utils/lexical";
 import { orderStatusBadges } from "@components/Badges";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
@@ -219,7 +219,8 @@ export default function OrderInspectRoute() {
 
 			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 				<Button onClick={() => navigate(-1)} sx={{ width: "fit-content", color: "warning.main" }}>
-					<ChevronLeft />Назад
+					<ChevronLeft />
+					Назад
 				</Button>
 				<LoadingSpinner isLoading={orderIsLoading || editablePropsIsLoading}>
 					{!order || !editableProps ? (
@@ -230,7 +231,9 @@ export default function OrderInspectRoute() {
 						<div className="gap-2 d-f fd-c">
 							{/* Main info */}
 							<div className="gap-1 pt-2 d-f fd-c">
-								<Typography variant="h5">Заказ от {DateFormatter.DDMMYYYY(new Date())}</Typography>
+								<Typography variant="h5">
+									Заказ от {new Intl.DateTimeFormat("ru").format(order.createdAt)}
+								</Typography>
 								<Typography variant="subtitle0">ID: {order.id}</Typography>
 
 								{/* Status */}

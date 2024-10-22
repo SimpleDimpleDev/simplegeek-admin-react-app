@@ -36,6 +36,7 @@ import {
 	DropResult,
 	Droppable,
 } from "react-beautiful-dnd";
+import { formatDateField, handleIntChange } from "@utils/forms";
 import { useCallback, useEffect, useMemo } from "react";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -48,7 +49,6 @@ import { PublicationCreate } from "@appTypes/Publication";
 import { PublicationCreateSchema } from "@schemas/Publication";
 import dayjs from "dayjs";
 import { getImageUrl } from "@utils/image";
-import { handleIntChange } from "@utils/forms";
 import tz from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 import { z } from "zod";
@@ -605,18 +605,10 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 						itemVariation.isCredit && itemVariation.creditDeposit !== null
 							? {
 									deposit: itemVariation.creditDeposit,
-									payments: itemVariation.creditPayments.map((payment) => {
-										const localDate = payment.deadline;
-										return {
-											...payment,
-											deadline:
-												localDate &&
-												`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
-													2,
-													"0"
-												)}-${String(localDate.getDate()).padStart(2, "0")}`,
-										};
-									}),
+									payments: itemVariation.creditPayments.map((payment) => ({
+										...payment,
+										deadline: payment.deadline && formatDateField(payment.deadline),
+									})),
 							  }
 							: null,
 				})),

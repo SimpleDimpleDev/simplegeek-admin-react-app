@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useGetUserQuery, useUpdateUserRoleMutation } from "@api/admin/user";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { DateFormatter } from "@utils/format";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { RootState } from "@state/store";
@@ -144,10 +143,10 @@ export default function UserInspectRoute() {
 								<Typography variant="body1">Email: {user.email}</Typography>
 								<Typography variant="body1">VK ID: {user.vkId ?? "Не подключён"}</Typography>
 								<Typography variant="body1">
-									Создан: {DateFormatter.DDMMYYYY(user.createdAt)}
+									Создан: {new Intl.DateTimeFormat("ru-RU").format(user.createdAt)}
 								</Typography>
 								<Typography variant="body1">
-									Обновлен: {DateFormatter.DDMMYYYY(user.updatedAt)}
+									Обновлен: {new Intl.DateTimeFormat("ru-RU").format(user.updatedAt)}
 								</Typography>
 							</div>
 						</>

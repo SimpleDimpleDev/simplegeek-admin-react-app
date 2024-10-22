@@ -73,12 +73,25 @@ const VariationStockUpdateResolver = z.object({
 	creditInfo: z.null(),
 });
 
+const getFormValues = (variation: CatalogItemGet): VariationStockUpdateFormData => ({
+	id: variation.id,
+	rating: variation.rating.toString(),
+	price: variation.price.toString(),
+	quantity: variation.quantity ? variation.quantity.toString() : "0",
+	discount: variation.discount
+		? {
+				type: variation.discount.type,
+				value: variation.discount.value.toString(),
+		  }
+		: null,
+	quantityRestriction: variation.quantityRestriction?.toString() ?? null,
+	creditInfo: null,
+});
+
 interface VariationStockEditableCardProps {
 	variation: CatalogItemGet;
 	maxRating?: number;
 	onUpdate: (data: z.infer<typeof CatalogItemUpdateSchema>) => void;
-	updateSuccess: boolean;
-	updateError: boolean;
 	onDelete: ({ variationId }: { variationId: string }) => void;
 	onActivate: ({ variationId }: { variationId: string }) => void;
 	onDeactivate: ({ variationId }: { variationId: string }) => void;
@@ -88,8 +101,6 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 	variation,
 	maxRating,
 	onUpdate,
-	updateSuccess,
-	updateError,
 	onDelete,
 	onActivate,
 	onDeactivate,
@@ -104,20 +115,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 		formState: { isDirty, errors },
 	} = useForm<VariationStockUpdateFormData>({
 		resolver: zodResolver(VariationStockUpdateResolver),
-		defaultValues: {
-			id: variation.id,
-			rating: variation.rating.toString(),
-			price: variation.price.toString(),
-			quantity: variation.quantity ? variation.quantity.toString() : "0",
-			discount: variation.discount
-				? {
-						type: variation.discount.type,
-						value: variation.discount.value.toString(),
-				  }
-				: null,
-			quantityRestriction: variation.quantityRestriction?.toString() ?? null,
-			creditInfo: null,
-		},
+		defaultValues: getFormValues(variation),
 	});
 
 	const discountValueError = errors?.discount?.value?.message;
@@ -142,22 +140,8 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState(false);
 
 	useEffect(() => {
-		if (updateSuccess || updateError) {
-			reset({
-				id: variation.id,
-				rating: variation.rating.toString(),
-				price: variation.price.toString(),
-				quantity: variation.quantity ? variation.quantity.toString() : "0",
-				discount: variation.discount
-					? {
-							type: variation.discount.type,
-							value: variation.discount.value.toString(),
-					  }
-					: null,
-				quantityRestriction: variation.quantityRestriction?.toString() ?? null,
-			});
-		}
-	}, [variation, reset, updateSuccess, updateError]);
+		reset(getFormValues(variation));
+	}, [variation, reset]);
 
 	const resolvedOnSubmit = (data: VariationStockUpdateFormData) => {
 		console.log(data);

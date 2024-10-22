@@ -17,6 +17,7 @@ import {
 import { AllInclusive, Check, Close, Delete, Edit, ExpandMore, Visibility, VisibilityOff } from "@mui/icons-material";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { formatDateField, handleIntChange } from "@utils/forms";
 import { useEffect, useState } from "react";
 
 import ActionDialog from "@components/ActionDialog";
@@ -26,7 +27,6 @@ import { CatalogItemUpdateSchema } from "@schemas/CatalogItem";
 import { DiscountResolver } from "../utils";
 import dayjs from "dayjs";
 import { getImageUrl } from "@utils/image";
-import { handleIntChange } from "@utils/forms";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -120,8 +120,6 @@ interface VariationPreorderEditableCardProps {
 	variation: CatalogItemGet;
 	maxRating?: number;
 	onUpdate: (data: z.infer<typeof CatalogItemUpdateSchema>) => void;
-	updateSuccess: boolean;
-	updateError: boolean;
 	onDelete: ({ variationId }: { variationId: string }) => void;
 	onActivate: ({ variationId }: { variationId: string }) => void;
 	onDeactivate: ({ variationId }: { variationId: string }) => void;
@@ -131,8 +129,6 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 	variation,
 	maxRating,
 	onUpdate,
-	updateSuccess,
-	updateError,
 	onDelete,
 	onActivate,
 	onDeactivate,
@@ -182,10 +178,8 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 	const [deletionDialogOpened, setDeletionDialogOpened] = useState(false);
 
 	useEffect(() => {
-		if (updateSuccess || updateError) {
-			reset(getFormValues(variation));
-		}
-	}, [variation, reset, updateSuccess, updateError]);
+		reset(getFormValues(variation));
+	}, [variation, reset]);
 
 	const resolvedOnSubmit = (data: VariationPreorderUpdateFormData) => {
 		const formattedData = {
@@ -194,18 +188,10 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 				data.isCredit && data.creditDeposit !== null
 					? {
 							deposit: data.creditDeposit,
-							payments: data.creditPayments.map((payment) => {
-								const localDate = payment.deadline;
-								return {
-									...payment,
-									deadline:
-										localDate &&
-										`${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(
-											2,
-											"0"
-										)}-${String(localDate.getDate()).padStart(2, "0")}`,
-								};
-							}),
+							payments: data.creditPayments.map((payment) => ({
+								...payment,
+								deadline: payment.deadline && formatDateField(payment.deadline),
+							})),
 					  }
 					: null,
 		};
