@@ -354,12 +354,19 @@ export default function OrderInspectRoute() {
 											) : (
 												order.delivery.service === "CDEK" &&
 												(waybillPrint ? (
-													<Button
-														variant="contained"
-														onClick={handleOpenWaybillPrint}
-													>
-														Перейти к накладной СДЭК
-													</Button>
+													<>
+														<Button variant="contained" onClick={handleOpenWaybillPrint}>
+															Перейти к накладной СДЭК
+														</Button>
+														<Button
+															variant="contained"
+															color="error"
+															sx={{ color: "white" }}
+															onClick={() => alert("В разработке")}
+														>
+															Удалить накладную СДЭК
+														</Button>
+													</>
 												) : (
 													<Button
 														variant="contained"

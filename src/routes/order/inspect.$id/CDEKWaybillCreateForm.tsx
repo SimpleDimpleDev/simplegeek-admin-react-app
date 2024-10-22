@@ -174,7 +174,7 @@ export default function CDEKWaybillCreateForm({ orderId, onSubmit }: CDEKWaybill
 					<Add />
 				</IconButton>
 			</Tooltip>
-			<Button type="submit">Создать</Button>
+			<Button variant="contained" type="submit">Создать</Button>
 		</form>
 	);
 }
