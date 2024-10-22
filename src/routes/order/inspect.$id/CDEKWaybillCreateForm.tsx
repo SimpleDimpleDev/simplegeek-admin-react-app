@@ -160,13 +160,12 @@ export default function CDEKWaybillCreateForm({ orderId, onSubmit }: CDEKWaybill
 								/>
 							)}
 						/>
-						{packages.length > 1 && (
-							<Tooltip title="Удалить коробку">
-								<IconButton onClick={() => removePackage(index)}>
-									<Delete />
-								</IconButton>
-							</Tooltip>
-						)}
+
+						<Tooltip title="Удалить коробку">
+							<IconButton disabled={packages.length === 1} onClick={() => removePackage(index)}>
+								<Delete />
+							</IconButton>
+						</Tooltip>
 					</div>
 				))}
 			</Stack>
