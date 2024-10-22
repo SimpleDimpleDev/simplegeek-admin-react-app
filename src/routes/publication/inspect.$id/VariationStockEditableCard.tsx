@@ -19,12 +19,17 @@ import { useEffect, useMemo, useState } from "react";
 import ActionDialog from "@components/ActionDialog";
 import { CatalogItemGet } from "@appTypes/CatalogItem";
 import { CatalogItemUpdateSchema } from "@schemas/CatalogItem";
-import { DiscountResolver } from "../utils";
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+
+// import { DiscountResolver } from "../utils";
+
+
+
+
+// import { zodResolver } from "@hookform/resolvers/zod";
 
 const textFieldProps = {
 	onFocus: (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement, Element>) => {
@@ -55,21 +60,21 @@ type VariationStockUpdateFormData = {
 	quantityRestriction: string | null;
 };
 
-const VariationStockUpdateResolver = z.object({
-	id: z.string({ message: "Выберите вариацию" }),
-	rating: z.coerce
-		.number({ message: "Укажите рейтинг" })
-		.nonnegative({ message: "Рейтинг не может быть отрицательным числом" }),
-	quantity: z.coerce
-		.number({ message: "Укажите количество" })
-		.positive({ message: "Количество должно быть положительным числом" }),
-	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
-	discount: DiscountResolver.nullable(),
-	quantityRestriction: z.coerce
-		.number()
-		.positive({ message: "Количество должно быть положительным числом" })
-		.nullable(),
-});
+// const VariationStockUpdateResolver = z.object({
+// 	id: z.string({ message: "Выберите вариацию" }),
+// 	rating: z.coerce
+// 		.number({ message: "Укажите рейтинг" })
+// 		.nonnegative({ message: "Рейтинг не может быть отрицательным числом" }),
+// 	quantity: z.coerce
+// 		.number({ message: "Укажите количество" })
+// 		.positive({ message: "Количество должно быть положительным числом" }),
+// 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
+// 	discount: DiscountResolver.nullable(),
+// 	quantityRestriction: z.coerce
+// 		.number()
+// 		.positive({ message: "Количество должно быть положительным числом" })
+// 		.nullable(),
+// });
 
 interface VariationStockEditableCardProps {
 	variation: CatalogItemGet;
@@ -85,7 +90,7 @@ interface VariationStockEditableCardProps {
 const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 	variation,
 	maxRating,
-	onUpdate,
+	// onUpdate,
 	updateSuccess,
 	updateError,
 	onDelete,
@@ -101,7 +106,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 		reset,
 		formState: { isDirty, errors },
 	} = useForm<VariationStockUpdateFormData>({
-		resolver: zodResolver(VariationStockUpdateResolver),
+		// resolver: zodResolver(VariationStockUpdateResolver),
 		defaultValues: {
 			id: variation.id,
 			rating: variation.rating.toString(),
@@ -157,7 +162,8 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 	}, [variation, reset, updateSuccess, updateError]);
 
 	const resolvedOnSubmit = (data: VariationStockUpdateFormData) => {
-		onUpdate(CatalogItemUpdateSchema.parse(data));
+		console.log(data);
+		// onUpdate(CatalogItemUpdateSchema.parse(data));
 		setIsEditing(false);
 	};
 
