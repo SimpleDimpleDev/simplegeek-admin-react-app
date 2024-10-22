@@ -92,15 +92,15 @@ export default function UserInspectRoute() {
 						</div>
 					) : (
 						<>
-							<div className="px-2 py-2">
+							<div className="pt-2">
 								<Typography variant="h5">Пользователь {user.email} </Typography>
 							</div>
 							{currentUser.identity?.id === user.id ? (
 								<Typography variant="subtitle0">Вы - {userRoleTitles.get(user.role)}</Typography>
 							) : (
-								<div className="gap-1 ai-c d-f fd-r">
-									<div className="gap-05 d-f fd-c">
-										<Typography variant="subtitle0">Статус</Typography>
+								<div className="gap-05 d-f fd-c">
+									<Typography variant="subtitle0">Роль</Typography>
+									<div className="gap-1 ai-c d-f fd-r">
 										<Select
 											labelId="demo-simple-select-label"
 											id="demo-simple-select"
@@ -112,21 +112,22 @@ export default function UserInspectRoute() {
 												<MenuItem value={role}>{roleTitle}</MenuItem>
 											))}
 										</Select>
+
+										{roleEditing ? (
+											<>
+												<IconButton sx={{ color: "success.main" }} onClick={handleUpdateRole}>
+													<Check />
+												</IconButton>
+												<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditRole}>
+													<Close />
+												</IconButton>
+											</>
+										) : (
+											<IconButton onClick={handleStartEditRole}>
+												<Edit />
+											</IconButton>
+										)}
 									</div>
-									{roleEditing ? (
-										<>
-											<IconButton sx={{ color: "success.main" }} onClick={handleUpdateRole}>
-												<Check />
-											</IconButton>
-											<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditRole}>
-												<Close />
-											</IconButton>
-										</>
-									) : (
-										<IconButton onClick={handleStartEditRole}>
-											<Edit />
-										</IconButton>
-									)}
 								</div>
 							)}
 
