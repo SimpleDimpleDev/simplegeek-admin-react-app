@@ -1,14 +1,4 @@
-import {
-	Button,
-	FormControl,
-	IconButton,
-	InputLabel,
-	MenuItem,
-	Select,
-	SelectChangeEvent,
-	Snackbar,
-	Typography,
-} from "@mui/material";
+import { Button, IconButton, MenuItem, Select, SelectChangeEvent, Snackbar, Typography } from "@mui/material";
 import { Check, ChevronLeft, Close, Edit } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import { useGetUserQuery, useUpdateUserRoleMutation } from "@api/admin/user";
@@ -105,41 +95,52 @@ export default function UserInspectRoute() {
 							<div className="px-2 py-2">
 								<Typography variant="h5">Пользователь {user.email} </Typography>
 							</div>
-							<div className="section">
-								{currentUser.identity?.id === user.id ? (
-									<Typography variant="h5">Вы - {userRoleTitles.get(user.role)}</Typography>
-								) : (
-									<div className="gap-1 ai-c d-f fd-r">
-										<FormControl disabled={!roleEditing}>
-											<InputLabel id="demo-simple-select-label">Роль</InputLabel>
-											<Select
-												labelId="demo-simple-select-label"
-												id="demo-simple-select"
-												value={selectedRole}
-												label="Роль"
-												onChange={handleSelectRole}
-											>
-												{Array.from(userRoleTitles.entries()).map(([role, roleTitle]) => (
-													<MenuItem value={role}>{roleTitle}</MenuItem>
-												))}
-											</Select>
-										</FormControl>
-										{roleEditing ? (
-											<>
-												<IconButton sx={{ color: "success.main" }} onClick={handleUpdateRole}>
-													<Check />
-												</IconButton>
-												<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditRole}>
-													<Close />
-												</IconButton>
-											</>
-										) : (
-											<IconButton onClick={handleStartEditRole}>
-												<Edit />
-											</IconButton>
-										)}
+							{currentUser.identity?.id === user.id ? (
+								<Typography variant="subtitle0">Вы - {userRoleTitles.get(user.role)}</Typography>
+							) : (
+								<div className="gap-1 ai-c d-f fd-r">
+									<div className="gap-05 d-f fd-c">
+										<Typography variant="subtitle0">Статус</Typography>
+										<Select
+											labelId="demo-simple-select-label"
+											id="demo-simple-select"
+											value={selectedRole}
+											label="Роль"
+											onChange={handleSelectRole}
+										>
+											{Array.from(userRoleTitles.entries()).map(([role, roleTitle]) => (
+												<MenuItem value={role}>{roleTitle}</MenuItem>
+											))}
+										</Select>
 									</div>
-								)}
+									{roleEditing ? (
+										<>
+											<IconButton sx={{ color: "success.main" }} onClick={handleUpdateRole}>
+												<Check />
+											</IconButton>
+											<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditRole}>
+												<Close />
+											</IconButton>
+										</>
+									) : (
+										<IconButton onClick={handleStartEditRole}>
+											<Edit />
+										</IconButton>
+									)}
+								</div>
+							)}
+
+							<div className="gap-1 ai-c d-f fd-r">
+								<Button
+									variant="contained"
+									onClick={() => navigate(`/order/table?f=user:equals:${user.email}`)}
+								>
+									Заказы
+								</Button>
+							</div>
+
+							<div className="section">
+								<Typography variant="subtitle0">Информация</Typography>
 								<Typography variant="body1">Email: {user.email}</Typography>
 								<Typography variant="body1">VK ID: {user.vkId ?? "Не подключён"}</Typography>
 								<Typography variant="body1">

@@ -218,8 +218,8 @@ export default function OrderInspectRoute() {
 			/>
 
 			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
-				<Button onClick={() => navigate("/order/table")} sx={{ width: "fit-content", color: "warning.main" }}>
-					<ChevronLeft />К списку всех заказов
+				<Button onClick={() => navigate(-1)} sx={{ width: "fit-content", color: "warning.main" }}>
+					<ChevronLeft />Назад
 				</Button>
 				<LoadingSpinner isLoading={orderIsLoading || editablePropsIsLoading}>
 					{!order || !editableProps ? (

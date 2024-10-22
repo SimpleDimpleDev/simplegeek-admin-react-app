@@ -10,12 +10,18 @@ import { useNavigate } from "react-router-dom";
 import { userRoleTitles } from "src/constants";
 
 const columns: GridColDef<UserGet>[] = [
-	{ field: "role", headerName: "Роль", renderCell: ({row}) => userRoleTitles.get(row.role) },
-	{ field: "email", headerName: "Email" },
-	{ field: "createdAt", headerName: "Создан", type: "dateTime" },
-	{ field: "updatedAt", headerName: "Обновлен", type: "dateTime" },
-	{ field: "verified", headerName: "Подтвержден", type: "boolean" },
-	{ field: "vkId", headerName: "Вконтакте", type: "boolean", valueGetter: (_value, row) => (row.vkId ? true : false) },
+	{ field: "role", headerName: "Роль", display: "flex", valueGetter: (_, row) => userRoleTitles.get(row.role) },
+	{ field: "email", headerName: "Email", display: "flex" },
+	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
+	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
+	{ field: "verified", headerName: "Подтвержден", display: "flex", type: "boolean" },
+	{
+		field: "vkId",
+		headerName: "Вконтакте",
+		display: "flex",
+		type: "boolean",
+		valueGetter: (_value, row) => (row.vkId ? true : false),
+	},
 ];
 
 export default function UserTableRoute() {
