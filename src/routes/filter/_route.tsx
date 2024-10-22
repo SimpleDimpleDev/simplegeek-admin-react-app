@@ -21,7 +21,7 @@ import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 
 const columns: GridColDef<FilterGroupGet>[] = [
-	{ field: "title", headerName: "Название" },
+	{ field: "title", headerName: "Название", display: "flex" },
 	{
 		field: "category",
 		headerName: "Категория",
@@ -34,13 +34,15 @@ const columns: GridColDef<FilterGroupGet>[] = [
 		display: "flex",
 		sortable: false,
 		maxWidth: 600,
-		valueGetter: (_, row) => row.filters.join(", "),
+		valueGetter: (_, row) => row.filters.map(({ value }) => value).join(", "),
 		renderCell: (params) => {
 			const valuesString = params.row.filters.map(({ value }) => value).join(", ");
 			return (
 				<div className="w-100 h-100 ai-c d-f jc-c">
 					<Tooltip title={valuesString}>
-						<Typography variant="body2" color="black">{valuesString}</Typography>
+						<Typography variant="body2" color="black">
+							{valuesString}
+						</Typography>
 					</Tooltip>
 				</div>
 			);
