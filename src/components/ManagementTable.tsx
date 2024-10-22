@@ -223,7 +223,7 @@ const getFiltersFromParams = (params: URLSearchParams): GridFilterModel => {
 			items.push({
 				field: filterParts[0],
 				operator: filterParts[1],
-				value: filterParts[2],
+				value: filterParts.at(2) ?? "",
 			});
 		}
 	}
