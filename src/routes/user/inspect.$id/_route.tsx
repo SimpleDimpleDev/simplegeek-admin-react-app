@@ -102,8 +102,7 @@ export default function UserInspectRoute() {
 									<Typography variant="subtitle0">Роль</Typography>
 									<div className="gap-1 ai-c d-f fd-r">
 										<Select
-											labelId="demo-simple-select-label"
-											id="demo-simple-select"
+											disabled={!roleEditing}
 											value={selectedRole}
 											label="Роль"
 											onChange={handleSelectRole}
