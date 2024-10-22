@@ -53,6 +53,7 @@ type VariationStockUpdateFormData = {
 		value: string;
 	} | null;
 	quantityRestriction: string | null;
+	creditInfo: null;
 };
 
 const VariationStockUpdateResolver = z.object({
@@ -69,6 +70,7 @@ const VariationStockUpdateResolver = z.object({
 		.number()
 		.positive({ message: "Количество должно быть положительным числом" })
 		.nullable(),
+	creditInfo: z.null(),
 });
 
 interface VariationStockEditableCardProps {
@@ -85,7 +87,7 @@ interface VariationStockEditableCardProps {
 const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 	variation,
 	maxRating,
-	// onUpdate,
+	onUpdate,
 	updateSuccess,
 	updateError,
 	onDelete,
@@ -114,6 +116,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 				  }
 				: null,
 			quantityRestriction: variation.quantityRestriction?.toString() ?? null,
+			creditInfo: null,
 		},
 	});
 
@@ -158,7 +161,7 @@ const VariationStockEditableCard: React.FC<VariationStockEditableCardProps> = ({
 
 	const resolvedOnSubmit = (data: VariationStockUpdateFormData) => {
 		console.log(data);
-		// onUpdate(CatalogItemUpdateSchema.parse(data));
+		onUpdate(CatalogItemUpdateSchema.parse(data));
 		setIsEditing(false);
 	};
 
