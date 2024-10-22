@@ -1,8 +1,10 @@
 import {
 	Button,
+	CircularProgress,
 	Divider,
 	IconButton,
 	MenuItem,
+	Modal,
 	Paper,
 	Select,
 	SelectChangeEvent,
@@ -11,8 +13,10 @@ import {
 	Typography,
 } from "@mui/material";
 import { Check, ChevronLeft, Close, Edit } from "@mui/icons-material";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import {
+	useCreateOrderCDEKWaybillMutation,
+	useGetOrderCDEKWaybillPrintQuery,
 	useGetOrderEditablePropsQuery,
 	useGetOrderQuery,
 	useIssueSelfPickupOrdersMutation,
@@ -34,15 +38,14 @@ import { orderStatusBadges } from "@components/Badges";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 
+const CDEKWaybillCreateForm = lazy(() => import("./CDEKWaybillCreateForm"));
+
 const deliveryServiceMapping: Record<DeliveryService, string> = {
 	CDEK: "СДЕК",
 	SELF_PICKUP: "Самовывоз",
 };
 
 export default function OrderInspectRoute() {
-	// TODO: fetch from backend
-	const hasGeneratedWaybillPrint = false;
-
 	const navigate = useNavigate();
 	const params = useParams();
 	const orderId = params.id;
@@ -54,6 +57,11 @@ export default function OrderInspectRoute() {
 		},
 		{ refetchOnMountOrArgChange: true }
 	);
+	const {
+		data: waybillPrint,
+		isLoading: waybillPrintIsLoading,
+		refetch: refetchWaybillPrint,
+	} = useGetOrderCDEKWaybillPrintQuery({ orderId });
 
 	const [
 		updateStatus,
@@ -64,6 +72,7 @@ export default function OrderInspectRoute() {
 			error: statusUpdateError,
 		},
 	] = useUpdateOrderStatusMutation();
+
 	const [
 		updateDelivery,
 		{
@@ -84,6 +93,16 @@ export default function OrderInspectRoute() {
 		},
 	] = useIssueSelfPickupOrdersMutation();
 	const [
+		createOrderCDEKWaybill,
+		{
+			isLoading: createOrderCDEKWaybillIsLoading,
+			isSuccess: createOrderCDEKWaybillIsSuccess,
+			isError: createOrderCDEKWaybillIsError,
+			error: createOrderCDEKWaybillError,
+		},
+	] = useCreateOrderCDEKWaybillMutation();
+
+	const [
 		refundOrder,
 		{
 			isLoading: refundOrderIsLoading,
@@ -95,6 +114,7 @@ export default function OrderInspectRoute() {
 
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
+	const [waybillCreateModalOpened, setWaybillCreateModalOpened] = useState(false);
 	const [selfPickupIssueConfirmDialogOpened, setSelfPickupIssueConfirmDialogOpened] = useState(false);
 	const [refundConfirmDialogOpened, setRefundConfirmDialogOpened] = useState(false);
 
@@ -137,6 +157,30 @@ export default function OrderInspectRoute() {
 		issueSelfPickup({ orderIds: [order.id] });
 	};
 
+	const handleOpenWaybillPrint = () => {
+		if (!waybillPrint) return;
+		fetch(waybillPrint.url, {
+			method: "GET", // or 'POST', etc. depending on your API
+			headers: {
+				Authorization: `Bearer ${waybillPrint.token}`, // Include any necessary headers
+			},
+		})
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error("Network response was not ok " + response.statusText);
+				}
+				return response.blob(); // Convert the response to a Blob
+			})
+			.then((blob) => {
+				const blobUrl = URL.createObjectURL(blob); // Create a URL for the Blob
+
+				window.open(blobUrl); // Open the Blob URL in a new tab
+			})
+			.catch((error) => {
+				console.error("There was a problem with the fetch operation:", error);
+			});
+	};
+
 	const handleRefund = () => {
 		if (!order) return;
 		refundOrder({ orderId: order.id });
@@ -171,6 +215,18 @@ export default function OrderInspectRoute() {
 	});
 
 	useMutationFeedback({
+		title: "Создание накладной",
+		isSuccess: createOrderCDEKWaybillIsSuccess,
+		isError: createOrderCDEKWaybillIsError,
+		error: createOrderCDEKWaybillError,
+		feedbackFn: showSnackbarMessage,
+		successAction: () => {
+			refetchWaybillPrint();
+			setWaybillCreateModalOpened(false);
+		},
+	});
+
+	useMutationFeedback({
 		title: "Возврат заказа",
 		isSuccess: refundOrderIsSuccess,
 		isError: refundOrderIsError,
@@ -182,7 +238,11 @@ export default function OrderInspectRoute() {
 	});
 
 	const showLoadingOverlay =
-		statusUpdateIsLoading || deliveryUpdateIsLoading || selfPickupIssueIsLoading || refundOrderIsLoading;
+		statusUpdateIsLoading ||
+		deliveryUpdateIsLoading ||
+		selfPickupIssueIsLoading ||
+		createOrderCDEKWaybillIsLoading ||
+		refundOrderIsLoading;
 
 	return (
 		<>
@@ -216,13 +276,21 @@ export default function OrderInspectRoute() {
 					onClick: () => setRefundConfirmDialogOpened(false),
 				}}
 			/>
-
+			<Modal open={waybillCreateModalOpened} onClose={() => setWaybillCreateModalOpened(false)}>
+				{!order ? (
+					<CircularProgress />
+				) : (
+					<Suspense fallback={<CircularProgress />}>
+						<CDEKWaybillCreateForm orderId={order?.id} onSubmit={createOrderCDEKWaybill} />
+					</Suspense>
+				)}
+			</Modal>
 			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 				<Button onClick={() => navigate(-1)} sx={{ width: "fit-content", color: "warning.main" }}>
 					<ChevronLeft />
 					Назад
 				</Button>
-				<LoadingSpinner isLoading={orderIsLoading || editablePropsIsLoading}>
+				<LoadingSpinner isLoading={orderIsLoading || editablePropsIsLoading || waybillPrintIsLoading}>
 					{!order || !editableProps ? (
 						<div className="w-100 h-100v ai-c d-f jc-c">
 							<Typography variant="h5">Что-то пошло не так</Typography>
@@ -285,17 +353,17 @@ export default function OrderInspectRoute() {
 												</Button>
 											) : (
 												order.delivery.service === "CDEK" &&
-												(hasGeneratedWaybillPrint ? (
+												(waybillPrint ? (
 													<Button
 														variant="contained"
-														onClick={() => alert(`cdek waybill get: ${order.id}`)}
+														onClick={handleOpenWaybillPrint}
 													>
 														Перейти к накладной СДЭК
 													</Button>
 												) : (
 													<Button
 														variant="contained"
-														onClick={() => alert(`cdek waybill generate: ${order.id}`)}
+														onClick={() => setWaybillCreateModalOpened(true)}
 													>
 														Сформировать накладную СДЭК
 													</Button>
