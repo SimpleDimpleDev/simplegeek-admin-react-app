@@ -21,10 +21,10 @@ const CDEKWaybillCreateFormResolver = z.object({
 	orderId: z.string(),
 	packages: z
 		.object({
-			length: z.coerce.number(),
-			width: z.coerce.number(),
-			height: z.coerce.number(),
-			weight: z.coerce.number(),
+			length: z.coerce.number().positive({ message: "Длина должна быть положительным числом" }),
+			width: z.coerce.number().positive({ message: "Ширина должна быть положительным числом" }),
+			height: z.coerce.number().positive({ message: "Высота должна быть положительным числом" }),
+			weight: z.coerce.number().positive({ message: "Вес должен быть положительным числом" }),
 		})
 		.array()
 		.nonempty(),
