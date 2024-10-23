@@ -459,7 +459,7 @@ export default function OrderInspectRoute() {
 													divider={<Divider orientation="horizontal" flexItem />}
 												>
 													<div className="gap-2 d-f fd-c">
-														<Typography variant={"subtitle0"}>Доставка</Typography>
+														<Typography variant={"h6"}>Доставка</Typography>
 														<div className={`d-f fd-r jc-sb`}>
 															<div className="gap-05 w-100 d-f fd-c">
 																<Typography

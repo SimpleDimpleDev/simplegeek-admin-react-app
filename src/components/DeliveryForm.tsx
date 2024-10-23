@@ -88,6 +88,7 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 	});
 
 	const service = watch("service");
+	const deliveryPoint = watch("point");
 	const cdekDeliveryData = watch("cdekDeliveryData");
 
 	const [isEditing, setIsEditing] = useState(!delivery);
@@ -151,7 +152,7 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 			</Modal>
 			<form className="section" onSubmit={handleSubmit(handleSave)}>
 				<div className="gap-2 d-f fd-c">
-					<Typography variant={"h5"}>{isMobile ? "Доставка" : "Адрес и способ доставки"} </Typography>
+					<Typography variant={"h6"}>{isMobile ? "Доставка" : "Адрес и способ доставки"} </Typography>
 					<Box>
 						<CardRadio
 							isChecked={service === "SELF_PICKUP"}
@@ -174,16 +175,20 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 
 					{service === "SELF_PICKUP" && (
 						<Box display={"flex"} flexDirection={"column"} gap={"8px"}>
-							<Typography variant="h6">Самовывоз</Typography>
+							<Typography variant="subtitle0">Самовывоз</Typography>
 						</Box>
 					)}
 
 					{service === "CDEK" && (
 						<Box display={"flex"} flexDirection={"column"} gap={"8px"}>
-							{cdekDeliveryData ? (
+							{deliveryPoint && !cdekDeliveryData ? (
+								<Typography>
+									{deliveryPoint.address} - {deliveryPoint.code}
+								</Typography>
+							) : cdekDeliveryData ? (
 								<CDEKDeliveryInfo {...cdekDeliveryData} />
 							) : (
-								<Typography variant="h6">Адрес не выбран</Typography>
+								<Typography variant="subtitle0">Адрес не выбран</Typography>
 							)}
 							{isEditing && (
 								<Button
@@ -211,7 +216,7 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 				</div>
 
 				<div>
-					<Typography variant="h5">Получатель</Typography>
+					<Typography variant="h6">Получатель</Typography>
 					<Grid2 container spacing={2}>
 						<Grid2 size={{ xs: 12, sm: 12, md: 6 }}>
 							<Controller
