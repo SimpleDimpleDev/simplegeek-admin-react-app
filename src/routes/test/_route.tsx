@@ -15,7 +15,7 @@ import { Box, Button, ListItem, Typography } from "@mui/material";
 import { DeliveryForm } from "@components/DeliveryForm";
 import { Link } from "react-router-dom";
 import NavButton from "@components/NavButton";
-import logo from "@assets/MainLogoBig.png";
+import logo from "@assets/MainLogoBig.webp";
 
 // import { CatalogItemGet } from "@appTypes/CatalogItem";
 

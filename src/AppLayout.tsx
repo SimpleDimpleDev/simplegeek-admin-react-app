@@ -14,7 +14,7 @@ import { Box, Button, ListItem, Typography } from "@mui/material";
 import { Link, Outlet } from "react-router-dom";
 
 import NavButton from "@components/NavButton";
-import logo from "@assets/MainLogoBig.png";
+import logo from "@assets/MainLogoBig.webp";
 
 export default function AppLayout() {
 	return (
