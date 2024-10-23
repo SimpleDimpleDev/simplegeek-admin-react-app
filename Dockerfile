@@ -3,8 +3,8 @@ WORKDIR /app
 COPY package.json .
 RUN npm install
 COPY . .
-ARG SHOP_API_URL
-ARG AUTH_API_URL
+ARG SHOP_API_URL=https://api.simplegeek.ru
+ARG AUTH_API_URL=https://auth.simplegeek.ru
 RUN npm run build
 
 # Nginx server
@@ -21,4 +21,3 @@ COPY ./nginx.conf /etc/nginx
 COPY --from=frontend-build ./app/dist /usr/share/nginx/html
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
-
