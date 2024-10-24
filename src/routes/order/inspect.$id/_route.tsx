@@ -15,8 +15,12 @@ import {
 import { Check, ChevronLeft, Close, Edit } from "@mui/icons-material";
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import {
-	useCreateOrderCDEKWaybillMutation,
-	useGetOrderCDEKWaybillPrintQuery,
+	useCreateCDEKWaybillMutation,
+	useCreateCDEKWaybillPrintMutation,
+	useLazyGetCDEKTokenQuery,
+	useLazyGetCDEKWaybillQuery,
+} from "@api/admin/cdek";
+import {
 	useGetOrderEditablePropsQuery,
 	useGetOrderQuery,
 	useIssueSelfPickupOrdersMutation,
@@ -50,18 +54,31 @@ export default function OrderInspectRoute() {
 	const params = useParams();
 	const orderId = params.id;
 	if (!orderId) throw new Response("No order id provided", { status: 404 });
-	const { data: order, isLoading: orderIsLoading } = useGetOrderQuery({ orderId });
+	const { data: order, isLoading: orderIsLoading, refetch: refetchOrder } = useGetOrderQuery({ orderId });
 	const { data: editableProps, isLoading: editablePropsIsLoading } = useGetOrderEditablePropsQuery(
 		{
 			orderId,
 		},
 		{ refetchOnMountOrArgChange: true }
 	);
-	const {
-		data: waybillPrint,
-		isLoading: waybillPrintIsLoading,
-		refetch: refetchWaybillPrint,
-	} = useGetOrderCDEKWaybillPrintQuery({ orderId });
+	const [getCDEKWaybill, { data: CDEKWaybill, isLoading: CDEKWaybillIsLoading }] = useLazyGetCDEKWaybillQuery();
+	const [getCDEKToken, { data: cdekTokenData }] = useLazyGetCDEKTokenQuery();
+
+	useEffect(() => {
+		if (!order?.delivery) return;
+		const orderDelivery = order.delivery;
+		if (orderDelivery.service === "CDEK") {
+			getCDEKToken();
+			setInterval(() => getCDEKWaybill({ deliveryId: orderDelivery.id }), 1000 * 5);
+		}
+	}, [order, getCDEKWaybill, getCDEKToken]);
+
+	useEffect(() => {
+		if (!CDEKWaybill) return;
+		if (CDEKWaybill.status === "CREATED") {
+			refetchOrder();
+		}
+	}, [CDEKWaybill, refetchOrder]);
 
 	const [
 		updateStatus,
@@ -92,15 +109,26 @@ export default function OrderInspectRoute() {
 			error: selfPickupIssueError,
 		},
 	] = useIssueSelfPickupOrdersMutation();
+
 	const [
-		createOrderCDEKWaybill,
+		createCDEKWaybill,
 		{
-			isLoading: createOrderCDEKWaybillIsLoading,
-			isSuccess: createOrderCDEKWaybillIsSuccess,
-			isError: createOrderCDEKWaybillIsError,
-			error: createOrderCDEKWaybillError,
+			isLoading: createCDEKWaybillIsLoading,
+			isSuccess: createCDEKWaybillIsSuccess,
+			isError: createCDEKWaybillIsError,
+			error: createCDEKWaybillError,
 		},
-	] = useCreateOrderCDEKWaybillMutation();
+	] = useCreateCDEKWaybillMutation();
+
+	const [
+		createCDEKWaybillPrint,
+		{
+			isLoading: createCDEKWaybillPrintIsLoading,
+			isSuccess: createCDEKWaybillPrintIsSuccess,
+			isError: createCDEKWaybillPrintIsError,
+			error: createCDEKWaybillPrintError,
+		},
+	] = useCreateCDEKWaybillPrintMutation();
 
 	const [
 		refundOrder,
@@ -157,12 +185,19 @@ export default function OrderInspectRoute() {
 		issueSelfPickup({ orderIds: [order.id] });
 	};
 
+	const handleCreateCDEKWaybillPrint = () => {
+		if (!order?.delivery) return;
+		createCDEKWaybillPrint({ deliveryId: order.delivery.id });
+	};
+
 	const handleOpenWaybillPrint = () => {
-		if (!waybillPrint) return;
-		fetch(waybillPrint.url, {
+		if (!CDEKWaybill) return;
+		if (!CDEKWaybill.print?.url) return;
+		if (!cdekTokenData?.token) return;
+		fetch(CDEKWaybill.print.url, {
 			method: "GET", // or 'POST', etc. depending on your API
 			headers: {
-				Authorization: `Bearer ${waybillPrint.token}`, // Include any necessary headers
+				Authorization: `Bearer ${cdekTokenData.token}`, // Include any necessary headers
 			},
 		})
 			.then((response) => {
@@ -215,15 +250,22 @@ export default function OrderInspectRoute() {
 	});
 
 	useMutationFeedback({
-		title: "Создание накладной",
-		isSuccess: createOrderCDEKWaybillIsSuccess,
-		isError: createOrderCDEKWaybillIsError,
-		error: createOrderCDEKWaybillError,
+		title: "Запрос на создание накладной",
+		isSuccess: createCDEKWaybillIsSuccess,
+		isError: createCDEKWaybillIsError,
+		error: createCDEKWaybillError,
 		feedbackFn: showSnackbarMessage,
 		successAction: () => {
-			refetchWaybillPrint();
 			setWaybillCreateModalOpened(false);
 		},
+	});
+
+	useMutationFeedback({
+		title: "Запрос на создание распечатки накладной",
+		isSuccess: createCDEKWaybillPrintIsSuccess,
+		isError: createCDEKWaybillPrintIsError,
+		error: createCDEKWaybillPrintError,
+		feedbackFn: showSnackbarMessage,
 	});
 
 	useMutationFeedback({
@@ -241,7 +283,8 @@ export default function OrderInspectRoute() {
 		statusUpdateIsLoading ||
 		deliveryUpdateIsLoading ||
 		selfPickupIssueIsLoading ||
-		createOrderCDEKWaybillIsLoading ||
+		createCDEKWaybillIsLoading ||
+		createCDEKWaybillPrintIsLoading ||
 		refundOrderIsLoading;
 
 	return (
@@ -281,7 +324,7 @@ export default function OrderInspectRoute() {
 					<CircularProgress />
 				) : (
 					<Suspense fallback={<CircularProgress />}>
-						<CDEKWaybillCreateForm orderId={order?.id} onSubmit={createOrderCDEKWaybill} />
+						<CDEKWaybillCreateForm orderId={order?.id} onSubmit={createCDEKWaybill} />
 					</Suspense>
 				)}
 			</Modal>
@@ -290,7 +333,7 @@ export default function OrderInspectRoute() {
 					<ChevronLeft />
 					Назад
 				</Button>
-				<LoadingSpinner isLoading={orderIsLoading || editablePropsIsLoading || waybillPrintIsLoading}>
+				<LoadingSpinner isLoading={orderIsLoading || editablePropsIsLoading || CDEKWaybillIsLoading}>
 					{!order || !editableProps ? (
 						<div className="w-100 h-100v ai-c d-f jc-c">
 							<Typography variant="h5">Что-то пошло не так</Typography>
@@ -352,29 +395,78 @@ export default function OrderInspectRoute() {
 													Выдать заказ
 												</Button>
 											) : (
-												order.delivery.service === "CDEK" &&
-												(waybillPrint ? (
-													<>
-														<Button variant="contained" onClick={handleOpenWaybillPrint}>
-															Перейти к накладной СДЭК
-														</Button>
-														<Button
-															variant="contained"
-															color="error"
-															sx={{ color: "white" }}
-															onClick={() => alert("В разработке")}
-														>
-															Удалить накладную СДЭК
-														</Button>
-													</>
-												) : (
-													<Button
-														variant="contained"
-														onClick={() => setWaybillCreateModalOpened(true)}
-													>
-														Сформировать накладную СДЭК
-													</Button>
-												))
+												order.delivery.service === "CDEK" && (
+													<Paper>
+														<Typography variant="subtitle0">СДЭК</Typography>
+														<div className="gap-2 d-f fd-c">
+															{CDEKWaybillIsLoading ? (
+																<CircularProgress />
+															) : CDEKWaybill ? (
+																<>
+																	<div className="gap-1 ai-c d-f fd-r">
+																		<Typography variant="body1">
+																			Накладная
+																		</Typography>
+																		{CDEKWaybill.status === "PENDING" ? (
+																			<CircularProgress />
+																		) : (
+																			<Check sx={{ color: "success.main" }} />
+																		)}
+																	</div>
+																	<div className="gap-1 ai-c d-f fd-r">
+																		<Typography variant="body1">
+																			Распечатка
+																		</Typography>
+																		{CDEKWaybill.print ? (
+																			CDEKWaybill.print.status === "PENDING" ? (
+																				<CircularProgress />
+																			) : (
+																				<>
+																					<Check
+																						sx={{
+																							color: "success.main",
+																						}}
+																					/>
+																					<Button
+																						variant="contained"
+																						onClick={handleOpenWaybillPrint}
+																					>
+																						Открыть
+																					</Button>
+																				</>
+																			)
+																		) : (
+																			<>
+																				<Close sx={{ color: "error.main" }} />
+																				<Button
+																					variant="contained"
+																					onClick={
+																						handleCreateCDEKWaybillPrint
+																					}
+																				>
+																					Сформировать
+																				</Button>
+																			</>
+																		)}
+																	</div>
+																</>
+															) : (
+																<div className="gap-1 ai-c d-f fd-r">
+																	<Typography variant="body1">Накладная</Typography>
+																	<Close sx={{ color: "error.main" }} />
+																	<Button
+																		variant="contained"
+																		onClick={() =>
+																			setWaybillCreateModalOpened(true)
+																		}
+																	>
+																		Сформировать
+																	</Button>
+																</div>
+															)}
+														</div>
+													</Paper>
+												)
 											)}
 										</>
 									)}

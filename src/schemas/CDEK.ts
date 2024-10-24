@@ -54,3 +54,22 @@ export const CDEKWaybillPackageSchema = z.object({
 	height: z.number(),
 	weight: z.number(),
 });
+
+export const CDEKWaybillCreateSchema = z.object({
+	deliveryId: z.string(),
+	packages: CDEKWaybillPackageSchema.array(),
+});
+
+export const CDEKWaybillGetSchema = z.object({
+	status: z.enum(["PENDING", "CREATED"]),
+	print: z
+		.object({
+			status: z.enum(["PENDING", "CREATED"]),
+			url: z.string().nullable(),
+		})
+		.nullable(),
+});
+ 
+export const CDEKTokenGetSchema = z.object({
+	token: z.string(),
+});
