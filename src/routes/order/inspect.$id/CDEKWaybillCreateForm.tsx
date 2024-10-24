@@ -2,7 +2,7 @@ import { Add, Delete } from "@mui/icons-material";
 import { Button, Divider, IconButton, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 
-import { OrderCDEKWaybillCreateSchema } from "@schemas/Order";
+import { CDEKWaybillCreateSchema } from "@schemas/CDEK";
 import { handleIntChange } from "@utils/forms";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,12 +44,12 @@ const getFormData = (orderId: string): CDEKWaybillCreateFormData => ({
 
 interface CDEKWaybillCreateFormProps {
 	orderId: string;
-	onSubmit: (data: z.infer<typeof OrderCDEKWaybillCreateSchema>) => void;
+	onSubmit: (data: z.infer<typeof CDEKWaybillCreateSchema>) => void;
 }
 
 export default function CDEKWaybillCreateForm({ orderId, onSubmit }: CDEKWaybillCreateFormProps) {
 	const resolvedOnSubmit = (data: CDEKWaybillCreateFormData) => {
-		onSubmit(OrderCDEKWaybillCreateSchema.parse(data));
+		onSubmit(CDEKWaybillCreateSchema.parse(data));
 	};
 
 	const { control, handleSubmit } = useForm<CDEKWaybillCreateFormData>({
