@@ -2,6 +2,7 @@ import { Box, Button, Grid2, IconButton, Modal, TextField, Typography } from "@m
 import { CDEKDeliveryInfo, CDEKWidget } from "./widgets/cdek";
 import { Controller, useForm } from "react-hook-form";
 import { Delivery, DeliveryPackage, DeliveryPoint, DeliveryService, Recipient } from "@appTypes/Delivery";
+import { useEffect, useState } from "react";
 
 import { CDEKDeliveryData } from "@appTypes/CDEK";
 import { CardRadio } from "./CardRadio";
@@ -9,7 +10,6 @@ import { Close } from "@mui/icons-material";
 import { DeliverySchema } from "@schemas/Delivery";
 import cdekLogo from "@assets/SdekLogo.webp";
 import mainLogoSmall from "@assets/MainLogoSmall.webp";
-import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -94,10 +94,15 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 	const [isEditing, setIsEditing] = useState(!delivery);
 	const [cdekWidgetOpen, setCdekWidgetOpen] = useState(false);
 
+	useEffect(() => {
+		if (delivery) {
+			reset(delivery);
+		}
+	}, [reset, delivery]);
+
 	const handleSave = (data: DeliveryFormData) => {
 		onChange(DeliverySchema.parse(data));
 		setIsEditing(false);
-		reset(DeliverySchema.parse(data))
 	};
 
 	const handleStopEditing = () => {
