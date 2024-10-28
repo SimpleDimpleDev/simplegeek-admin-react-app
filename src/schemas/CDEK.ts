@@ -56,7 +56,7 @@ export const CDEKWaybillPackageSchema = z.object({
 });
 
 export const CDEKWaybillCreateSchema = z.object({
-	deliveryId: z.string(),
+	orderId: z.string(),
 	packages: CDEKWaybillPackageSchema.array(),
 });
 

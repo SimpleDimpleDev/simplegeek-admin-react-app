@@ -1,4 +1,4 @@
-import { Add, Check, ChevronLeft, Close, Edit } from "@mui/icons-material";
+import { Add, Check, ChevronLeft, Close, Edit, MessageOutlined, RssFeed, Settings, Visibility, VisibilityOff } from "@mui/icons-material";
 import {
 	Button,
 	CircularProgress,
@@ -34,7 +34,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import ActionDialog from "@components/ActionDialog";
 import { DeliveryForm } from "@components/DeliveryForm";
-import { DeliveryService } from "@appTypes/Delivery";
+import { DeliveryInfo } from "./DeliveryInfo";
 import { EventCreateForm } from "./EventCreateForm";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
@@ -47,11 +47,6 @@ import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 
 const CDEKWaybillCreateForm = lazy(() => import("./CDEKWaybillCreateForm"));
-
-const deliveryServiceMapping: Record<DeliveryService, string> = {
-	CDEK: "СДЕК",
-	SELF_PICKUP: "Самовывоз",
-};
 
 export default function OrderInspectRoute() {
 	const navigate = useNavigate();
@@ -594,77 +589,7 @@ export default function OrderInspectRoute() {
 													packages={[]}
 												/>
 											) : (
-												<Stack
-													gap={1}
-													direction={"column"}
-													divider={<Divider orientation="horizontal" flexItem />}
-												>
-													<div className="gap-2 d-f fd-c">
-														<Typography variant={"h6"}>Доставка</Typography>
-														<div className={`d-f fd-r jc-sb`}>
-															<div className="gap-05 w-100 d-f fd-c">
-																<Typography
-																	variant="body1"
-																	sx={{ color: "typography.secondary" }}
-																>
-																	Способ получения
-																</Typography>
-																<Typography variant="body1">
-																	{deliveryServiceMapping[order.delivery.service]}
-																</Typography>
-															</div>
-															<div className="gap-05 w-100 d-f fd-c">
-																<Typography
-																	variant="body1"
-																	sx={{ color: "typography.secondary" }}
-																>
-																	Пункт выдачи
-																</Typography>
-																<Typography variant="body1">
-																	{order.delivery.point?.code}
-																</Typography>
-															</div>
-														</div>
-														<div className="gap-05 d-f fd-c">
-															<Typography
-																variant="body1"
-																sx={{ color: "typography.secondary" }}
-															>
-																Адрес
-															</Typography>
-															<Typography variant="body1">
-																{order.delivery.point?.address}
-															</Typography>
-														</div>
-													</div>
-													<div className="gap-2 d-f fd-c">
-														<Typography variant="subtitle0">Получатель</Typography>
-														<div className={`d-f fd-r jc-sb`}>
-															<div className="gap-05 w-100 d-f fd-c">
-																<Typography
-																	variant="body1"
-																	sx={{ color: "typography.secondary" }}
-																>
-																	ФИО
-																</Typography>
-																<Typography variant="subtitle0">
-																	{order.delivery.recipient.fullName}
-																</Typography>
-															</div>
-															<div className="gap-05 w-100 d-f fd-c">
-																<Typography
-																	variant="body1"
-																	sx={{ color: "typography.secondary" }}
-																>
-																	Номер телефона
-																</Typography>
-																<Typography variant="body1">
-																	{order.delivery.recipient.phone}
-																</Typography>
-															</div>
-														</div>
-													</div>
-												</Stack>
+												<DeliveryInfo delivery={order.delivery} />
 											)
 										) : (
 											<>
@@ -737,7 +662,58 @@ export default function OrderInspectRoute() {
 											{!orderEventList ? (
 												<Typography color={"error"}>Ошибка</Typography>
 											) : (
-												orderEventList.items.map((event) => <div>{JSON.stringify(event)}</div>)
+												orderEventList.items.map((event, index) => (
+													<div key={index} className="gap-1 w-100 d-f fd-c">
+														<div className="gap-1 w-100 ai-c d-f fd-r">
+															{event.visibility === "PUBLIC" ? (
+																<Tooltip title="Отображается пользователю">
+																	<Visibility />
+																</Tooltip>
+															) : (
+																<Tooltip title="Не отображается пользователю">
+																	<VisibilityOff />
+																</Tooltip>
+															)}
+
+															{event.type === "MESSAGE" ? (
+																<Tooltip title="Сообщение">
+																	<MessageOutlined />
+																</Tooltip>
+															) : event.type === "INTERNAL" ? (
+																<Tooltip title="Внутреннее">
+																	<Settings />
+																</Tooltip>
+															) : (
+																<Tooltip title="Внешнее">
+																	<RssFeed />
+																</Tooltip>
+															)}
+
+															<Typography
+																variant="body2"
+																sx={{ color: "typography.secondary" }}
+															>
+																{event.initiator}
+															</Typography>
+
+															<Typography
+																variant="body2"
+																sx={{ color: "typography.secondary" }}
+															>
+																{new Intl.DateTimeFormat("ru-RU", {
+																	year: "numeric",
+																	month: "numeric",
+																	day: "numeric",
+																	hour: "numeric",
+																	minute: "numeric",
+																	second: "numeric",
+																}).format(event.createdAt)}
+															</Typography>
+														</div>
+
+														<Typography variant="body1">{event.message}</Typography>
+													</div>
+												))
 											)}
 										</div>
 									</Paper>
