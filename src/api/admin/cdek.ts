@@ -13,11 +13,11 @@ export const deliveryCDEKApi = adminApi.injectEndpoints({
 				body,
 			}),
 		}),
-		createCDEKWaybillPrint: build.mutation<void, { deliveryId: string }>({
-			query: (body) => ({
+		createCDEKWaybillPrint: build.mutation<void, { deliveryId: string, orderId: string }>({
+			query: (params) => ({
 				url: "/admin/delivery/cdek/waybill/print",
 				method: "POST",
-				body,
+				params: params,
 			}),
 		}),
 		getCDEKWaybill: build.query<z.infer<typeof CDEKWaybillGetSchema>, { deliveryId: string }>({

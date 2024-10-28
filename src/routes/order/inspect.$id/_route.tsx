@@ -203,7 +203,7 @@ export default function OrderInspectRoute() {
 
 	const handleCreateCDEKWaybillPrint = () => {
 		if (!order?.delivery) return;
-		createCDEKWaybillPrint({ deliveryId: order.delivery.id });
+		createCDEKWaybillPrint({ orderId: order.id, deliveryId: order.delivery.id });
 	};
 
 	const handleOpenWaybillPrint = () => {
