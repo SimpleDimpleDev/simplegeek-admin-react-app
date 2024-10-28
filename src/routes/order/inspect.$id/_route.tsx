@@ -171,6 +171,10 @@ export default function OrderInspectRoute() {
 		}
 	}, [order]);
 
+	const handleCloseEventCreateModal = useCallback(() => {
+		setEventCreateModalOpened(false);
+	}, []);
+
 	const handleStartEditStatus = () => {
 		setStatusEditing(true);
 	};
@@ -243,9 +247,7 @@ export default function OrderInspectRoute() {
 		isError: eventCreateIsError,
 		error: eventCreateError,
 		feedbackFn: showSnackbarMessage,
-		successAction: () => {
-			setEventCreateModalOpened(false);
-		},
+		successAction: handleCloseEventCreateModal,
 	});
 
 	useMutationFeedback({
@@ -322,7 +324,7 @@ export default function OrderInspectRoute() {
 			<ManagementModal
 				title="Создание события"
 				opened={eventCreateModalOpened}
-				onClose={() => setEventCreateModalOpened(false)}
+				onClose={handleCloseEventCreateModal}
 			>
 				{!order ? <CircularProgress /> : <EventCreateForm orderId={order.id} onSubmit={createEvent} />}
 			</ManagementModal>
@@ -723,7 +725,7 @@ export default function OrderInspectRoute() {
 								</div>
 								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
 									<Paper sx={{ p: 2 }}>
-										<div className="d-f fd-r jc-sb">
+										<div className="ai-c d-f fd-r jc-sb">
 											<Typography variant="subtitle0">События</Typography>
 											<Tooltip title="Создать событие">
 												<IconButton onClick={() => setEventCreateModalOpened(true)}>

@@ -38,7 +38,7 @@ const EventCreateForm: React.FC<EventCreateFormProps> = ({ orderId, onSubmit }) 
 					control={control}
 					defaultValue={"PRIVATE"}
 					render={({ field: { value, onChange } }) => (
-						<div className="gap-1 d-f fd-r">
+						<div className="gap-1 ai-c d-f fd-r">
 							<Typography variant="subtitle0">Показывать покупателю</Typography>
 							<Checkbox
 								value={value === "PUBLIC"}
