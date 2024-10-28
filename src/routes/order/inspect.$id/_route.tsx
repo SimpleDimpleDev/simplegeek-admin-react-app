@@ -395,45 +395,44 @@ export default function OrderInspectRoute() {
 						</div>
 					) : (
 						<div className="gap-2 d-f fd-c">
+							<Typography variant="h5">
+								Заказ от {new Intl.DateTimeFormat("ru").format(order.createdAt)}
+							</Typography>
+
 							{/* Main info */}
 							<div className="gap-1 pt-2 d-f fd-c">
-								<Typography variant="h5">
-									Заказ от {new Intl.DateTimeFormat("ru").format(order.createdAt)}
+								<Typography variant="subtitle0" sx={{ color: "typography.secondary" }}>
+									ID: {order.id}
 								</Typography>
-								<Typography variant="subtitle0">ID: {order.id}</Typography>
 
 								{/* Status */}
-								<div className="gap-05 d-f fd-c">
+								<div className="gap-2 ai-c d-f fd-r">
 									<Typography variant="subtitle0">Статус</Typography>
-									<div className="gap-2 ai-c d-f fd-r">
-										<Select
-											disabled={!statusEditing}
-											value={selectedStatus}
-											onChange={handleSelectStatus}
-										>
-											{editableProps.statuses.map((status) => (
-												<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
-											))}
-										</Select>
 
-										{statusEditing ? (
-											<>
-												<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
-													<Check />
-												</IconButton>
-												<IconButton
-													sx={{ color: "error.main" }}
-													onClick={handleCancelEditStatus}
-												>
-													<Close />
-												</IconButton>
-											</>
-										) : (
-											<IconButton onClick={handleStartEditStatus}>
-												<Edit />
+									<Select
+										disabled={!statusEditing}
+										value={selectedStatus}
+										onChange={handleSelectStatus}
+									>
+										{editableProps.statuses.map((status) => (
+											<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
+										))}
+									</Select>
+
+									{statusEditing ? (
+										<>
+											<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
+												<Check />
 											</IconButton>
-										)}
-									</div>
+											<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditStatus}>
+												<Close />
+											</IconButton>
+										</>
+									) : (
+										<IconButton onClick={handleStartEditStatus}>
+											<Edit />
+										</IconButton>
+									)}
 								</div>
 
 								<div className="w-mc">
@@ -486,7 +485,7 @@ export default function OrderInspectRoute() {
 														<Typography variant="body1">Готов к выдаче</Typography>
 														{order.status === "READY_FOR_PICKUP" ? (
 															<>
-																<Check />
+																<Check sx={{ color: "success.main" }} />
 																<Button
 																	variant="contained"
 																	color="success"
@@ -499,7 +498,7 @@ export default function OrderInspectRoute() {
 																</Button>
 															</>
 														) : (
-															<Close />
+															<Close sx={{ color: "error.main" }} />
 														)}
 													</div>
 												</div>
@@ -608,14 +607,18 @@ export default function OrderInspectRoute() {
 										</Typography>
 										<div className="gap-1 ai-c d-f fd-r">
 											<Typography variant="body1">Оплачено:</Typography>
-											{order.initialInvoice.isPaid ? <Check /> : <Close />}
+											{order.initialInvoice.isPaid ? (
+												<Check sx={{ color: "success.main" }} />
+											) : (
+												<Close sx={{ color: "error.main" }} />
+											)}
 										</div>
 									</div>
 								</Paper>
 							</div>
 
 							<div className="gap-2 d-f fd-r">
-								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
+								<div className="gap-2 d-f fd-c" style={{ width: "60%" }}>
 									{/* Delivery */}
 									<Paper sx={{ p: 2 }}>
 										{order.delivery ? (
@@ -692,7 +695,7 @@ export default function OrderInspectRoute() {
 									</Paper>
 								</div>
 
-								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
+								<div className="gap-2 d-f fd-c" style={{ width: "40%" }}>
 									{/* Events */}
 									<Paper sx={{ p: 2 }}>
 										<div className="pb-2 ai-c d-f fd-r jc-sb">
