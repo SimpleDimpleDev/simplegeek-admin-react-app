@@ -14,12 +14,14 @@ const OrderEventGetSchema = z.object({
 	id: z.string(),
 	orderId: z.string(),
 	createdAt: ISOToDateSchema,
-    initiator: z.string(),
+	initiator: z.string(),
 	visibility: OrderEventVisibilitySchema,
 	type: OrderEventTypeSchema,
 	message: z.string(),
 });
 
-export const OrderEventListGetSchema = z.object({
-	items: OrderEventGetSchema.array(),
-});
+export const OrderEventListGetSchema = z
+	.object({
+		items: OrderEventGetSchema.array(),
+	})
+	.nullable();

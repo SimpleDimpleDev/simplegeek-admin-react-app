@@ -68,6 +68,7 @@ export default function OrderInspectRoute() {
 		if (!order?.delivery) return;
 		const orderDelivery = order.delivery;
 		if (orderDelivery.service === "CDEK") {
+			getCDEKWaybill({ deliveryId: orderDelivery.id })
 			getCDEKToken();
 			setInterval(() => getCDEKWaybill({ deliveryId: orderDelivery.id }), 1000 * 5);
 		}
@@ -650,7 +651,7 @@ export default function OrderInspectRoute() {
 								</div>
 								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
 									<Paper sx={{ p: 2 }}>
-										<div className="ai-c d-f fd-r jc-sb">
+										<div className="pb-2 ai-c d-f fd-r jc-sb">
 											<Typography variant="subtitle0">События</Typography>
 											<Tooltip title="Создать событие">
 												<IconButton onClick={() => setEventCreateModalOpened(true)}>
@@ -658,7 +659,7 @@ export default function OrderInspectRoute() {
 												</IconButton>
 											</Tooltip>
 										</div>
-										<div className="gap-1 h-100 d-f fd-c">
+										<Stack direction={"column"} spacing={2} divider={<Divider />}>
 											{!orderEventList ? (
 												<Typography color={"error"}>Ошибка</Typography>
 											) : (
@@ -715,7 +716,7 @@ export default function OrderInspectRoute() {
 													</div>
 												))
 											)}
-										</div>
+										</Stack>
 									</Paper>
 								</div>
 							</div>

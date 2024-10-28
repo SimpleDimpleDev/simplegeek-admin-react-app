@@ -21,6 +21,12 @@ const orderEventApi = adminApi.injectEndpoints({
 				params: { orderId },
 			}),
 			transformResponse: (response) => validateData(OrderEventListGetSchema, response),
+			transformErrorResponse: (response) => {
+				if (response.status === 404) {
+					return null;
+				}
+				return undefined;
+			},
 			providesTags: (_result, _error, { orderId }) => [{ type: "OrderEvents", id: orderId }],
 		}),
 	}),
