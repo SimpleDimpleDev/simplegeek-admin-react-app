@@ -8,7 +8,7 @@ const orderEventApi = adminApi.injectEndpoints({
 	endpoints: (build) => ({
 		createOrderEvent: build.mutation<void, z.infer<typeof OrderEventCreateSchema>>({
 			query: (data) => ({
-				url: `/order/events`,
+				url: `admin/order/events`,
 				method: "POST",
 				body: data,
 			}),
@@ -16,7 +16,7 @@ const orderEventApi = adminApi.injectEndpoints({
 		}),
 		getOrderEventList: build.query<z.infer<typeof OrderEventListGetSchema>, { orderId: string }>({
 			query: ({ orderId }) => ({
-				url: `/order/events`,
+				url: `admin/order/events`,
 				method: "GET",
 				params: { orderId },
 			}),

@@ -1,3 +1,4 @@
+import { Add, Check, ChevronLeft, Close, Edit } from "@mui/icons-material";
 import {
 	Button,
 	CircularProgress,
@@ -10,9 +11,9 @@ import {
 	SelectChangeEvent,
 	Snackbar,
 	Stack,
+	Tooltip,
 	Typography,
 } from "@mui/material";
-import { Check, ChevronLeft, Close, Edit } from "@mui/icons-material";
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import {
 	useCreateCDEKWaybillMutation,
@@ -436,7 +437,7 @@ export default function OrderInspectRoute() {
 														</Button>
 												  )
 												: order.delivery.service === "CDEK" && (
-														<Paper>
+														<Paper sx={{ p: 2 }}>
 															<Typography variant="subtitle0">СДЭК</Typography>
 															<div className="gap-2 d-f fd-c">
 																{CDEKWaybillIsLoading ? (
@@ -722,7 +723,14 @@ export default function OrderInspectRoute() {
 								</div>
 								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
 									<Paper sx={{ p: 2 }}>
-										<Typography variant="subtitle0">События</Typography>
+										<div className="d-f fd-r jc-sb">
+											<Typography variant="subtitle0">События</Typography>
+											<Tooltip title="Создать событие">
+												<IconButton onClick={() => setEventCreateModalOpened(true)}>
+													<Add />
+												</IconButton>
+											</Tooltip>
+										</div>
 										<div className="gap-1 h-100 d-f fd-c">
 											{!orderEventList ? (
 												<Typography color={"error"}>Ошибка</Typography>

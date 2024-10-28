@@ -1,4 +1,4 @@
-import { Box, Button, Grid2, IconButton, Modal, TextField, Typography } from "@mui/material";
+import { Box, Button, IconButton, Modal, TextField, Typography } from "@mui/material";
 import { CDEKDeliveryInfo, CDEKWidget } from "./widgets/cdek";
 import { Controller, useForm } from "react-hook-form";
 import { Delivery, DeliveryPackage, DeliveryPoint, DeliveryService, Recipient } from "@appTypes/Delivery";
@@ -223,47 +223,44 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 
 				<div>
 					<Typography variant="h6">Получатель</Typography>
-					<Grid2 container spacing={2}>
-						<Grid2 size={{ xs: 12, sm: 12, md: 6 }}>
-							<Controller
-								name="recipient.phone"
-								disabled={!isEditing}
-								control={control}
-								render={({ field: { value, ...fieldProps }, fieldState: { error } }) => (
-									<MuiTelInput
-										{...fieldProps}
-										disabled={!isEditing}
-										fullWidth
-										label="Номер телефона"
-										defaultCountry={"RU"}
-										onlyCountries={["RU", "BY", "KZ"]}
-										langOfCountryName="RU"
-										value={value}
-										error={!!error}
-										helperText={error?.message}
-									/>
-								)}
-							/>
-						</Grid2>
-						<Grid2 size={{ xs: 12, sm: 12, md: 6 }}>
-							<Controller
-								name="recipient.fullName"
-								control={control}
-								disabled={!isEditing}
-								render={({ field, fieldState: { error } }) => (
-									<TextField
-										{...field}
-										label="ФИО"
-										variant="outlined"
-										fullWidth
-										margin="normal"
-										error={!!error}
-										helperText={error?.message}
-									/>
-								)}
-							/>
-						</Grid2>
-					</Grid2>
+					<div className="gap-1 ai-bl d-f fd-r">
+						<Controller
+							name="recipient.phone"
+							disabled={!isEditing}
+							control={control}
+							render={({ field: { value, ...fieldProps }, fieldState: { error } }) => (
+								<MuiTelInput
+									{...fieldProps}
+									disabled={!isEditing}
+									fullWidth
+									label="Номер телефона"
+									defaultCountry={"RU"}
+									onlyCountries={["RU", "BY", "KZ"]}
+									langOfCountryName="RU"
+									value={value}
+									error={!!error}
+									helperText={error?.message}
+								/>
+							)}
+						/>
+
+						<Controller
+							name="recipient.fullName"
+							control={control}
+							disabled={!isEditing}
+							render={({ field, fieldState: { error } }) => (
+								<TextField
+									{...field}
+									label="ФИО"
+									variant="outlined"
+									fullWidth
+									margin="normal"
+									error={!!error}
+									helperText={error?.message}
+								/>
+							)}
+						/>
+					</div>
 				</div>
 
 				{isEditing ? (

@@ -69,7 +69,7 @@ export const CDEKWaybillGetSchema = z.object({
 		})
 		.nullable(),
 });
- 
+
 export const CDEKTokenGetSchema = z.object({
 	token: z.string(),
 });
