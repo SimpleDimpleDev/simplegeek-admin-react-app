@@ -5,7 +5,6 @@ import {
 	Close,
 	Edit,
 	MessageOutlined,
-	OpenInNew,
 	RssFeed,
 	Settings,
 	Visibility,
@@ -17,7 +16,6 @@ import {
 	Divider,
 	IconButton,
 	MenuItem,
-	Modal,
 	Paper,
 	Select,
 	SelectChangeEvent,
@@ -27,12 +25,6 @@ import {
 	Typography,
 } from "@mui/material";
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";
-import {
-	useCreateCDEKWaybillMutation,
-	useCreateCDEKWaybillPrintMutation,
-	useLazyGetCDEKTokenQuery,
-	useLazyGetCDEKWaybillQuery,
-} from "@api/admin/cdek";
 import { useCreateOrderEventMutation, useGetOrderEventListQuery } from "@api/admin/orderEvent";
 import {
 	useGetOrderEditablePropsQuery,
@@ -58,14 +50,14 @@ import { orderStatusBadges } from "@components/Badges";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 
-const CDEKWaybillCreateForm = lazy(() => import("./CDEKWaybillCreateForm"));
+const OrderCDEKSection = lazy(() => import("./CDEKSection"));
 
 export default function OrderInspectRoute() {
 	const navigate = useNavigate();
 	const params = useParams();
 	const orderId = params.id;
 	if (!orderId) throw new Response("No order id provided", { status: 404 });
-	const { data: order, isLoading: orderIsLoading, refetch: refetchOrder } = useGetOrderQuery({ orderId });
+	const { data: order, isLoading: orderIsLoading } = useGetOrderQuery({ orderId });
 	const { data: orderEventList, isLoading: orderEventListIsLoading } = useGetOrderEventListQuery(
 		{ orderId },
 		{
@@ -78,25 +70,6 @@ export default function OrderInspectRoute() {
 		},
 		{ refetchOnMountOrArgChange: true }
 	);
-	const [getCDEKWaybill, { data: CDEKWaybill, isLoading: CDEKWaybillIsLoading }] = useLazyGetCDEKWaybillQuery();
-	const [getCDEKToken, { data: cdekTokenData }] = useLazyGetCDEKTokenQuery();
-
-	useEffect(() => {
-		if (!order?.delivery) return;
-		const orderDelivery = order.delivery;
-		if (orderDelivery.service === "CDEK") {
-			getCDEKWaybill({ deliveryId: orderDelivery.id });
-			getCDEKToken();
-			setInterval(() => getCDEKWaybill({ deliveryId: orderDelivery.id }), 1000 * 5);
-		}
-	}, [order, getCDEKWaybill, getCDEKToken]);
-
-	useEffect(() => {
-		if (!CDEKWaybill) return;
-		if (CDEKWaybill.status === "CREATED") {
-			refetchOrder();
-		}
-	}, [CDEKWaybill, refetchOrder]);
 
 	const [
 		createEvent,
@@ -139,26 +112,6 @@ export default function OrderInspectRoute() {
 	] = useIssueSelfPickupOrdersMutation();
 
 	const [
-		createCDEKWaybill,
-		{
-			isLoading: createCDEKWaybillIsLoading,
-			isSuccess: createCDEKWaybillIsSuccess,
-			isError: createCDEKWaybillIsError,
-			error: createCDEKWaybillError,
-		},
-	] = useCreateCDEKWaybillMutation();
-
-	const [
-		createCDEKWaybillPrint,
-		{
-			isLoading: createCDEKWaybillPrintIsLoading,
-			isSuccess: createCDEKWaybillPrintIsSuccess,
-			isError: createCDEKWaybillPrintIsError,
-			error: createCDEKWaybillPrintError,
-		},
-	] = useCreateCDEKWaybillPrintMutation();
-
-	const [
 		refundOrder,
 		{
 			isLoading: refundOrderIsLoading,
@@ -171,7 +124,6 @@ export default function OrderInspectRoute() {
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
 	const [eventCreateModalOpened, setEventCreateModalOpened] = useState(false);
-	const [waybillCreateModalOpened, setWaybillCreateModalOpened] = useState(false);
 	const [selfPickupIssueConfirmDialogOpened, setSelfPickupIssueConfirmDialogOpened] = useState(false);
 	const [refundConfirmDialogOpened, setRefundConfirmDialogOpened] = useState(false);
 
@@ -218,46 +170,10 @@ export default function OrderInspectRoute() {
 		issueSelfPickup({ orderIds: [order.id] });
 	};
 
-	const handleCreateCDEKWaybillPrint = () => {
-		if (!order?.delivery) return;
-		createCDEKWaybillPrint({ orderId: order.id, deliveryId: order.delivery.id });
-	};
-
-	const handleOpenWaybillPrint = () => {
-		if (!CDEKWaybill) return;
-		if (!CDEKWaybill.print?.url) return;
-		if (!cdekTokenData?.token) return;
-		fetch(CDEKWaybill.print.url, {
-			method: "GET", // or 'POST', etc. depending on your API
-			headers: {
-				Authorization: `Bearer ${cdekTokenData.token}`, // Include any necessary headers
-			},
-		})
-			.then((response) => {
-				if (!response.ok) {
-					throw new Error("Network response was not ok " + response.statusText);
-				}
-				return response.blob(); // Convert the response to a Blob
-			})
-			.then((blob) => {
-				const blobUrl = URL.createObjectURL(blob); // Create a URL for the Blob
-
-				window.open(blobUrl); // Open the Blob URL in a new tab
-			})
-			.catch((error) => {
-				console.error("There was a problem with the fetch operation:", error);
-			});
-	};
-
 	const handleRefund = () => {
 		if (!order) return;
 		refundOrder({ orderId: order.id });
 	};
-
-	const handleOpenCdekOrder = useCallback(() => {
-		if (!order?.delivery?.tracking) return;
-		window.open(order.delivery.tracking.link, "_blank");
-	}, [order]);
 
 	useMutationFeedback({
 		title: "Создание события",
@@ -297,25 +213,6 @@ export default function OrderInspectRoute() {
 	});
 
 	useMutationFeedback({
-		title: "Запрос на создание накладной",
-		isSuccess: createCDEKWaybillIsSuccess,
-		isError: createCDEKWaybillIsError,
-		error: createCDEKWaybillError,
-		feedbackFn: showSnackbarMessage,
-		successAction: () => {
-			setWaybillCreateModalOpened(false);
-		},
-	});
-
-	useMutationFeedback({
-		title: "Запрос на создание распечатки накладной",
-		isSuccess: createCDEKWaybillPrintIsSuccess,
-		isError: createCDEKWaybillPrintIsError,
-		error: createCDEKWaybillPrintError,
-		feedbackFn: showSnackbarMessage,
-	});
-
-	useMutationFeedback({
 		title: "Возврат заказа",
 		isSuccess: refundOrderIsSuccess,
 		isError: refundOrderIsError,
@@ -331,8 +228,6 @@ export default function OrderInspectRoute() {
 		statusUpdateIsLoading ||
 		deliveryUpdateIsLoading ||
 		selfPickupIssueIsLoading ||
-		createCDEKWaybillIsLoading ||
-		createCDEKWaybillPrintIsLoading ||
 		refundOrderIsLoading;
 
 	return (
@@ -375,25 +270,12 @@ export default function OrderInspectRoute() {
 					onClick: () => setRefundConfirmDialogOpened(false),
 				}}
 			/>
-			<Modal open={waybillCreateModalOpened} onClose={() => setWaybillCreateModalOpened(false)}>
-				{!order ? (
-					<CircularProgress />
-				) : (
-					<Suspense fallback={<CircularProgress />}>
-						<CDEKWaybillCreateForm orderId={order?.id} onSubmit={createCDEKWaybill} />
-					</Suspense>
-				)}
-			</Modal>
 			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 				<Button onClick={() => navigate(-1)} sx={{ width: "fit-content", color: "warning.main" }}>
 					<ChevronLeft />
 					Назад
 				</Button>
-				<LoadingSpinner
-					isLoading={
-						orderIsLoading || editablePropsIsLoading || CDEKWaybillIsLoading || orderEventListIsLoading
-					}
-				>
+				<LoadingSpinner isLoading={orderIsLoading || editablePropsIsLoading || orderEventListIsLoading}>
 					{!order || !editableProps ? (
 						<div className="w-100 h-100v ai-c d-f jc-c">
 							<Typography variant="h5">Что-то пошло не так</Typography>
@@ -510,85 +392,12 @@ export default function OrderInspectRoute() {
 											</>
 										) : (
 											order.delivery.service === "CDEK" && (
-												<>
-													<Typography variant="subtitle0">СДЭК</Typography>
-													<div className="gap-1 mt-2 d-f fd-c">
-														{CDEKWaybillIsLoading ? (
-															<CircularProgress />
-														) : CDEKWaybill ? (
-															<>
-																<div className="gap-1 ai-c d-f fd-r">
-																	<Typography variant="body1">Накладная</Typography>
-																	{CDEKWaybill.status === "PENDING" ? (
-																		<CircularProgress size={20} />
-																	) : (
-																		<Check sx={{ color: "success.main" }} />
-																	)}
-																</div>
-																<div className="gap-1 ai-c d-f fd-r">
-																	<Typography variant="body1">Трек-номер:</Typography>
-																	{order.delivery.tracking && (
-																		<>
-																			<Typography variant="body1">
-																				{order.delivery.tracking.code}
-																			</Typography>
-																			<Tooltip title="Открыть в браузере">
-																				<IconButton
-																					onClick={handleOpenCdekOrder}
-																				>
-																					<OpenInNew />
-																				</IconButton>
-																			</Tooltip>
-																		</>
-																	)}
-																</div>
-																<div className="gap-1 ai-c d-f fd-r">
-																	<Typography variant="body1">Распечатка</Typography>
-																	{CDEKWaybill.print ? (
-																		CDEKWaybill.print.status === "PENDING" ? (
-																			<CircularProgress size={20} />
-																		) : (
-																			<>
-																				<Check
-																					sx={{
-																						color: "success.main",
-																					}}
-																				/>
-																				<Button
-																					variant="contained"
-																					onClick={handleOpenWaybillPrint}
-																				>
-																					Открыть
-																				</Button>
-																			</>
-																		)
-																	) : (
-																		<>
-																			<Close sx={{ color: "error.main" }} />
-																			<Button
-																				variant="contained"
-																				onClick={handleCreateCDEKWaybillPrint}
-																			>
-																				Сформировать
-																			</Button>
-																		</>
-																	)}
-																</div>
-															</>
-														) : (
-															<div className="gap-1 ai-c d-f fd-r">
-																<Typography variant="body1">Накладная</Typography>
-																<Close sx={{ color: "error.main" }} />
-																<Button
-																	variant="contained"
-																	onClick={() => setWaybillCreateModalOpened(true)}
-																>
-																	Сформировать
-																</Button>
-															</div>
-														)}
-													</div>
-												</>
+												<Suspense fallback={<CircularProgress />}>
+													<OrderCDEKSection
+														order={{ id: order.id, delivery: order.delivery }}
+														feedbackFn={showSnackbarMessage}
+													/>
+												</Suspense>
 											)
 										)}
 									</Paper>
@@ -596,7 +405,7 @@ export default function OrderInspectRoute() {
 
 								{/* Initial Payment(Deposit) */}
 								<Paper sx={{ p: 2 }}>
-									<Typography variant="subtitle0">Депозит</Typography>
+									<Typography variant="subtitle0">{order.initialInvoice.title ?? "Депозит"}</Typography>
 									<div className="gap-1 mt-2 d-f fd-c">
 										<Typography variant="body1">Сумма: {order.initialInvoice.amount}₽</Typography>
 										<Typography variant="body1">

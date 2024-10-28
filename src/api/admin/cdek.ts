@@ -1,4 +1,4 @@
-import { CDEKTokenGetSchema, CDEKWaybillCreateSchema, CDEKWaybillGetSchema } from "@schemas/CDEK";
+import { CDEKWaybillCreateSchema, CDEKWaybillGetSchema } from "@schemas/CDEK";
 
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
@@ -13,7 +13,7 @@ export const deliveryCDEKApi = adminApi.injectEndpoints({
 				body,
 			}),
 		}),
-		createCDEKWaybillPrint: build.mutation<void, { deliveryId: string, orderId: string }>({
+		createCDEKWaybillPrint: build.mutation<void, { deliveryId: string; orderId: string }>({
 			query: (params) => ({
 				url: "/admin/delivery/cdek/waybill/print",
 				method: "POST",
@@ -28,12 +28,16 @@ export const deliveryCDEKApi = adminApi.injectEndpoints({
 			}),
 			transformResponse: (response) => validateData(CDEKWaybillGetSchema, response),
 		}),
-		getCDEKToken: build.query<z.infer<typeof CDEKTokenGetSchema>, void>({
-			query: () => ({
-				url: "/admin/delivery/cdek/token",
+		getCDEKWaybillPrint: build.query<Blob, { deliveryId: string; orderId: string }>({
+			query: (params) => ({
+				url: "/admin/delivery/cdek/waybill/print",
+				params: params,
 				method: "GET",
+				headers: { "Content-Type": "application/pdf" },
 			}),
-			transformResponse: (response) => validateData(CDEKTokenGetSchema, response),
+			transformResponse: (response: Response) => {
+				return response.blob(); // Convert the response to a Blob
+			},
 		}),
 	}),
 });
@@ -41,6 +45,28 @@ export const deliveryCDEKApi = adminApi.injectEndpoints({
 export const {
 	useCreateCDEKWaybillMutation,
 	useCreateCDEKWaybillPrintMutation,
+	useGetCDEKWaybillQuery,
 	useLazyGetCDEKWaybillQuery,
-	useLazyGetCDEKTokenQuery,
 } = deliveryCDEKApi;
+
+export const downloadCDEKWaybillPrint = async ({
+	orderId,
+	deliveryId,
+}: {
+	orderId: string;
+	deliveryId: string;
+}): Promise<Blob> => {
+	const params = new URLSearchParams({ orderId, deliveryId });
+	const url = `https://api.simplegeek.ru/admin/delivery/cdek/waybill/print?${params.toString()}`;
+	const response = await fetch(url, {
+		method: "GET",
+		credentials: "include",
+		headers: { "Content-Type": "application/pdf" },
+	});
+
+	if (!response.ok) {
+		throw new Error(`Error: ${response.statusText}`);
+	}
+
+	return await response.blob();
+};
