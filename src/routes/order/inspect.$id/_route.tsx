@@ -1,4 +1,16 @@
-import { Add, Check, ChevronLeft, Close, Edit, MessageOutlined, RssFeed, Settings, Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+	Add,
+	Check,
+	ChevronLeft,
+	Close,
+	Edit,
+	MessageOutlined,
+	OpenInNew,
+	RssFeed,
+	Settings,
+	Visibility,
+	VisibilityOff,
+} from "@mui/icons-material";
 import {
 	Button,
 	CircularProgress,
@@ -68,7 +80,7 @@ export default function OrderInspectRoute() {
 		if (!order?.delivery) return;
 		const orderDelivery = order.delivery;
 		if (orderDelivery.service === "CDEK") {
-			getCDEKWaybill({ deliveryId: orderDelivery.id })
+			getCDEKWaybill({ deliveryId: orderDelivery.id });
 			getCDEKToken();
 			setInterval(() => getCDEKWaybill({ deliveryId: orderDelivery.id }), 1000 * 5);
 		}
@@ -236,6 +248,11 @@ export default function OrderInspectRoute() {
 		if (!order) return;
 		refundOrder({ orderId: order.id });
 	};
+
+	const handleOpenCdekOrder = useCallback(() => {
+		if (!order?.delivery?.tracking) return;
+		window.open(order.delivery.tracking.link, "_blank");
+	}, [order]);
 
 	useMutationFeedback({
 		title: "Создание события",
@@ -437,7 +454,7 @@ export default function OrderInspectRoute() {
 												: order.delivery.service === "CDEK" && (
 														<Paper sx={{ p: 2 }}>
 															<Typography variant="subtitle0">СДЭК</Typography>
-															<div className="gap-2 d-f fd-c">
+															<div className="gap-1 mt-2 d-f fd-c">
 																{CDEKWaybillIsLoading ? (
 																	<CircularProgress />
 																) : CDEKWaybill ? (
@@ -450,6 +467,27 @@ export default function OrderInspectRoute() {
 																				<CircularProgress />
 																			) : (
 																				<Check sx={{ color: "success.main" }} />
+																			)}
+																		</div>
+																		<div className="gap-1 ai-c d-f fd-r">
+																			<Typography variant="body1">
+																				Трек-номер
+																			</Typography>
+																			{order.delivery.tracking && (
+																				<>
+																					<Typography variant="body1">
+																						{order.delivery.tracking.code}
+																					</Typography>
+																					<Tooltip title="Открыть в браузере">
+																						<IconButton
+																							onClick={
+																								handleOpenCdekOrder
+																							}
+																						>
+																							<OpenInNew />
+																						</IconButton>
+																					</Tooltip>
+																				</>
 																			)}
 																		</div>
 																		<div className="gap-1 ai-c d-f fd-r">
@@ -531,22 +569,24 @@ export default function OrderInspectRoute() {
 								<Paper sx={{ p: 2, width: "max-content" }}>
 									<div className="gap-1 d-f fd-c">
 										<Typography variant="subtitle0">Пользователь</Typography>
-										<Typography variant="body1">Email: {order.user.email}</Typography>
-										<div className="gap-1 ai-c d-f fd-r">
-											<Button
-												variant="contained"
-												onClick={() => navigate(`/user/inspect/${order.user.id}`)}
-											>
-												Профиль
-											</Button>
-											<Button
-												variant="contained"
-												onClick={() =>
-													navigate(`/order/table?f=user:equals:${order.user.email}`)
-												}
-											>
-												Заказы
-											</Button>
+										<div className="gap-1 mt-2 d-f fd-c">
+											<Typography variant="body1">Email: {order.user.email}</Typography>
+											<div className="gap-1 ai-c d-f fd-r">
+												<Button
+													variant="contained"
+													onClick={() => navigate(`/user/inspect/${order.user.id}`)}
+												>
+													Профиль
+												</Button>
+												<Button
+													variant="contained"
+													onClick={() =>
+														navigate(`/order/table?f=user:equals:${order.user.email}`)
+													}
+												>
+													Заказы
+												</Button>
+											</div>
 										</div>
 									</div>
 								</Paper>
@@ -554,21 +594,23 @@ export default function OrderInspectRoute() {
 								{/* Initial Payment(Deposit) */}
 								<Paper sx={{ p: 2 }}>
 									<Typography variant="subtitle0">Депозит</Typography>
-									<Typography variant="body1">Сумма: {order.initialInvoice.amount}₽</Typography>
-									<Typography variant="body1">
-										Создан:{" "}
-										{new Intl.DateTimeFormat("ru", {
-											year: "numeric",
-											month: "numeric",
-											day: "numeric",
-											hour: "numeric",
-											minute: "numeric",
-											second: "numeric",
-										}).format(order.initialInvoice.createdAt)}
-									</Typography>
-									<div className="gap-1 ai-c d-f fd-r">
-										<Typography variant="body1">Оплачено:</Typography>
-										{order.initialInvoice.isPaid ? <Check /> : <Close />}
+									<div className="gap-1 mt-2 d-f fd-r">
+										<Typography variant="body1">Сумма: {order.initialInvoice.amount}₽</Typography>
+										<Typography variant="body1">
+											Создан:{" "}
+											{new Intl.DateTimeFormat("ru", {
+												year: "numeric",
+												month: "numeric",
+												day: "numeric",
+												hour: "numeric",
+												minute: "numeric",
+												second: "numeric",
+											}).format(order.initialInvoice.createdAt)}
+										</Typography>
+										<div className="gap-1 ai-c d-f fd-r">
+											<Typography variant="body1">Оплачено:</Typography>
+											{order.initialInvoice.isPaid ? <Check /> : <Close />}
+										</div>
 									</div>
 								</Paper>
 							</div>
@@ -587,6 +629,7 @@ export default function OrderInspectRoute() {
 															delivery: data,
 														});
 													}}
+													// TODO: Add packages
 													packages={[]}
 												/>
 											) : (

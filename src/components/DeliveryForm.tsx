@@ -156,9 +156,9 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 					/>
 				</Box>
 			</Modal>
-			<form className="section" onSubmit={handleSubmit(handleSave)}>
-				<div className="gap-2 d-f fd-c">
-					<Typography variant={"h6"}>{isMobile ? "Доставка" : "Адрес и способ доставки"} </Typography>
+			<form className="gap-2 d-f fd-c" onSubmit={handleSubmit(handleSave)}>
+				<div className="gap-1 d-f fd-c">
+					<Typography variant={"subtitle0"}>{isMobile ? "Доставка" : "Адрес и способ доставки"} </Typography>
 					<Box>
 						<CardRadio
 							isChecked={service === "SELF_PICKUP"}
@@ -222,7 +222,7 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 				</div>
 
 				<div>
-					<Typography variant="h6">Получатель</Typography>
+					<Typography variant="subtitle0">Получатель</Typography>
 					<div className="gap-1 ai-bl d-f fd-r">
 						<Controller
 							name="recipient.phone"
