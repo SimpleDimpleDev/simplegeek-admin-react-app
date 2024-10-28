@@ -436,132 +436,14 @@ export default function OrderInspectRoute() {
 									</div>
 								</div>
 
-								{/* Controls */}
-								<div className="gap-1 ai-c d-f fd-r">
-									{order.delivery && (
-										<>
-											{order.delivery.service === "SELF_PICKUP"
-												? order.status === "READY_FOR_PICKUP" && (
-														<Button
-															variant="contained"
-															color="success"
-															onClick={() => setSelfPickupIssueConfirmDialogOpened(true)}
-															sx={{ color: "white" }}
-														>
-															Выдать заказ
-														</Button>
-												  )
-												: order.delivery.service === "CDEK" && (
-														<Paper sx={{ p: 2 }}>
-															<Typography variant="subtitle0">СДЭК</Typography>
-															<div className="gap-1 mt-2 d-f fd-c">
-																{CDEKWaybillIsLoading ? (
-																	<CircularProgress />
-																) : CDEKWaybill ? (
-																	<>
-																		<div className="gap-1 ai-c d-f fd-r">
-																			<Typography variant="body1">
-																				Накладная
-																			</Typography>
-																			{CDEKWaybill.status === "PENDING" ? (
-																				<CircularProgress />
-																			) : (
-																				<Check sx={{ color: "success.main" }} />
-																			)}
-																		</div>
-																		<div className="gap-1 ai-c d-f fd-r">
-																			<Typography variant="body1">
-																				Трек-номер
-																			</Typography>
-																			{order.delivery.tracking && (
-																				<>
-																					<Typography variant="body1">
-																						{order.delivery.tracking.code}
-																					</Typography>
-																					<Tooltip title="Открыть в браузере">
-																						<IconButton
-																							onClick={
-																								handleOpenCdekOrder
-																							}
-																						>
-																							<OpenInNew />
-																						</IconButton>
-																					</Tooltip>
-																				</>
-																			)}
-																		</div>
-																		<div className="gap-1 ai-c d-f fd-r">
-																			<Typography variant="body1">
-																				Распечатка
-																			</Typography>
-																			{CDEKWaybill.print ? (
-																				CDEKWaybill.print.status ===
-																				"PENDING" ? (
-																					<CircularProgress />
-																				) : (
-																					<>
-																						<Check
-																							sx={{
-																								color: "success.main",
-																							}}
-																						/>
-																						<Button
-																							variant="contained"
-																							onClick={
-																								handleOpenWaybillPrint
-																							}
-																						>
-																							Открыть
-																						</Button>
-																					</>
-																				)
-																			) : (
-																				<>
-																					<Close
-																						sx={{ color: "error.main" }}
-																					/>
-																					<Button
-																						variant="contained"
-																						onClick={
-																							handleCreateCDEKWaybillPrint
-																						}
-																					>
-																						Сформировать
-																					</Button>
-																				</>
-																			)}
-																		</div>
-																	</>
-																) : (
-																	<div className="gap-1 ai-c d-f fd-r">
-																		<Typography variant="body1">
-																			Накладная
-																		</Typography>
-																		<Close sx={{ color: "error.main" }} />
-																		<Button
-																			variant="contained"
-																			onClick={() =>
-																				setWaybillCreateModalOpened(true)
-																			}
-																		>
-																			Сформировать
-																		</Button>
-																	</div>
-																)}
-															</div>
-														</Paper>
-												  )}
-										</>
-									)}
-									<Button
-										variant="contained"
-										color="error"
-										onClick={() => setRefundConfirmDialogOpened(true)}
-										sx={{ color: "white" }}
-									>
-										Вернуть заказ
-									</Button>
-								</div>
+								<Button
+									variant="contained"
+									color="error"
+									onClick={() => setRefundConfirmDialogOpened(true)}
+									sx={{ color: "white" }}
+								>
+									Вернуть заказ
+								</Button>
 							</div>
 
 							<div className="gap-2 d-f fd-r">
@@ -692,7 +574,147 @@ export default function OrderInspectRoute() {
 										</Stack>
 									</Paper>
 								</div>
+
 								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
+									{/* Controls */}
+									<div className="gap-1 ai-c d-f fd-r">
+										{order.delivery && (
+											<>
+												{order.delivery.service === "SELF_PICKUP" ? (
+													<Paper sx={{ p: 2 }}>
+														<Typography variant="subtitle0">Самовывоз</Typography>
+														<div className="gap-1 mt-2 d-f fd-c">
+															<div className="gap-1 ai-c d-f fd-r">
+																<Typography variant="body1">Готов к выдаче</Typography>
+																{order.status === "READY_FOR_PICKUP" ? (
+																	<>
+																		<Check />
+																		<Button
+																			variant="contained"
+																			color="success"
+																			onClick={() =>
+																				setSelfPickupIssueConfirmDialogOpened(
+																					true
+																				)
+																			}
+																			sx={{ color: "white" }}
+																		>
+																			Выдать
+																		</Button>
+																	</>
+																) : (
+																	<Close />
+																)}
+															</div>
+														</div>
+													</Paper>
+												) : (
+													order.delivery.service === "CDEK" && (
+														<Paper sx={{ p: 2 }}>
+															<Typography variant="subtitle0">СДЭК</Typography>
+															<div className="gap-1 mt-2 d-f fd-c">
+																{CDEKWaybillIsLoading ? (
+																	<CircularProgress />
+																) : CDEKWaybill ? (
+																	<>
+																		<div className="gap-1 ai-c d-f fd-r">
+																			<Typography variant="body1">
+																				Накладная
+																			</Typography>
+																			{CDEKWaybill.status === "PENDING" ? (
+																				<CircularProgress />
+																			) : (
+																				<Check sx={{ color: "success.main" }} />
+																			)}
+																		</div>
+																		<div className="gap-1 ai-c d-f fd-r">
+																			<Typography variant="body1">
+																				Трек-номер:
+																			</Typography>
+																			{order.delivery.tracking && (
+																				<>
+																					<Typography variant="body1">
+																						{order.delivery.tracking.code}
+																					</Typography>
+																					<Tooltip title="Открыть в браузере">
+																						<IconButton
+																							onClick={
+																								handleOpenCdekOrder
+																							}
+																						>
+																							<OpenInNew />
+																						</IconButton>
+																					</Tooltip>
+																				</>
+																			)}
+																		</div>
+																		<div className="gap-1 ai-c d-f fd-r">
+																			<Typography variant="body1">
+																				Распечатка
+																			</Typography>
+																			{CDEKWaybill.print ? (
+																				CDEKWaybill.print.status ===
+																				"PENDING" ? (
+																					<CircularProgress />
+																				) : (
+																					<>
+																						<Check
+																							sx={{
+																								color: "success.main",
+																							}}
+																						/>
+																						<Button
+																							variant="contained"
+																							onClick={
+																								handleOpenWaybillPrint
+																							}
+																						>
+																							Открыть
+																						</Button>
+																					</>
+																				)
+																			) : (
+																				<>
+																					<Close
+																						sx={{ color: "error.main" }}
+																					/>
+																					<Button
+																						variant="contained"
+																						onClick={
+																							handleCreateCDEKWaybillPrint
+																						}
+																					>
+																						Сформировать
+																					</Button>
+																				</>
+																			)}
+																		</div>
+																	</>
+																) : (
+																	<div className="gap-1 ai-c d-f fd-r">
+																		<Typography variant="body1">
+																			Накладная
+																		</Typography>
+																		<Close sx={{ color: "error.main" }} />
+																		<Button
+																			variant="contained"
+																			onClick={() =>
+																				setWaybillCreateModalOpened(true)
+																			}
+																		>
+																			Сформировать
+																		</Button>
+																	</div>
+																)}
+															</div>
+														</Paper>
+													)
+												)}
+											</>
+										)}
+									</div>
+
+									{/* Events */}
 									<Paper sx={{ p: 2 }}>
 										<div className="pb-2 ai-c d-f fd-r jc-sb">
 											<Typography variant="subtitle0">События</Typography>
