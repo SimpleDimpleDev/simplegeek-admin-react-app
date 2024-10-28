@@ -20,6 +20,7 @@ import {
 	useLazyGetCDEKTokenQuery,
 	useLazyGetCDEKWaybillQuery,
 } from "@api/admin/cdek";
+import { useCreateOrderEventMutation, useGetOrderEventListQuery } from "@api/admin/orderEvent";
 import {
 	useGetOrderEditablePropsQuery,
 	useGetOrderQuery,
@@ -33,8 +34,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import ActionDialog from "@components/ActionDialog";
 import { DeliveryForm } from "@components/DeliveryForm";
 import { DeliveryService } from "@appTypes/Delivery";
+import { EventCreateForm } from "./EventCreateForm";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import ManagementModal from "@components/ManagementModal";
 import { OrderStatus } from "@appTypes/Order";
 import { getImageUrl } from "@utils/image";
 import { getRuGoodsWord } from "@utils/lexical";
@@ -55,6 +58,7 @@ export default function OrderInspectRoute() {
 	const orderId = params.id;
 	if (!orderId) throw new Response("No order id provided", { status: 404 });
 	const { data: order, isLoading: orderIsLoading, refetch: refetchOrder } = useGetOrderQuery({ orderId });
+	const { data: orderEventList, isLoading: orderEventListIsLoading } = useGetOrderEventListQuery({ orderId });
 	const { data: editableProps, isLoading: editablePropsIsLoading } = useGetOrderEditablePropsQuery(
 		{
 			orderId,
@@ -79,6 +83,16 @@ export default function OrderInspectRoute() {
 			refetchOrder();
 		}
 	}, [CDEKWaybill, refetchOrder]);
+
+	const [
+		createEvent,
+		{
+			isLoading: eventCreateIsLoading,
+			isSuccess: eventCreateIsSuccess,
+			isError: eventCreateIsError,
+			error: eventCreateError,
+		},
+	] = useCreateOrderEventMutation();
 
 	const [
 		updateStatus,
@@ -142,6 +156,7 @@ export default function OrderInspectRoute() {
 
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
+	const [eventCreateModalOpened, setEventCreateModalOpened] = useState(false);
 	const [waybillCreateModalOpened, setWaybillCreateModalOpened] = useState(false);
 	const [selfPickupIssueConfirmDialogOpened, setSelfPickupIssueConfirmDialogOpened] = useState(false);
 	const [refundConfirmDialogOpened, setRefundConfirmDialogOpened] = useState(false);
@@ -222,6 +237,17 @@ export default function OrderInspectRoute() {
 	};
 
 	useMutationFeedback({
+		title: "Создание события",
+		isSuccess: eventCreateIsSuccess,
+		isError: eventCreateIsError,
+		error: eventCreateError,
+		feedbackFn: showSnackbarMessage,
+		successAction: () => {
+			setEventCreateModalOpened(false);
+		},
+	});
+
+	useMutationFeedback({
 		title: "Обновление статуса",
 		isSuccess: statusUpdateIsSuccess,
 		isError: statusUpdateIsError,
@@ -280,6 +306,7 @@ export default function OrderInspectRoute() {
 	});
 
 	const showLoadingOverlay =
+		eventCreateIsLoading ||
 		statusUpdateIsLoading ||
 		deliveryUpdateIsLoading ||
 		selfPickupIssueIsLoading ||
@@ -291,6 +318,14 @@ export default function OrderInspectRoute() {
 		<>
 			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar open={snackbarOpened} autoHideDuration={2000} onClose={closeSnackbar} message={snackbarMessage} />
+			<ManagementModal
+				title="Создание события"
+				opened={eventCreateModalOpened}
+				onClose={() => setEventCreateModalOpened(false)}
+			>
+				{!order ? <CircularProgress /> : <EventCreateForm orderId={order.id} onSubmit={createEvent} />}
+			</ManagementModal>
+
 			<ActionDialog
 				title="Выдать заказ?"
 				helperText="Вы собираетесь выдать этот заказ. Это действие необратимо."
@@ -333,7 +368,11 @@ export default function OrderInspectRoute() {
 					<ChevronLeft />
 					Назад
 				</Button>
-				<LoadingSpinner isLoading={orderIsLoading || editablePropsIsLoading || CDEKWaybillIsLoading}>
+				<LoadingSpinner
+					isLoading={
+						orderIsLoading || editablePropsIsLoading || CDEKWaybillIsLoading || orderEventListIsLoading
+					}
+				>
 					{!order || !editableProps ? (
 						<div className="w-100 h-100v ai-c d-f jc-c">
 							<Typography variant="h5">Что-то пошло не так</Typography>
@@ -385,89 +424,96 @@ export default function OrderInspectRoute() {
 								<div className="gap-1 ai-c d-f fd-r">
 									{order.delivery && (
 										<>
-											{order.delivery.service === "SELF_PICKUP" ? (
-												<Button
-													variant="contained"
-													color="success"
-													onClick={() => setSelfPickupIssueConfirmDialogOpened(true)}
-													sx={{ color: "white" }}
-												>
-													Выдать заказ
-												</Button>
-											) : (
-												order.delivery.service === "CDEK" && (
-													<Paper>
-														<Typography variant="subtitle0">СДЭК</Typography>
-														<div className="gap-2 d-f fd-c">
-															{CDEKWaybillIsLoading ? (
-																<CircularProgress />
-															) : CDEKWaybill ? (
-																<>
+											{order.delivery.service === "SELF_PICKUP"
+												? order.status === "READY_FOR_PICKUP" && (
+														<Button
+															variant="contained"
+															color="success"
+															onClick={() => setSelfPickupIssueConfirmDialogOpened(true)}
+															sx={{ color: "white" }}
+														>
+															Выдать заказ
+														</Button>
+												  )
+												: order.delivery.service === "CDEK" && (
+														<Paper>
+															<Typography variant="subtitle0">СДЭК</Typography>
+															<div className="gap-2 d-f fd-c">
+																{CDEKWaybillIsLoading ? (
+																	<CircularProgress />
+																) : CDEKWaybill ? (
+																	<>
+																		<div className="gap-1 ai-c d-f fd-r">
+																			<Typography variant="body1">
+																				Накладная
+																			</Typography>
+																			{CDEKWaybill.status === "PENDING" ? (
+																				<CircularProgress />
+																			) : (
+																				<Check sx={{ color: "success.main" }} />
+																			)}
+																		</div>
+																		<div className="gap-1 ai-c d-f fd-r">
+																			<Typography variant="body1">
+																				Распечатка
+																			</Typography>
+																			{CDEKWaybill.print ? (
+																				CDEKWaybill.print.status ===
+																				"PENDING" ? (
+																					<CircularProgress />
+																				) : (
+																					<>
+																						<Check
+																							sx={{
+																								color: "success.main",
+																							}}
+																						/>
+																						<Button
+																							variant="contained"
+																							onClick={
+																								handleOpenWaybillPrint
+																							}
+																						>
+																							Открыть
+																						</Button>
+																					</>
+																				)
+																			) : (
+																				<>
+																					<Close
+																						sx={{ color: "error.main" }}
+																					/>
+																					<Button
+																						variant="contained"
+																						onClick={
+																							handleCreateCDEKWaybillPrint
+																						}
+																					>
+																						Сформировать
+																					</Button>
+																				</>
+																			)}
+																		</div>
+																	</>
+																) : (
 																	<div className="gap-1 ai-c d-f fd-r">
 																		<Typography variant="body1">
 																			Накладная
 																		</Typography>
-																		{CDEKWaybill.status === "PENDING" ? (
-																			<CircularProgress />
-																		) : (
-																			<Check sx={{ color: "success.main" }} />
-																		)}
+																		<Close sx={{ color: "error.main" }} />
+																		<Button
+																			variant="contained"
+																			onClick={() =>
+																				setWaybillCreateModalOpened(true)
+																			}
+																		>
+																			Сформировать
+																		</Button>
 																	</div>
-																	<div className="gap-1 ai-c d-f fd-r">
-																		<Typography variant="body1">
-																			Распечатка
-																		</Typography>
-																		{CDEKWaybill.print ? (
-																			CDEKWaybill.print.status === "PENDING" ? (
-																				<CircularProgress />
-																			) : (
-																				<>
-																					<Check
-																						sx={{
-																							color: "success.main",
-																						}}
-																					/>
-																					<Button
-																						variant="contained"
-																						onClick={handleOpenWaybillPrint}
-																					>
-																						Открыть
-																					</Button>
-																				</>
-																			)
-																		) : (
-																			<>
-																				<Close sx={{ color: "error.main" }} />
-																				<Button
-																					variant="contained"
-																					onClick={
-																						handleCreateCDEKWaybillPrint
-																					}
-																				>
-																					Сформировать
-																				</Button>
-																			</>
-																		)}
-																	</div>
-																</>
-															) : (
-																<div className="gap-1 ai-c d-f fd-r">
-																	<Typography variant="body1">Накладная</Typography>
-																	<Close sx={{ color: "error.main" }} />
-																	<Button
-																		variant="contained"
-																		onClick={() =>
-																			setWaybillCreateModalOpened(true)
-																		}
-																	>
-																		Сформировать
-																	</Button>
-																</div>
-															)}
-														</div>
-													</Paper>
-												)
-											)}
+																)}
+															</div>
+														</Paper>
+												  )}
 										</>
 									)}
 									<Button
@@ -677,8 +723,12 @@ export default function OrderInspectRoute() {
 								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
 									<Paper sx={{ p: 2 }}>
 										<Typography variant="subtitle0">События</Typography>
-										<div className="gap-1 d-f fd-c">
-											<div className="h-100">Сюда События</div>
+										<div className="gap-1 h-100 d-f fd-c">
+											{!orderEventList ? (
+												<Typography color={"error"}>Ошибка</Typography>
+											) : (
+												orderEventList.items.map((event) => <div>{JSON.stringify(event)}</div>)
+											)}
 										</div>
 									</Paper>
 								</div>

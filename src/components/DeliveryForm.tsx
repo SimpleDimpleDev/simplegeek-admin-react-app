@@ -2,6 +2,7 @@ import { Box, Button, Grid2, IconButton, Modal, TextField, Typography } from "@m
 import { CDEKDeliveryInfo, CDEKWidget } from "./widgets/cdek";
 import { Controller, useForm } from "react-hook-form";
 import { Delivery, DeliveryPackage, DeliveryPoint, DeliveryService, Recipient } from "@appTypes/Delivery";
+import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
 import { useEffect, useState } from "react";
 
 import { CDEKDeliveryData } from "@appTypes/CDEK";
@@ -25,11 +26,11 @@ const DeliveryFormResolver = z
 		recipient: z.object({
 			fullName: z.string({ message: "Укажите ФИО" }).min(2, "ФИО должно быть не менее 2 символов"),
 			phone: z
-				.string({ message: "Укажите номер телефона" })
-				.regex(/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/, {
+				.string()
+				.min(1, { message: "Укажите номер телефона" })
+				.refine((value) => matchIsValidTel(value, { onlyCountries: ["RU", "BY", "KZ"] }), {
 					message: "Неверный номер телефона",
-				})
-				.min(10, "Номер телефона должен быть не менее 10 символов"),
+				}),
 		}),
 		service: z.enum(["SELF_PICKUP", "CDEK"], { message: "Укажите способ доставки" }),
 		point: z
@@ -228,13 +229,16 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 								name="recipient.phone"
 								disabled={!isEditing}
 								control={control}
-								render={({ field, fieldState: { error } }) => (
-									<TextField
-										{...field}
-										label="Номер телефона"
-										variant="outlined"
+								render={({ field: { value, ...fieldProps }, fieldState: { error } }) => (
+									<MuiTelInput
+										{...fieldProps}
+										disabled={!isEditing}
 										fullWidth
-										margin="normal"
+										label="Номер телефона"
+										defaultCountry={"RU"}
+										onlyCountries={["RU", "BY", "KZ"]}
+										langOfCountryName="RU"
+										value={value}
 										error={!!error}
 										helperText={error?.message}
 									/>
@@ -302,4 +306,3 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 };
 
 export { DeliveryForm };
-
