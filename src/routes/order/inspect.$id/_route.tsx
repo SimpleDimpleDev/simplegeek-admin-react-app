@@ -66,7 +66,9 @@ export default function OrderInspectRoute() {
 	const orderId = params.id;
 	if (!orderId) throw new Response("No order id provided", { status: 404 });
 	const { data: order, isLoading: orderIsLoading, refetch: refetchOrder } = useGetOrderQuery({ orderId });
-	const { data: orderEventList, isLoading: orderEventListIsLoading } = useGetOrderEventListQuery({ orderId });
+	const { data: orderEventList, isLoading: orderEventListIsLoading } = useGetOrderEventListQuery({ orderId }, {
+		pollingInterval: 5000,
+	});
 	const { data: editableProps, isLoading: editablePropsIsLoading } = useGetOrderEditablePropsQuery(
 		{
 			orderId,
