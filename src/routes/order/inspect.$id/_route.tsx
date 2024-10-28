@@ -66,9 +66,12 @@ export default function OrderInspectRoute() {
 	const orderId = params.id;
 	if (!orderId) throw new Response("No order id provided", { status: 404 });
 	const { data: order, isLoading: orderIsLoading, refetch: refetchOrder } = useGetOrderQuery({ orderId });
-	const { data: orderEventList, isLoading: orderEventListIsLoading } = useGetOrderEventListQuery({ orderId }, {
-		pollingInterval: 5000,
-	});
+	const { data: orderEventList, isLoading: orderEventListIsLoading } = useGetOrderEventListQuery(
+		{ orderId },
+		{
+			pollingInterval: 5000,
+		}
+	);
 	const { data: editableProps, isLoading: editablePropsIsLoading } = useGetOrderEditablePropsQuery(
 		{
 			orderId,
@@ -452,9 +455,9 @@ export default function OrderInspectRoute() {
 							<div className="gap-2 d-f fd-r">
 								{/* User */}
 								<Paper sx={{ p: 2, width: "max-content" }}>
-									<div className="gap-1 d-f fd-c">
+									<div className="gap-1 h-100 d-f fd-c">
 										<Typography variant="subtitle0">Пользователь</Typography>
-										<div className="gap-1 mt-2 d-f fd-c">
+										<div className="gap-1 mt-2 h-100 d-f fd-c jc-sb">
 											<Typography variant="body1">Email: {order.user.email}</Typography>
 											<div className="gap-1 ai-c d-f fd-r">
 												<Button
@@ -517,7 +520,7 @@ export default function OrderInspectRoute() {
 																<div className="gap-1 ai-c d-f fd-r">
 																	<Typography variant="body1">Накладная</Typography>
 																	{CDEKWaybill.status === "PENDING" ? (
-																		<CircularProgress />
+																		<CircularProgress size={20} />
 																	) : (
 																		<Check sx={{ color: "success.main" }} />
 																	)}
@@ -543,7 +546,7 @@ export default function OrderInspectRoute() {
 																	<Typography variant="body1">Распечатка</Typography>
 																	{CDEKWaybill.print ? (
 																		CDEKWaybill.print.status === "PENDING" ? (
-																			<CircularProgress />
+																			<CircularProgress size={20} />
 																		) : (
 																			<>
 																				<Check
