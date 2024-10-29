@@ -369,9 +369,14 @@ export default function OrderInspectRoute() {
 												<Typography variant="subtitle0">Самовывоз</Typography>
 												<div className="gap-1 mt-2 d-f fd-c">
 													<div className="gap-1 ai-c d-f fd-r">
-														<Typography variant="body1">Готов к выдаче</Typography>
-														{order.status === "READY_FOR_PICKUP" ? (
+														{order.status === "FINISHED" ? (
 															<>
+																<Typography variant="body1">Выдан</Typography>
+																<Check sx={{ color: "success.main" }} />
+															</>
+														) : order.status === "READY_FOR_PICKUP" ? (
+															<>
+																<Typography variant="body1">Готов к выдаче</Typography>
 																<Check sx={{ color: "success.main" }} />
 																<Button
 																	variant="contained"
@@ -385,7 +390,10 @@ export default function OrderInspectRoute() {
 																</Button>
 															</>
 														) : (
-															<Close sx={{ color: "error.main" }} />
+															<>
+																<Typography variant="body1">Готов к выдаче</Typography>
+																<Close sx={{ color: "error.main" }} />
+															</>
 														)}
 													</div>
 												</div>
@@ -405,7 +413,9 @@ export default function OrderInspectRoute() {
 
 								{/* Initial Payment(Deposit) */}
 								<Paper sx={{ p: 2 }}>
-									<Typography variant="subtitle0">{order.initialInvoice.title ?? "Депозит"}</Typography>
+									<Typography variant="subtitle0">
+										{order.initialInvoice.title ?? "Депозит"}
+									</Typography>
 									<div className="gap-1 mt-2 d-f fd-c">
 										<Typography variant="body1">Сумма: {order.initialInvoice.amount}₽</Typography>
 										<Typography variant="body1">
