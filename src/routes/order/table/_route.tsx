@@ -20,6 +20,15 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		},
 	},
 	{
+		field: "fullName",
+		headerName: "ФИО",
+		display: "flex",
+		valueGetter: (_, row) => {
+			if (!row.delivery) return "-";
+			return row.delivery.recipient.fullName;
+		},
+	},
+	{
 		field: "status",
 		headerName: "Статус",
 		display: "flex",
