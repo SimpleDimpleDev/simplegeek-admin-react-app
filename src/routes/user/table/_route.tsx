@@ -65,13 +65,6 @@ export default function UserTableRoute() {
 								>
 									Подробнее
 								</Button>
-								<Button
-									variant="contained"
-									disabled={!selectedUser}
-									onClick={() => navigate(`/user/edit/${selectedUser?.id}`)}
-								>
-									Редактировать
-								</Button>
 							</>
 						}
 					/>

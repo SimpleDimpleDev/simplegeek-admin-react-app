@@ -1,13 +1,8 @@
 import { Divider, Stack, Typography } from "@mui/material";
 
-import { DeliveryService } from "@appTypes/Delivery";
 import { OrderDeliveryGetSchema } from "@schemas/Order";
+import { deliveryServiceTitles } from "src/constants";
 import { z } from "zod";
-
-const deliveryServiceMapping: Record<DeliveryService, string> = {
-	CDEK: "СДЕК",
-	SELF_PICKUP: "Самовывоз",
-};
 
 interface DeliveryInfoProps {
 	delivery: z.infer<typeof OrderDeliveryGetSchema>;
@@ -23,7 +18,7 @@ export const DeliveryInfo: React.FC<DeliveryInfoProps> = ({ delivery }) => {
 						<Typography variant="body1" sx={{ color: "typography.secondary" }}>
 							Способ получения
 						</Typography>
-						<Typography variant="body1">{deliveryServiceMapping[delivery.service]}</Typography>
+						<Typography variant="body1">{deliveryServiceTitles.get(delivery.service)}</Typography>
 					</div>
 					<div className="gap-05 w-100 d-f fd-c">
 						<Typography variant="body1" sx={{ color: "typography.secondary" }}>
