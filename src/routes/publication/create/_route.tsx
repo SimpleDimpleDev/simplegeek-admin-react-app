@@ -98,7 +98,8 @@ export default function PublicationCreateRoute() {
 				</div>
 
 				<div className="section">
-					<FormControl fullWidth>
+					{/* TODO: preorder feature */}
+					<FormControl fullWidth disabled>
 						<InputLabel id="publication-type">Тип публикации</InputLabel>
 						<Select
 							labelId="publication-type"

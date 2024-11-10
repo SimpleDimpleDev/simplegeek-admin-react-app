@@ -1,6 +1,6 @@
 import { Button, IconButton, MenuItem, Select, SelectChangeEvent, Snackbar, Typography } from "@mui/material";
 import { Check, ChevronLeft, Close, Edit } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useGetUserQuery, useUpdateUserRoleMutation } from "@api/admin/user";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -40,6 +40,8 @@ export default function UserInspectRoute() {
 	const [roleEditing, setRoleEditing] = useState(false);
 	const [selectedRole, setSelectedRole] = useState<z.infer<typeof UserRoleSchema> | "UNDEFINED">("UNDEFINED");
 
+	const stopRoleEditing = useCallback(() => setRoleEditing(false), []);
+
 	useEffect(() => {
 		if (user) {
 			setSelectedRole(user.role);
@@ -52,6 +54,7 @@ export default function UserInspectRoute() {
 		isError: updateUserRoleIsError,
 		error: updateUserRoleError,
 		feedbackFn: showSnackbarMessage,
+		successAction: stopRoleEditing,
 	});
 
 	const handleStartEditRole = () => {
@@ -59,7 +62,7 @@ export default function UserInspectRoute() {
 	};
 
 	const handleCancelEditRole = () => {
-		setRoleEditing(false);
+		stopRoleEditing();
 		setSelectedRole(user?.role ?? "UNDEFINED");
 	};
 
@@ -103,7 +106,6 @@ export default function UserInspectRoute() {
 										<Select
 											disabled={!roleEditing}
 											value={selectedRole}
-											label="Роль"
 											onChange={handleSelectRole}
 										>
 											{Array.from(userRoleTitles.entries()).map(([role, roleTitle]) => (

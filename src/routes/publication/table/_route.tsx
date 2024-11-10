@@ -32,23 +32,36 @@ interface TableRowData {
 
 const columns: GridColDef<TableRowData>[] = [
 	{
-		field: "link",
-		headerName: "Ссылка",
-		display: "flex",
-	},
-	{
 		field: "product",
 		headerName: "Товар",
 		display: "flex",
 		valueGetter: (_, row) => row.product.title,
 		renderCell: (params) => (
 			<div className="gap-1 ai-c d-f fd-r">
-				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden" }}>
+				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
 					<img className="contain" src={getImageUrl(params.row.product.images[0].url, "small")} />
 				</div>
-				{params.row.product.title}
+				<Typography
+					variant="body2"
+					sx={{
+						overflow: "hidden",
+						textOverflow: "ellipsis",
+						WebkitLineClamp: 2,
+						display: "-webkit-box",
+						WebkitBoxOrient: "vertical",
+						maxWidth: "500px",
+						color: "black",
+					}}
+				>
+					{params.row.product.title}
+				</Typography>
 			</div>
 		),
+	},
+	{
+		field: "link",
+		headerName: "Ссылка",
+		display: "flex",
 	},
 	{
 		field: "category",
@@ -56,7 +69,13 @@ const columns: GridColDef<TableRowData>[] = [
 		display: "flex",
 		valueGetter: (_, row) => row.product.category.title,
 	},
-	{ field: "price", headerName: "Цена", type: "number", renderCell: (params) => `${params.row.price} ₽` },
+	{
+		field: "price",
+		headerName: "Цена",
+		display: "flex",
+		type: "number",
+		renderCell: (params) => `${params.row.price} ₽`,
+	},
 	{
 		field: "type",
 		headerName: "Тип",
@@ -160,17 +179,17 @@ export default function PublicationTableRoute() {
 							const variationString = item.variationIndex !== null ? `?v=${item.variationIndex}` : "";
 							return `${item.publicationId}${variationString}`;
 						}}
-						headerButtons={
-							<>
-								<Button
-									variant="contained"
-									disabled={!selectedItemIds.length}
-									onClick={() => console.log("disabled", selectedItemIds)}
-								>
-									{selectedItemIds.length > 1 ? "Скрыть публикацию" : "Скрыть публикации"}
-								</Button>
-							</>
-						}
+						// headerButtons={
+						// 	<>
+						// 		<Button
+						// 			variant="contained"
+						// 			disabled={!selectedItemIds.length}
+						// 			onClick={() => console.log("disabled", selectedItemIds)}
+						// 		>
+						// 			{selectedItemIds.length > 1 ? "Скрыть публикации" : "Скрыть публикацию"}
+						// 		</Button>
+						// 	</>
+						// }
 						leftHeaderButtons={
 							<>
 								<Button

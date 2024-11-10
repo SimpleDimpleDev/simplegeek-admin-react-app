@@ -1,7 +1,6 @@
 import {
 	Apps,
 	Category,
-	FlightTakeoff,
 	Info,
 	Logout,
 	People,
@@ -49,7 +48,8 @@ export default function AppLayout() {
 						<NavButton to="/publication/table" icon={<Apps />} text={"Каталог"} />
 						<NavButton to="/user/table" icon={<People />} text={"Пользователи"} />
 						<NavButton to="/order/table" icon={<ShoppingBag />} text={"Заказы"} />
-						<NavButton to="/preorder/table" icon={<FlightTakeoff />} text={"Предзаказы"} />
+						{/* TODO: Preorder feature */}
+						{/* <NavButton to="/preorder/table" icon={<FlightTakeoff />} text={"Предзаказы"} /> */}
 						<NavButton to="/faq" icon={<Info />} text={"FAQ"} />
 					</Box>
 					<Box padding={"0 16px"}>

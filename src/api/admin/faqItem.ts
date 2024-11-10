@@ -1,4 +1,4 @@
-import { FAQItemCreateSchema, FAQItemListGetSchema } from "@schemas/FAQ";
+import { FAQItemCreateSchema, FAQItemListGetSchema, FAQItemUpdateSchema } from "@schemas/FAQ";
 
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
@@ -24,7 +24,7 @@ export const FAQItemApi = adminApi.injectEndpoints({
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "FAQItem", id: item.id })),
 		}),
 
-		updateFAQItem: build.mutation<void, z.infer<typeof FAQItemCreateSchema>>({
+		updateFAQItem: build.mutation<void, z.infer<typeof FAQItemUpdateSchema>>({
 			query: (item) => ({
 				url: "/admin/faq-item",
 				method: "PUT",
