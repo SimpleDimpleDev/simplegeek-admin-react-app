@@ -59,6 +59,14 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		})),
 	},
 	{
+		field: "trackingCode",
+		headerName: "Трек номер",
+		display: "flex",
+		valueGetter: (_, row) => {
+			return row.delivery?.tracking?.code || "-"
+		}
+	},
+	{
 		field: "orderType",
 		headerName: "Тип заказа",
 		display: "flex",
