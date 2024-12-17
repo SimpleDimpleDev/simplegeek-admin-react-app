@@ -1,6 +1,7 @@
 FROM node:20-alpine AS frontend-build
 WORKDIR /app
 COPY package.json .
+COPY package-lock.json .
 RUN npm install
 COPY . .
 ARG SHOP_API_URL=https://api.simplegeek.ru
