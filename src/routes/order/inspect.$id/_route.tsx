@@ -47,6 +47,7 @@ import { OrderStatus } from "@appTypes/Order";
 import { getImageUrl } from "@utils/image";
 import { getRuGoodsWord } from "@utils/lexical";
 import { orderStatusBadges } from "@components/Badges";
+import { orderStatusTitles } from "src/constants";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 
@@ -301,8 +302,13 @@ export default function OrderInspectRoute() {
 										value={selectedStatus}
 										onChange={handleSelectStatus}
 									>
-										{editableProps.statuses.map((status) => (
-											<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
+										{Array.from(orderStatusTitles.entries()).map(([status]) => (
+											<MenuItem
+												disabled={!editableProps.statuses.includes(status)}
+												value={status}
+											>
+												{orderStatusBadges[status]}
+											</MenuItem>
 										))}
 									</Select>
 
