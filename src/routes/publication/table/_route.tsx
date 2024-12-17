@@ -26,6 +26,7 @@ interface TableRowData {
 	preorder: PreorderGet | null;
 	creditInfo: CreditInfo | null;
 	quantity: number | null;
+	orderedQuantity: number;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -76,30 +77,30 @@ const columns: GridColDef<TableRowData>[] = [
 		type: "number",
 		renderCell: (params) => `${params.row.price} ₽`,
 	},
-	{
-		field: "type",
-		headerName: "Тип",
-		display: "flex",
-		valueGetter: (_, row) => {
-			if (!row.preorder) return "Розница";
-			return `Предзаказ: ${row.preorder.title}`;
-		},
-	},
-	{
-		field: "credit",
-		headerName: "Рассрочка",
-		display: "flex",
-		type: "boolean",
-		valueGetter: (_, row) => {
-			return !!row.creditInfo;
-		},
-	},
+	// {
+	// 	field: "type",
+	// 	headerName: "Тип",
+	// 	display: "flex",
+	// 	valueGetter: (_, row) => {
+	// 		if (!row.preorder) return "Розница";
+	// 		return `Предзаказ: ${row.preorder.title}`;
+	// 	},
+	// },
+	// {
+	// 	field: "credit",
+	// 	headerName: "Рассрочка",
+	// 	display: "flex",
+	// 	type: "boolean",
+	// 	valueGetter: (_, row) => {
+	// 		return !!row.creditInfo;
+	// 	},
+	// },
 	{
 		field: "quantity",
-		headerName: "Количество",
+		headerName: "Остаток",
 		display: "flex",
 		type: "number",
-		valueGetter: (_, row) => (row.quantity ? `${row.quantity} шт.` : "Неограниченно"),
+		valueGetter: (_, row) => (row.quantity ? `${row.quantity - row.orderedQuantity} шт.` : "Неограниченно"),
 	},
 	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
@@ -118,6 +119,7 @@ const formatPublications = (publications: PublicationGet[]): TableRowData[] => {
 				preorder: publication.preorder,
 				creditInfo: item.creditInfo,
 				quantity: item.quantity,
+				orderedQuantity: item.orderedQuantity,
 				createdAt: item.createdAt,
 				updatedAt: item.updatedAt,
 			};
