@@ -31,5 +31,5 @@ export const preorderStatusTitles: Map<PreorderStatus, string> = new Map([
 export const deliveryServiceTitles: Map<DeliveryService | "UNASSIGNED", string> = new Map([
 	["UNASSIGNED", "Не оформлена"],
 	["SELF_PICKUP", "Самовывоз"],
-	["CDEK", "СДЕК"],
+	["CDEK", "СДЭК"],
 ]);

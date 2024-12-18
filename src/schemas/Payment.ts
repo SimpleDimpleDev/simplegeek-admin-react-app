@@ -27,6 +27,7 @@ export const CreditInfoGetSchema = z
 	.describe("CreditInfoGet");
 
 export const InvoiceGetSchema = AdminGetBaseSchema.extend({
+	title: z.string().nullable(),
 	amount: z.number(),
 	isPaid: z.boolean(),
 	expiresAt: ISOToDateSchema.nullable(),

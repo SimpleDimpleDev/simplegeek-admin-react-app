@@ -2,7 +2,7 @@ import { Button, Snackbar, Typography } from "@mui/material";
 import { FAQItemCreateForm, FAQItemUpdateForm } from "./forms";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useCallback, useMemo, useState } from "react";
-import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemListQuery } from "@api/admin/faqItem";
+import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemListQuery, useUpdateFAQItemMutation } from "@api/admin/faqItem";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
@@ -28,7 +28,7 @@ export default function FaqRoute() {
 	const [
 		updateFAQItem,
 		{ isLoading: updateIsLoading, isSuccess: updateSuccess, isError: updateIsError, error: updateError },
-	] = useCreateFAQItemMutation();
+	] = useUpdateFAQItemMutation();
 	const [
 		deleteFAQItems,
 		{ isLoading: deleteIsLoading, isSuccess: deleteSuccess, isError: deleteIsError, error: deleteError },
@@ -94,7 +94,7 @@ export default function FaqRoute() {
 			</ManagementModal>
 			<ManagementModal title="Редактировать вопрос" opened={updateModalOpened} onClose={closeUpdateModal}>
 				<FAQItemUpdateForm
-					itemToUpdate={FAQItemList?.items.find((item) => item.id === selectedItemIds.at(0))}
+					itemToUpdate={FAQItemList?.items.find((item) => item.id === selectedItemIds.at(0)) as FAQItemGet}
 					onSubmit={updateFAQItem}
 				/>
 			</ManagementModal>

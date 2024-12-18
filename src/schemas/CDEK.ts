@@ -47,10 +47,31 @@ export const CDEKDeliveryDataFullSchema = z.object({
 	tariff: CDEKTariffSchema,
 	address: CDEKAddressSchema,
 });
-	
+
 export const CDEKWaybillPackageSchema = z.object({
 	length: z.number(),
 	width: z.number(),
 	height: z.number(),
 	weight: z.number(),
+});
+
+export const CDEKWaybillCreateSchema = z.object({
+	orderId: z.string(),
+	packages: CDEKWaybillPackageSchema.array(),
+});
+
+export const CDEKWaybillGetSchema = z.object({
+	status: z.enum(["PENDING", "CREATED"]),
+	tracking: z
+		.object({
+			code: z.string(),
+			link: z.string(),
+		})
+		.nullable(),
+	print: z
+		.object({
+			status: z.enum(["PENDING", "CREATED"]),
+			url: z.string().nullable(),
+		})
+		.nullable(),
 });

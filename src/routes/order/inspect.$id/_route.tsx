@@ -1,22 +1,32 @@
 import {
+	Add,
+	Check,
+	ChevronLeft,
+	Close,
+	Edit,
+	MessageOutlined,
+	RssFeed,
+	Settings,
+	Visibility,
+	VisibilityOff,
+} from "@mui/icons-material";
+import {
 	Button,
 	CircularProgress,
 	Divider,
 	IconButton,
 	MenuItem,
-	Modal,
 	Paper,
 	Select,
 	SelectChangeEvent,
 	Snackbar,
 	Stack,
+	Tooltip,
 	Typography,
 } from "@mui/material";
-import { Check, ChevronLeft, Close, Edit } from "@mui/icons-material";
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";
+import { useCreateOrderEventMutation, useGetOrderEventListQuery } from "@api/admin/orderEvent";
 import {
-	useCreateOrderCDEKWaybillMutation,
-	useGetOrderCDEKWaybillPrintQuery,
 	useGetOrderEditablePropsQuery,
 	useGetOrderQuery,
 	useIssueSelfPickupOrdersMutation,
@@ -28,22 +38,20 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import ActionDialog from "@components/ActionDialog";
 import { DeliveryForm } from "@components/DeliveryForm";
-import { DeliveryService } from "@appTypes/Delivery";
+import { DeliveryInfo } from "./DeliveryInfo";
+import { EventCreateForm } from "./EventCreateForm";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import ManagementModal from "@components/ManagementModal";
 import { OrderStatus } from "@appTypes/Order";
 import { getImageUrl } from "@utils/image";
 import { getRuGoodsWord } from "@utils/lexical";
 import { orderStatusBadges } from "@components/Badges";
+import { orderStatusTitles } from "src/constants";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 
-const CDEKWaybillCreateForm = lazy(() => import("./CDEKWaybillCreateForm"));
-
-const deliveryServiceMapping: Record<DeliveryService, string> = {
-	CDEK: "СДЕК",
-	SELF_PICKUP: "Самовывоз",
-};
+const OrderCDEKSection = lazy(() => import("./CDEKSection"));
 
 export default function OrderInspectRoute() {
 	const navigate = useNavigate();
@@ -51,17 +59,28 @@ export default function OrderInspectRoute() {
 	const orderId = params.id;
 	if (!orderId) throw new Response("No order id provided", { status: 404 });
 	const { data: order, isLoading: orderIsLoading } = useGetOrderQuery({ orderId });
+	const { data: orderEventList, isLoading: orderEventListIsLoading } = useGetOrderEventListQuery(
+		{ orderId },
+		{
+			pollingInterval: 5000,
+		}
+	);
 	const { data: editableProps, isLoading: editablePropsIsLoading } = useGetOrderEditablePropsQuery(
 		{
 			orderId,
 		},
 		{ refetchOnMountOrArgChange: true }
 	);
-	const {
-		data: waybillPrint,
-		isLoading: waybillPrintIsLoading,
-		refetch: refetchWaybillPrint,
-	} = useGetOrderCDEKWaybillPrintQuery({ orderId });
+
+	const [
+		createEvent,
+		{
+			isLoading: eventCreateIsLoading,
+			isSuccess: eventCreateIsSuccess,
+			isError: eventCreateIsError,
+			error: eventCreateError,
+		},
+	] = useCreateOrderEventMutation();
 
 	const [
 		updateStatus,
@@ -92,15 +111,6 @@ export default function OrderInspectRoute() {
 			error: selfPickupIssueError,
 		},
 	] = useIssueSelfPickupOrdersMutation();
-	const [
-		createOrderCDEKWaybill,
-		{
-			isLoading: createOrderCDEKWaybillIsLoading,
-			isSuccess: createOrderCDEKWaybillIsSuccess,
-			isError: createOrderCDEKWaybillIsError,
-			error: createOrderCDEKWaybillError,
-		},
-	] = useCreateOrderCDEKWaybillMutation();
 
 	const [
 		refundOrder,
@@ -114,7 +124,7 @@ export default function OrderInspectRoute() {
 
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
-	const [waybillCreateModalOpened, setWaybillCreateModalOpened] = useState(false);
+	const [eventCreateModalOpened, setEventCreateModalOpened] = useState(false);
 	const [selfPickupIssueConfirmDialogOpened, setSelfPickupIssueConfirmDialogOpened] = useState(false);
 	const [refundConfirmDialogOpened, setRefundConfirmDialogOpened] = useState(false);
 
@@ -126,6 +136,10 @@ export default function OrderInspectRoute() {
 			setSelectedStatus(order.status);
 		}
 	}, [order]);
+
+	const handleCloseEventCreateModal = useCallback(() => {
+		setEventCreateModalOpened(false);
+	}, []);
 
 	const handleStartEditStatus = () => {
 		setStatusEditing(true);
@@ -157,34 +171,19 @@ export default function OrderInspectRoute() {
 		issueSelfPickup({ orderIds: [order.id] });
 	};
 
-	const handleOpenWaybillPrint = () => {
-		if (!waybillPrint) return;
-		fetch(waybillPrint.url, {
-			method: "GET", // or 'POST', etc. depending on your API
-			headers: {
-				Authorization: `Bearer ${waybillPrint.token}`, // Include any necessary headers
-			},
-		})
-			.then((response) => {
-				if (!response.ok) {
-					throw new Error("Network response was not ok " + response.statusText);
-				}
-				return response.blob(); // Convert the response to a Blob
-			})
-			.then((blob) => {
-				const blobUrl = URL.createObjectURL(blob); // Create a URL for the Blob
-
-				window.open(blobUrl); // Open the Blob URL in a new tab
-			})
-			.catch((error) => {
-				console.error("There was a problem with the fetch operation:", error);
-			});
-	};
-
 	const handleRefund = () => {
 		if (!order) return;
 		refundOrder({ orderId: order.id });
 	};
+
+	useMutationFeedback({
+		title: "Создание события",
+		isSuccess: eventCreateIsSuccess,
+		isError: eventCreateIsError,
+		error: eventCreateError,
+		feedbackFn: showSnackbarMessage,
+		successAction: handleCloseEventCreateModal,
+	});
 
 	useMutationFeedback({
 		title: "Обновление статуса",
@@ -215,18 +214,6 @@ export default function OrderInspectRoute() {
 	});
 
 	useMutationFeedback({
-		title: "Создание накладной",
-		isSuccess: createOrderCDEKWaybillIsSuccess,
-		isError: createOrderCDEKWaybillIsError,
-		error: createOrderCDEKWaybillError,
-		feedbackFn: showSnackbarMessage,
-		successAction: () => {
-			refetchWaybillPrint();
-			setWaybillCreateModalOpened(false);
-		},
-	});
-
-	useMutationFeedback({
 		title: "Возврат заказа",
 		isSuccess: refundOrderIsSuccess,
 		isError: refundOrderIsError,
@@ -238,16 +225,24 @@ export default function OrderInspectRoute() {
 	});
 
 	const showLoadingOverlay =
+		eventCreateIsLoading ||
 		statusUpdateIsLoading ||
 		deliveryUpdateIsLoading ||
 		selfPickupIssueIsLoading ||
-		createOrderCDEKWaybillIsLoading ||
 		refundOrderIsLoading;
 
 	return (
 		<>
 			<LoadingOverlay isOpened={showLoadingOverlay} />
 			<Snackbar open={snackbarOpened} autoHideDuration={2000} onClose={closeSnackbar} message={snackbarMessage} />
+			<ManagementModal
+				title="Создание события"
+				opened={eventCreateModalOpened}
+				onClose={handleCloseEventCreateModal}
+			>
+				{!order ? <CircularProgress /> : <EventCreateForm orderId={order.id} onSubmit={createEvent} />}
+			</ManagementModal>
+
 			<ActionDialog
 				title="Выдать заказ?"
 				helperText="Вы собираетесь выдать этот заказ. Это действие необратимо."
@@ -276,108 +271,64 @@ export default function OrderInspectRoute() {
 					onClick: () => setRefundConfirmDialogOpened(false),
 				}}
 			/>
-			<Modal open={waybillCreateModalOpened} onClose={() => setWaybillCreateModalOpened(false)}>
-				{!order ? (
-					<CircularProgress />
-				) : (
-					<Suspense fallback={<CircularProgress />}>
-						<CDEKWaybillCreateForm orderId={order?.id} onSubmit={createOrderCDEKWaybill} />
-					</Suspense>
-				)}
-			</Modal>
 			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 				<Button onClick={() => navigate(-1)} sx={{ width: "fit-content", color: "warning.main" }}>
 					<ChevronLeft />
 					Назад
 				</Button>
-				<LoadingSpinner isLoading={orderIsLoading || editablePropsIsLoading || waybillPrintIsLoading}>
+				<LoadingSpinner isLoading={orderIsLoading || editablePropsIsLoading || orderEventListIsLoading}>
 					{!order || !editableProps ? (
 						<div className="w-100 h-100v ai-c d-f jc-c">
 							<Typography variant="h5">Что-то пошло не так</Typography>
 						</div>
 					) : (
 						<div className="gap-2 d-f fd-c">
+							<Typography variant="h5">
+								Заказ от {new Intl.DateTimeFormat("ru").format(order.createdAt)}
+							</Typography>
+
 							{/* Main info */}
 							<div className="gap-1 pt-2 d-f fd-c">
-								<Typography variant="h5">
-									Заказ от {new Intl.DateTimeFormat("ru").format(order.createdAt)}
+								<Typography variant="subtitle0" sx={{ color: "typography.secondary" }}>
+									ID: {order.id}
 								</Typography>
-								<Typography variant="subtitle0">ID: {order.id}</Typography>
 
 								{/* Status */}
-								<div className="gap-05 d-f fd-c">
+								<div className="gap-2 ai-c d-f fd-r">
 									<Typography variant="subtitle0">Статус</Typography>
-									<div className="gap-2 ai-c d-f fd-r">
-										<Select
-											disabled={!statusEditing}
-											value={selectedStatus}
-											onChange={handleSelectStatus}
-										>
-											{editableProps.statuses.map((status) => (
-												<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
-											))}
-										</Select>
 
-										{statusEditing ? (
-											<>
-												<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
-													<Check />
-												</IconButton>
-												<IconButton
-													sx={{ color: "error.main" }}
-													onClick={handleCancelEditStatus}
-												>
-													<Close />
-												</IconButton>
-											</>
-										) : (
-											<IconButton onClick={handleStartEditStatus}>
-												<Edit />
+									<Select
+										disabled={!statusEditing}
+										value={selectedStatus}
+										onChange={handleSelectStatus}
+									>
+										{Array.from(orderStatusTitles.entries()).map(([status]) => (
+											<MenuItem
+												disabled={!editableProps.statuses.includes(status)}
+												value={status}
+											>
+												{orderStatusBadges[status]}
+											</MenuItem>
+										))}
+									</Select>
+
+									{statusEditing ? (
+										<>
+											<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
+												<Check />
 											</IconButton>
-										)}
-									</div>
+											<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditStatus}>
+												<Close />
+											</IconButton>
+										</>
+									) : (
+										<IconButton onClick={handleStartEditStatus}>
+											<Edit />
+										</IconButton>
+									)}
 								</div>
 
-								{/* Controls */}
-								<div className="gap-1 ai-c d-f fd-r">
-									{order.delivery && (
-										<>
-											{order.delivery.service === "SELF_PICKUP" ? (
-												<Button
-													variant="contained"
-													color="success"
-													onClick={() => setSelfPickupIssueConfirmDialogOpened(true)}
-													sx={{ color: "white" }}
-												>
-													Выдать заказ
-												</Button>
-											) : (
-												order.delivery.service === "CDEK" &&
-												(waybillPrint ? (
-													<>
-														<Button variant="contained" onClick={handleOpenWaybillPrint}>
-															Перейти к накладной СДЭК
-														</Button>
-														<Button
-															variant="contained"
-															color="error"
-															sx={{ color: "white" }}
-															onClick={() => alert("В разработке")}
-														>
-															Удалить накладную СДЭК
-														</Button>
-													</>
-												) : (
-													<Button
-														variant="contained"
-														onClick={() => setWaybillCreateModalOpened(true)}
-													>
-														Сформировать накладную СДЭК
-													</Button>
-												))
-											)}
-										</>
-									)}
+								<div className="w-mc">
 									<Button
 										variant="contained"
 										color="error"
@@ -392,52 +343,112 @@ export default function OrderInspectRoute() {
 							<div className="gap-2 d-f fd-r">
 								{/* User */}
 								<Paper sx={{ p: 2, width: "max-content" }}>
-									<div className="gap-1 d-f fd-c">
+									<div className="gap-1 h-100 d-f fd-c">
 										<Typography variant="subtitle0">Пользователь</Typography>
-										<Typography variant="body1">Email: {order.user.email}</Typography>
-										<div className="gap-1 ai-c d-f fd-r">
-											<Button
-												variant="contained"
-												onClick={() => navigate(`/user/inspect/${order.user.id}`)}
-											>
-												Профиль
-											</Button>
-											<Button
-												variant="contained"
-												onClick={() =>
-													navigate(`/order/table?f=user:equals:${order.user.email}`)
-												}
-											>
-												Заказы
-											</Button>
+										<div className="gap-1 mt-2 h-100 d-f fd-c jc-sb">
+											<Typography variant="body1">Email: {order.user.email}</Typography>
+											<div className="gap-1 ai-c d-f fd-r">
+												<Button
+													variant="contained"
+													onClick={() => navigate(`/user/inspect/${order.user.id}`)}
+												>
+													Профиль
+												</Button>
+												<Button
+													variant="contained"
+													onClick={() =>
+														navigate(`/order/table?f=user:equals:${order.user.email}`)
+													}
+												>
+													Заказы
+												</Button>
+											</div>
 										</div>
 									</div>
 								</Paper>
 
+								{/* Delivery Controls */}
+								{order.delivery && (
+									<Paper sx={{ p: 2 }}>
+										{order.delivery.service === "SELF_PICKUP" ? (
+											<>
+												<Typography variant="subtitle0">Самовывоз</Typography>
+												<div className="gap-1 mt-2 d-f fd-c">
+													<div className="gap-1 ai-c d-f fd-r">
+														{order.status === "FINISHED" ? (
+															<>
+																<Typography variant="body1">Выдан</Typography>
+																<Check sx={{ color: "success.main" }} />
+															</>
+														) : order.status === "READY_FOR_PICKUP" ? (
+															<>
+																<Typography variant="body1">Готов к выдаче</Typography>
+																<Check sx={{ color: "success.main" }} />
+																<Button
+																	variant="contained"
+																	color="success"
+																	onClick={() =>
+																		setSelfPickupIssueConfirmDialogOpened(true)
+																	}
+																	sx={{ color: "white" }}
+																>
+																	Выдать
+																</Button>
+															</>
+														) : (
+															<>
+																<Typography variant="body1">Готов к выдаче</Typography>
+																<Close sx={{ color: "error.main" }} />
+															</>
+														)}
+													</div>
+												</div>
+											</>
+										) : (
+											order.delivery.service === "CDEK" && (
+												<Suspense fallback={<CircularProgress />}>
+													<OrderCDEKSection
+														order={{ id: order.id, delivery: order.delivery }}
+														feedbackFn={showSnackbarMessage}
+													/>
+												</Suspense>
+											)
+										)}
+									</Paper>
+								)}
+
 								{/* Initial Payment(Deposit) */}
 								<Paper sx={{ p: 2 }}>
-									<Typography variant="subtitle0">Депозит</Typography>
-									<Typography variant="body1">Сумма: {order.initialInvoice.amount}₽</Typography>
-									<Typography variant="body1">
-										Создан:{" "}
-										{new Intl.DateTimeFormat("ru", {
-											year: "numeric",
-											month: "numeric",
-											day: "numeric",
-											hour: "numeric",
-											minute: "numeric",
-											second: "numeric",
-										}).format(order.initialInvoice.createdAt)}
+									<Typography variant="subtitle0">
+										{order.initialInvoice.title ?? "Депозит"}
 									</Typography>
-									<div className="gap-1 ai-c d-f fd-r">
-										<Typography variant="body1">Оплачено:</Typography>
-										{order.initialInvoice.isPaid ? <Check /> : <Close />}
+									<div className="gap-1 mt-2 d-f fd-c">
+										<Typography variant="body1">Сумма: {order.initialInvoice.amount}₽</Typography>
+										<Typography variant="body1">
+											Создан:{" "}
+											{new Intl.DateTimeFormat("ru", {
+												year: "numeric",
+												month: "numeric",
+												day: "numeric",
+												hour: "numeric",
+												minute: "numeric",
+												second: "numeric",
+											}).format(order.initialInvoice.createdAt)}
+										</Typography>
+										<div className="gap-1 ai-c d-f fd-r">
+											<Typography variant="body1">Оплачено:</Typography>
+											{order.initialInvoice.isPaid ? (
+												<Check sx={{ color: "success.main" }} />
+											) : (
+												<Close sx={{ color: "error.main" }} />
+											)}
+										</div>
 									</div>
 								</Paper>
 							</div>
 
 							<div className="gap-2 d-f fd-r">
-								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
+								<div className="gap-2 d-f fd-c" style={{ width: "60%" }}>
 									{/* Delivery */}
 									<Paper sx={{ p: 2 }}>
 										{order.delivery ? (
@@ -450,80 +461,11 @@ export default function OrderInspectRoute() {
 															delivery: data,
 														});
 													}}
+													// TODO: Add packages
 													packages={[]}
 												/>
 											) : (
-												<Stack
-													gap={1}
-													direction={"column"}
-													divider={<Divider orientation="horizontal" flexItem />}
-												>
-													<div className="gap-2 d-f fd-c">
-														<Typography variant={"subtitle0"}>Доставка</Typography>
-														<div className={`d-f fd-r jc-sb`}>
-															<div className="gap-05 w-100 d-f fd-c">
-																<Typography
-																	variant="body1"
-																	sx={{ color: "typography.secondary" }}
-																>
-																	Способ получения
-																</Typography>
-																<Typography variant="body1">
-																	{deliveryServiceMapping[order.delivery.service]}
-																</Typography>
-															</div>
-															<div className="gap-05 w-100 d-f fd-c">
-																<Typography
-																	variant="body1"
-																	sx={{ color: "typography.secondary" }}
-																>
-																	Пункт выдачи
-																</Typography>
-																<Typography variant="body1">
-																	{order.delivery.point?.code}
-																</Typography>
-															</div>
-														</div>
-														<div className="gap-05 d-f fd-c">
-															<Typography
-																variant="body1"
-																sx={{ color: "typography.secondary" }}
-															>
-																Адрес
-															</Typography>
-															<Typography variant="body1">
-																{order.delivery.point?.address}
-															</Typography>
-														</div>
-													</div>
-													<div className="gap-2 d-f fd-c">
-														<Typography variant="subtitle0">Получатель</Typography>
-														<div className={`d-f fd-r jc-sb`}>
-															<div className="gap-05 w-100 d-f fd-c">
-																<Typography
-																	variant="body1"
-																	sx={{ color: "typography.secondary" }}
-																>
-																	ФИО
-																</Typography>
-																<Typography variant="subtitle0">
-																	{order.delivery.recipient.fullName}
-																</Typography>
-															</div>
-															<div className="gap-05 w-100 d-f fd-c">
-																<Typography
-																	variant="body1"
-																	sx={{ color: "typography.secondary" }}
-																>
-																	Номер телефона
-																</Typography>
-																<Typography variant="body1">
-																	{order.delivery.recipient.phone}
-																</Typography>
-															</div>
-														</div>
-													</div>
-												</Stack>
+												<DeliveryInfo delivery={order.delivery} />
 											)
 										) : (
 											<>
@@ -582,12 +524,76 @@ export default function OrderInspectRoute() {
 										</Stack>
 									</Paper>
 								</div>
-								<div className="gap-2 d-f fd-c" style={{ width: "50%" }}>
+
+								<div className="gap-2 d-f fd-c" style={{ width: "40%" }}>
+									{/* Events */}
 									<Paper sx={{ p: 2 }}>
-										<Typography variant="subtitle0">События</Typography>
-										<div className="gap-1 d-f fd-c">
-											<div className="h-100">Сюда События</div>
+										<div className="pb-2 ai-c d-f fd-r jc-sb">
+											<Typography variant="subtitle0">События</Typography>
+											<Tooltip title="Создать событие">
+												<IconButton onClick={() => setEventCreateModalOpened(true)}>
+													<Add />
+												</IconButton>
+											</Tooltip>
 										</div>
+										<Stack direction={"column"} spacing={2} divider={<Divider />}>
+											{!orderEventList ? (
+												<Typography color={"error"}>Ошибка</Typography>
+											) : (
+												orderEventList.items.map((event, index) => (
+													<div key={index} className="gap-1 w-100 d-f fd-c">
+														<div className="gap-1 w-100 ai-c d-f fd-r">
+															{event.visibility === "PUBLIC" ? (
+																<Tooltip title="Отображается пользователю">
+																	<Visibility />
+																</Tooltip>
+															) : (
+																<Tooltip title="Не отображается пользователю">
+																	<VisibilityOff />
+																</Tooltip>
+															)}
+
+															{event.type === "MESSAGE" ? (
+																<Tooltip title="Сообщение">
+																	<MessageOutlined />
+																</Tooltip>
+															) : event.type === "INTERNAL" ? (
+																<Tooltip title="Внутреннее">
+																	<Settings />
+																</Tooltip>
+															) : (
+																<Tooltip title="Внешнее">
+																	<RssFeed />
+																</Tooltip>
+															)}
+
+															<Typography
+																variant="body2"
+																sx={{ color: "typography.secondary" }}
+															>
+																{event.initiator}
+															</Typography>
+
+															<Typography
+																variant="body2"
+																sx={{ color: "typography.secondary" }}
+															>
+																{new Intl.DateTimeFormat("ru-RU", {
+																	year: "numeric",
+																	month: "numeric",
+																	day: "numeric",
+																	hour: "numeric",
+																	minute: "numeric",
+																	second: "numeric",
+																}).format(event.createdAt)}
+															</Typography>
+														</div>
+
+														<Typography variant="body1">{event.message}</Typography>
+													</div>
+												))
+											)}
+										</Stack>
 									</Paper>
 								</div>
 							</div>

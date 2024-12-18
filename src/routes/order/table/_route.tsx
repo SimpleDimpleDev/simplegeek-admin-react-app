@@ -20,6 +20,15 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		},
 	},
 	{
+		field: "fullName",
+		headerName: "ФИО",
+		display: "flex",
+		valueGetter: (_, row) => {
+			if (!row.delivery) return "-";
+			return row.delivery.recipient.fullName;
+		},
+	},
+	{
 		field: "status",
 		headerName: "Статус",
 		display: "flex",
@@ -50,6 +59,14 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		})),
 	},
 	{
+		field: "trackingCode",
+		headerName: "Трек номер",
+		display: "flex",
+		valueGetter: (_, row) => {
+			return row.delivery?.tracking?.code || "-"
+		}
+	},
+	{
 		field: "orderType",
 		headerName: "Тип заказа",
 		display: "flex",
@@ -69,7 +86,19 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 			return (
 				<div className="py-1 w-100 h-100 d-f fd-c">
 					{items.map((item) => (
-						<Typography key={item.id} color="black" variant="body2">
+						<Typography
+							sx={{
+								overflow: "hidden",
+								textOverflow: "ellipsis",
+								WebkitLineClamp: 1,
+								display: "-webkit-box",
+								WebkitBoxOrient: "vertical",
+								maxWidth: "500px",
+							}}
+							key={item.id}
+							color="black"
+							variant="body2"
+						>
 							{item.quantity} x {item.title}
 						</Typography>
 					))}

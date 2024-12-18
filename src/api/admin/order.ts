@@ -1,6 +1,4 @@
 import {
-	OrderCDEKWaybillCreateSchema,
-	OrderCDEKWaybillPrintGetSchema,
 	OrderEditablePropsGetSchema,
 	OrderGetSchema,
 	OrderListGetSchema,
@@ -77,24 +75,6 @@ export const orderApi = adminApi.injectEndpoints({
 			}),
 			invalidatesTags: (_result, _error, { orderId }) => [{ type: "Order", id: orderId }],
 		}),
-
-		createOrderCDEKWaybill: build.mutation<void, z.infer<typeof OrderCDEKWaybillCreateSchema>>({
-			query: (body) => ({
-				url: "/admin/order/cdek/waybill",
-				method: "POST",
-				body,
-			}),
-			invalidatesTags: (_result, _error, { orderId }) => [{ type: "Order", id: orderId }],
-		}),
-
-		getOrderCDEKWaybillPrint: build.query<z.infer<typeof OrderCDEKWaybillPrintGetSchema>, { orderId: string }>({
-			query: ({ orderId }) => ({
-				url: "/admin/order/cdek/waybill",
-				params: { id: orderId },
-				method: "GET",
-			}),
-			transformResponse: (response) => validateData(OrderCDEKWaybillPrintGetSchema, response),
-		}),
 	}),
 });
 
@@ -108,7 +88,4 @@ export const {
 
 	useIssueSelfPickupOrdersMutation,
 	useRefundOrderMutation,
-
-	useCreateOrderCDEKWaybillMutation,
-	useGetOrderCDEKWaybillPrintQuery,
 } = orderApi;

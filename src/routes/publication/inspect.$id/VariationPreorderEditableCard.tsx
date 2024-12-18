@@ -289,12 +289,13 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 							<div className="gap-1 w-100 ai-c d-f fd-r jc-fs">
 								<Tooltip title="Перейти к товару">
 									<IconButton sx={{ margin: 0, width: "100%" }} onClick={handleProductInspectClick}>
-										<img
-											src={getImageUrl(variation.product.images.at(0)?.url || "", "small")}
-											style={{ width: 60, height: 60, objectFit: "cover" }}
-										/>
-
-										<Typography variant="subtitle0">{variation.product.title}</Typography>
+										<div className="gap-1 w-100 ai-c d-f fd-r jc-fs">
+											<img
+												src={getImageUrl(variation.product.images.at(0)?.url || "", "small")}
+												style={{ width: 60, height: 60, objectFit: "cover" }}
+											/>
+											<Typography variant="subtitle0">{variation.product.title}</Typography>
+										</div>
 									</IconButton>
 								</Tooltip>
 							</div>

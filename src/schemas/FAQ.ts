@@ -8,6 +8,10 @@ export const FAQItemCreateSchema = z
 	})
 	.describe("FAQItemCreate");
 
+export const FAQItemUpdateSchema = FAQItemCreateSchema.extend({
+	id: IdSchema,
+}).describe("FAQItemUpdate");
+
 export const FAQItemGetSchema = FAQItemCreateSchema.extend({
 	id: IdSchema,
 }).describe("FAQItemGet");

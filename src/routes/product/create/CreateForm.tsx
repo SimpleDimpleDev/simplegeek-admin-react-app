@@ -4,11 +4,9 @@ import {
 	Autocomplete,
 	Box,
 	Button,
-	Checkbox,
 	Chip,
 	CircularProgress,
 	FormControl,
-	FormControlLabel,
 	FormHelperText,
 	IconButton,
 	InputLabel,
@@ -39,6 +37,10 @@ import { handleIntChange } from "@utils/forms";
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+// TODO: preorder feature
+// Checkbox,
+// FormControlLabel,
 
 type ImageEditorState = {
 	file: File;
@@ -95,7 +97,8 @@ const ProductCreateResolver = z.object({
 			file: z.instanceof(File),
 			properties: ImageEditPropsSchema,
 		})
-		.array(),
+		.array()
+		.nonempty({ message: "Добавьте хотя бы одну картинку" }),
 	filterGroups: z
 		.object({
 			id: z.string().nullable(),
@@ -378,7 +381,8 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 				<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 					<Typography variant="h5">Физические свойства</Typography>
 					<div className="gap-2 d-f fd-c">
-						<Controller
+						{/* TODO: Preorder feature */}
+						{/* <Controller
 							name="physicalProperties"
 							control={control}
 							render={({ field }) => (
@@ -404,7 +408,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 									label="Неизвестны"
 								/>
 							)}
-						/>
+						/> */}
 
 						{selectedPhysicalProperties === null ? (
 							<Typography variant="body1" sx={{ color: "typography.secondary" }}>
@@ -552,6 +556,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 						<Typography variant="body2" sx={{ color: "typography.secondary" }}>
 							Для смены перетащите файл на нужное место
 						</Typography>
+						{errors.images && <Typography sx={{ color: "typography.error" }} variant="body2">{errors.images.message}</Typography>}
 					</div>
 
 					<DragDropContext onDragEnd={handleDragImage}>
@@ -813,7 +818,16 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 																									return typeof filter ===
 																										"string"
 																										? {
-																												id: null,
+																												id:
+																													filterGroupField.filters.find(
+																														(
+																															groupFilter
+																														) =>
+																															groupFilter.value ===
+																															filter
+																													)
+																														?.id ||
+																													null,
 																												value: filter,
 																										  }
 																										: filter;
@@ -882,7 +896,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 					</div>
 				)}
 				<Button type="submit" variant="contained" color="primary">
-					Submit
+					Создать
 				</Button>
 			</form>
 		</>

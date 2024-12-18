@@ -1,7 +1,9 @@
-import { Box, Button, Grid2, IconButton, Modal, TextField, Typography } from "@mui/material";
+import { Box, Button, IconButton, Modal, TextField, Typography } from "@mui/material";
 import { CDEKDeliveryInfo, CDEKWidget } from "./widgets/cdek";
 import { Controller, useForm } from "react-hook-form";
 import { Delivery, DeliveryPackage, DeliveryPoint, DeliveryService, Recipient } from "@appTypes/Delivery";
+import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
+import { useEffect, useState } from "react";
 
 import { CDEKDeliveryData } from "@appTypes/CDEK";
 import { CardRadio } from "./CardRadio";
@@ -9,7 +11,6 @@ import { Close } from "@mui/icons-material";
 import { DeliverySchema } from "@schemas/Delivery";
 import cdekLogo from "@assets/SdekLogo.webp";
 import mainLogoSmall from "@assets/MainLogoSmall.webp";
-import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -25,11 +26,11 @@ const DeliveryFormResolver = z
 		recipient: z.object({
 			fullName: z.string({ message: "Укажите ФИО" }).min(2, "ФИО должно быть не менее 2 символов"),
 			phone: z
-				.string({ message: "Укажите номер телефона" })
-				.regex(/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/, {
+				.string()
+				.min(1, { message: "Укажите номер телефона" })
+				.refine((value) => matchIsValidTel(value, { onlyCountries: ["RU", "BY", "KZ"] }), {
 					message: "Неверный номер телефона",
-				})
-				.min(10, "Номер телефона должен быть не менее 10 символов"),
+				}),
 		}),
 		service: z.enum(["SELF_PICKUP", "CDEK"], { message: "Укажите способ доставки" }),
 		point: z
@@ -88,15 +89,21 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 	});
 
 	const service = watch("service");
+	const deliveryPoint = watch("point");
 	const cdekDeliveryData = watch("cdekDeliveryData");
 
 	const [isEditing, setIsEditing] = useState(!delivery);
 	const [cdekWidgetOpen, setCdekWidgetOpen] = useState(false);
 
+	useEffect(() => {
+		if (delivery) {
+			reset(delivery);
+		}
+	}, [reset, delivery]);
+
 	const handleSave = (data: DeliveryFormData) => {
 		onChange(DeliverySchema.parse(data));
 		setIsEditing(false);
-		reset(DeliverySchema.parse(data))
 	};
 
 	const handleStopEditing = () => {
@@ -149,9 +156,9 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 					/>
 				</Box>
 			</Modal>
-			<form className="section" onSubmit={handleSubmit(handleSave)}>
-				<div className="gap-2 d-f fd-c">
-					<Typography variant={"h5"}>{isMobile ? "Доставка" : "Адрес и способ доставки"} </Typography>
+			<form className="gap-2 d-f fd-c" onSubmit={handleSubmit(handleSave)}>
+				<div className="gap-1 d-f fd-c">
+					<Typography variant={"subtitle0"}>{isMobile ? "Доставка" : "Адрес и способ доставки"} </Typography>
 					<Box>
 						<CardRadio
 							isChecked={service === "SELF_PICKUP"}
@@ -174,16 +181,20 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 
 					{service === "SELF_PICKUP" && (
 						<Box display={"flex"} flexDirection={"column"} gap={"8px"}>
-							<Typography variant="h6">Самовывоз</Typography>
+							<Typography variant="subtitle0">Самовывоз</Typography>
 						</Box>
 					)}
 
 					{service === "CDEK" && (
 						<Box display={"flex"} flexDirection={"column"} gap={"8px"}>
-							{cdekDeliveryData ? (
+							{deliveryPoint && !cdekDeliveryData ? (
+								<Typography>
+									{deliveryPoint.address} - {deliveryPoint.code}
+								</Typography>
+							) : cdekDeliveryData ? (
 								<CDEKDeliveryInfo {...cdekDeliveryData} />
 							) : (
-								<Typography variant="h6">Адрес не выбран</Typography>
+								<Typography variant="subtitle0">Адрес не выбран</Typography>
 							)}
 							{isEditing && (
 								<Button
@@ -211,45 +222,45 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 				</div>
 
 				<div>
-					<Typography variant="h5">Получатель</Typography>
-					<Grid2 container spacing={2}>
-						<Grid2 size={{ xs: 12, sm: 12, md: 6 }}>
-							<Controller
-								name="recipient.phone"
-								disabled={!isEditing}
-								control={control}
-								render={({ field, fieldState: { error } }) => (
-									<TextField
-										{...field}
-										label="Номер телефона"
-										variant="outlined"
-										fullWidth
-										margin="normal"
-										error={!!error}
-										helperText={error?.message}
-									/>
-								)}
-							/>
-						</Grid2>
-						<Grid2 size={{ xs: 12, sm: 12, md: 6 }}>
-							<Controller
-								name="recipient.fullName"
-								control={control}
-								disabled={!isEditing}
-								render={({ field, fieldState: { error } }) => (
-									<TextField
-										{...field}
-										label="ФИО"
-										variant="outlined"
-										fullWidth
-										margin="normal"
-										error={!!error}
-										helperText={error?.message}
-									/>
-								)}
-							/>
-						</Grid2>
-					</Grid2>
+					<Typography variant="subtitle0">Получатель</Typography>
+					<div className="gap-1 ai-bl d-f fd-r">
+						<Controller
+							name="recipient.phone"
+							disabled={!isEditing}
+							control={control}
+							render={({ field: { value, ...fieldProps }, fieldState: { error } }) => (
+								<MuiTelInput
+									{...fieldProps}
+									disabled={!isEditing}
+									fullWidth
+									label="Номер телефона"
+									defaultCountry={"RU"}
+									onlyCountries={["RU", "BY", "KZ"]}
+									langOfCountryName="RU"
+									value={value}
+									error={!!error}
+									helperText={error?.message}
+								/>
+							)}
+						/>
+
+						<Controller
+							name="recipient.fullName"
+							control={control}
+							disabled={!isEditing}
+							render={({ field, fieldState: { error } }) => (
+								<TextField
+									{...field}
+									label="ФИО"
+									variant="outlined"
+									fullWidth
+									margin="normal"
+									error={!!error}
+									helperText={error?.message}
+								/>
+							)}
+						/>
+					</div>
 				</div>
 
 				{isEditing ? (
@@ -292,4 +303,3 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 };
 
 export { DeliveryForm };
-
