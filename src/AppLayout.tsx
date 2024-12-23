@@ -36,13 +36,14 @@ import { useState } from "react";
 
 interface NavButtonProps {
 	to: string;
+	end?: boolean;
 	icon?: React.ReactNode;
 	text: string;
 }
 
-const NavButton = ({ to, icon, text }: NavButtonProps) => {
+const NavButton = ({ to, end = false, icon, text }: NavButtonProps) => {
 	return (
-		<NavLink to={to} style={{ textDecoration: "none" }}>
+		<NavLink to={to} end={end} style={{ textDecoration: "none" }}>
 			{({ isActive }) => (
 				<ListItemButton
 					sx={{
@@ -132,7 +133,7 @@ export default function AppLayout() {
 									icon={<Visibility />}
 									text={"Опубликованные"}
 								/>
-								<NavButton to="/product/table" icon={<Reorder />} text={"Все"} />
+								<NavButton to="/product/table" end icon={<Reorder />} text={"Все"} />
 								<NavButton to="/product/template" icon={<EditNoteRounded />} text={"Шаблоны"} />
 							</NavList>
 							<NavButton to="/publication/table" icon={<Apps />} text={"Каталог"} />
@@ -148,7 +149,7 @@ export default function AppLayout() {
 									icon={<Business />}
 									text={"Самовывоз"}
 								/>
-								<NavButton to="/order/table" icon={<Reorder />} text={"Все"} />
+								<NavButton to="/order/table" end icon={<Reorder />} text={"Все"} />
 							</NavList>
 							{/* TODO: Preorder feature */}
 							{/* <NavButton to="/preorder/table" icon={<FlightTakeoff />} text={"Предзаказы"} /> */}
