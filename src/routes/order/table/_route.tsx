@@ -116,7 +116,7 @@ export default function OrderTableRoute() {
 	const { filterString } = useParams();
 
 	const orderListFilter = useMemo(() => {
-		let filter = null;
+		let filter;
 		if (filterString !== undefined) {
 			const filterParseResult = OrderListFilterSchema.safeParse(filterString);
 			if (filterParseResult.success) {

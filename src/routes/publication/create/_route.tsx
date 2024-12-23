@@ -29,10 +29,10 @@ export default function PublicationCreateRoute() {
 	const productIds = useMemo(() => searchParams.getAll("productId[]"), [searchParams]);
 
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
-	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery({filter: null});
+	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery({ filter: undefined });
 	const { data: preorderList, isLoading: preorderListIsLoading } = useGetPreorderListQuery();
 	const { data: maxRating } = useGetMaxRatingQuery();
-	
+
 	const [createPublication, { isSuccess, isLoading, isError, error }] = useCreatePublicationMutation();
 
 	const [publicationType, setPublicationType] = useState<"STOCK" | "PREORDER">("STOCK");

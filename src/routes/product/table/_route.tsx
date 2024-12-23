@@ -37,7 +37,7 @@ export default function ProductTableRoute() {
 	const { filterString } = useParams();
 
 	const productListFilter = useMemo(() => {
-		let filter = null;
+		let filter;
 		if (filterString !== undefined) {
 			const filterParseResult = ProductListFilterSchema.safeParse(filterString);
 			if (filterParseResult.success) {

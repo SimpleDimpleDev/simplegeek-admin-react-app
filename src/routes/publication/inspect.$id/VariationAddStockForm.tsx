@@ -67,7 +67,7 @@ const VariationAddStockForm: React.FC<VariationAddStockFormProps> = ({
 	selectedProducts,
 	maxRating,
 }) => {
-	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery({filter: null});
+	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery({filter: undefined});
 
 	const availableProducts = useMemo(() => {
 		if (!categoryId) return [];
