@@ -6,6 +6,9 @@ import { CategoryGetSchema } from "./Category";
 import { PhysicalPropertiesSchema } from "./PhysicalProperties";
 import { z } from "zod";
 
+export const ProductListFilterSchema = z.enum(["PUBLISHED", "UNPUBLISHED"]).nullable();
+
+
 export const ProductCreateSchema = z
 	.object({
 		categoryId: z.string(),

@@ -1,14 +1,15 @@
 import { Button, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { Add } from "@mui/icons-material";
 import AdminTable from "@components/ManagementTable";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { ProductGet } from "@appTypes/Product";
+import { ProductListFilterSchema } from "@schemas/Product";
 import { getImageUrl } from "@utils/image";
 import { useGetProductListQuery } from "@api/admin/product";
-import { useNavigate } from "react-router-dom";
 
 const columns: GridColDef<ProductGet>[] = [
 	{
@@ -33,7 +34,31 @@ const columns: GridColDef<ProductGet>[] = [
 export default function ProductTableRoute() {
 	const navigate = useNavigate();
 
-	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
+	const { filterString } = useParams();
+
+	const productListFilter = useMemo(() => {
+		let filter = null;
+		if (filterString !== undefined) {
+			const filterParseResult = ProductListFilterSchema.safeParse(filterString);
+			if (filterParseResult.success) {
+				filter = filterParseResult.data;
+			}
+		}
+		return filter;
+	}, [filterString]);
+
+	const {
+		data: productList,
+		isLoading: productListIsLoading,
+		isFetching: productListIsFetching,
+	} = useGetProductListQuery(
+		{
+			filter: productListFilter,
+		},
+		{
+			refetchOnMountOrArgChange: true,
+		}
+	);
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
@@ -58,7 +83,7 @@ export default function ProductTableRoute() {
 				</Button>
 			</div>
 
-			<LoadingSpinner isLoading={productListIsLoading}>
+			<LoadingSpinner isLoading={productListIsLoading || productListIsFetching}>
 				{!productList ? (
 					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>

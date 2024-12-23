@@ -8,13 +8,10 @@ import {
 	useGridApiRef,
 	GridRowIdGetter,
 	GridValidRowModel,
-	GridFilterItem,
 	GridToolbar,
-	GridFilterModel,
 } from "@mui/x-data-grid";
 
-import { ReactNode, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { ReactNode } from "react";
 
 const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	// Root
@@ -195,56 +192,11 @@ const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	aggregationFunctionLabelSize: "size",
 };
 
-const setFiltersToParams = (params: URLSearchParams, model: GridFilterModel): void => {
-	const filterItems = model.items;
-
-	if (filterItems.length > 0) {
-		const filter = filterItems[0];
-		const filterValue = filter.value?.toString() ?? "";
-		params.set("f", `${filter.field}:${filter.operator}:${filterValue}`);
-	} else {
-		params.delete("f");
-	}
-
-	params.delete("q[]");
-	if (model.quickFilterValues && model.quickFilterValues.length > 0) {
-		model.quickFilterValues.forEach((value) => params.append("q[]", value));
-	}
-};
-
-const getFiltersFromParams = (params: URLSearchParams): GridFilterModel => {
-	const items: GridFilterItem[] = [];
-	let quickFilterValues: string[] | undefined = undefined;
-
-	const paramFilterItem = params.get("f");
-	if (paramFilterItem) {
-		const filterParts = paramFilterItem.split(":");
-		if (filterParts.length === 3) {
-			items.push({
-				field: filterParts[0],
-				operator: filterParts[1],
-				value: filterParts.at(2) ?? "",
-			});
-		}
-	}
-
-	const paramQuickFilterValues = params.getAll("q[]");
-	if (paramQuickFilterValues.length > 0) {
-		quickFilterValues = paramQuickFilterValues;
-	}
-
-	return {
-		items,
-		quickFilterValues,
-	};
-};
-
 interface Props {
 	columns: GridColDef[];
 	data: GridValidRowModel[];
 	selectedRows: GridRowSelectionModel;
 	onRowSelect: (ids: GridRowSelectionModel) => void;
-	initialFilters?: GridFilterItem[];
 	leftHeaderButtons?: ReactNode;
 	headerButtons?: ReactNode;
 	getRowId?: GridRowIdGetter;
@@ -260,16 +212,6 @@ const AdminTable = ({
 	getRowId,
 }: Props) => {
 	const apiRef = useGridApiRef();
-	const [searchParams, setSearchParams] = useSearchParams();
-
-	const setSearch = useCallback(
-		(model: GridFilterModel) =>
-			setSearchParams((prev) => {
-				setFiltersToParams(prev, model);
-				return prev;
-			}),
-		[setSearchParams]
-	);
 
 	return (
 		<>
@@ -302,8 +244,6 @@ const AdminTable = ({
 					rowSelection={true}
 					rowSelectionModel={selectedRows}
 					onRowSelectionModelChange={onRowSelect}
-					filterModel={getFiltersFromParams(searchParams)}
-					onFilterModelChange={setSearch}
 					hideFooter
 					getRowId={getRowId}
 					getRowHeight={() => "auto"}

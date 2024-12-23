@@ -1,12 +1,13 @@
 import { Button, Typography } from "@mui/material";
-import { GridColDef, GridFilterItem, GridRowSelectionModel } from "@mui/x-data-grid";
+import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { deliveryServiceTitles, orderStatusTitles } from "src/constants";
 import { useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import AdminTable from "@components/ManagementTable";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { OrderGet } from "@appTypes/Order";
+import { OrderListFilterSchema } from "@schemas/Order";
 import { orderStatusBadges } from "@components/Badges";
 import { useGetOrderListQuery } from "@api/admin/order";
 
@@ -63,8 +64,8 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		headerName: "Трек номер",
 		display: "flex",
 		valueGetter: (_, row) => {
-			return row.delivery?.tracking?.code || "-"
-		}
+			return row.delivery?.tracking?.code || "-";
+		},
 	},
 	{
 		field: "orderType",
@@ -112,10 +113,24 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 
 export default function OrderTableRoute() {
 	const navigate = useNavigate();
-	const [params] = useSearchParams();
-	const inspectedUserEmail = params.get("userEmail");
+	const { filterString } = useParams();
 
-	const { data: orderList, isLoading: orderListIsLoading } = useGetOrderListQuery();
+	const orderListFilter = useMemo(() => {
+		let filter = null;
+		if (filterString !== undefined) {
+			const filterParseResult = OrderListFilterSchema.safeParse(filterString);
+			if (filterParseResult.success) {
+				filter = filterParseResult.data;
+			}
+		}
+		return filter;
+	}, [filterString]);
+
+	const {
+		data: orderList,
+		isLoading: orderListIsLoading,
+		isFetching: orderListIsFetching,
+	} = useGetOrderListQuery({ filter: orderListFilter }, { refetchOnMountOrArgChange: true });
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
@@ -125,40 +140,8 @@ export default function OrderTableRoute() {
 		return orderList?.items.find((order) => order.id === selectedItemId) || null;
 	}, [selectedItemIds, orderList]);
 
-	const initialFilters: GridFilterItem[] = useMemo(() => {
-		const filters: GridFilterItem[] = [];
-		if (inspectedUserEmail) {
-			filters.push({
-				field: "user",
-				value: inspectedUserEmail,
-				operator: "equals",
-			});
-		}
-		return filters;
-	}, [inspectedUserEmail]);
-
 	return (
 		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
-			{/* <Snackbar
-				open={successSnackBarOpened}
-				autoHideDuration={4000}
-				onClose={() => setSuccessSnackBarOpened(false)}
-				message="Изменения сохранены"
-			/> */}
-			{/* <ActionDialog
-				title="Удалить выбранные категории?"
-				helperText="После удаления отменить действие будет невозможно"
-				opened={deletionDialogOpened}
-				onClose={() => setDeletionDialogOpened(false)}
-				confirmButton={{
-					text: "Удалить",
-					onClick: () => console.log("Submit deletion", selectedItemIds),
-				}}
-				declineButton={{
-					text: "Отмена",
-				}}
-			/> */}
-
 			<div className="p-2 d-f fd-r jc-sb">
 				<div>
 					<Typography variant="h5">Заказы</Typography>
@@ -167,7 +150,7 @@ export default function OrderTableRoute() {
 					</Typography>
 				</div>
 			</div>
-			<LoadingSpinner isLoading={orderListIsLoading}>
+			<LoadingSpinner isLoading={orderListIsLoading || orderListIsFetching}>
 				{!orderList ? (
 					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>
@@ -178,7 +161,6 @@ export default function OrderTableRoute() {
 						data={orderList.items}
 						onRowSelect={setSelectedItemIds}
 						selectedRows={selectedItemIds}
-						initialFilters={initialFilters}
 						leftHeaderButtons={
 							<>
 								<Button

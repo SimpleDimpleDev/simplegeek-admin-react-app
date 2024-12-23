@@ -1,6 +1,7 @@
 import {
 	OrderEditablePropsGetSchema,
 	OrderGetSchema,
+	OrderListFilterSchema,
 	OrderListGetSchema,
 	OrderUpdateDeliverySchema,
 	OrderUpdateStatusSchema,
@@ -19,16 +20,17 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "GET",
 			}),
 			transformResponse: (response) => validateData(OrderGetSchema, response),
-			providesTags: (_result, _error, { orderId }) => [{ type: "Order", id: orderId }],
 		}),
 
-		getOrderList: build.query<z.infer<typeof OrderListGetSchema>, void>({
-			query: () => ({
+		getOrderList: build.query<z.infer<typeof OrderListGetSchema>, { filter: z.infer<typeof OrderListFilterSchema> }>({
+			query: ({ filter }) => ({
 				url: "/admin/order-list",
 				method: "GET",
+				params: {
+					filter,
+				},
 			}),
 			transformResponse: (response) => validateData(OrderListGetSchema, response),
-			providesTags: ["Order"],
 		}),
 
 		getOrderEditableProps: build.query<z.infer<typeof OrderEditablePropsGetSchema>, { orderId: string }>({
@@ -46,7 +48,6 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				body,
 			}),
-			invalidatesTags: (_result, _error, { id }) => [{ type: "Order", id }],
 		}),
 
 		updateOrderDelivery: build.mutation<void, z.infer<typeof OrderUpdateDeliverySchema>>({
@@ -55,7 +56,6 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				body,
 			}),
-			invalidatesTags: (_result, _error, { id }) => [{ type: "Order", id }],
 		}),
 
 		issueSelfPickupOrders: build.mutation<void, { orderIds: string[] }>({
@@ -64,7 +64,6 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "POST",
 				body: { orderIds },
 			}),
-			invalidatesTags: (_result, _error, { orderIds }) => orderIds.map((id) => ({ type: "Order", id })),
 		}),
 
 		refundOrder: build.mutation<void, { orderId: string }>({
@@ -73,7 +72,6 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "POST",
 				body: { orderId },
 			}),
-			invalidatesTags: (_result, _error, { orderId }) => [{ type: "Order", id: orderId }],
 		}),
 	}),
 });
@@ -82,7 +80,7 @@ export const {
 	useGetOrderQuery,
 	useGetOrderListQuery,
 	useGetOrderEditablePropsQuery,
-	
+
 	useUpdateOrderDeliveryMutation,
 	useUpdateOrderStatusMutation,
 

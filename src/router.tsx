@@ -17,9 +17,12 @@ import { PublicationInspectRouteLazy } from "@routes/publication/inspect.$id/_la
 import { PublicationTableRouteLazy } from "@routes/publication/table/_lazy.tsx";
 import { Suspense } from "react";
 import SuspenseRouter from "@utils/SuspenseRouter";
-import { TestRouteLazy } from "@routes/test/_lazy.tsx";
 import { UserInspectRouteLazy } from "@routes/user/inspect.$id/_lazy.tsx";
 import { UserTableRouteLazy } from "@routes/user/table/_lazy.tsx";
+
+// import { TestRouteLazy } from "@routes/test/_lazy.tsx";
+
+
 
 // TODO: Preorder feature
 // import { PreorderInspectRouteLazy } from "@routes/preorder/inspect/_lazy";
@@ -36,11 +39,11 @@ const AppRouter: React.FC = () => (
 					<Route path="filter" element={<FilterRouteLazy />} />
 					<Route path="order">
 						<Route path="inspect/:id" element={<OrderInspectRouteLazy />} />
-						<Route path="table" element={<OrderTableRouteLazy />} />
+						<Route path="table/:filter?" element={<OrderTableRouteLazy />} />
 					</Route>
 					<Route path="product">
 						<Route path="create" element={<ProductCreateRouteLazy />} />
-						<Route path="table" element={<ProductTableRouteLazy />} />
+						<Route path="table/:filter?" element={<ProductTableRouteLazy />} />
 						<Route path="inspect/:id" element={<ProductInspectRouteLazy />} />
 						<Route path="edit/:id" element={<ProductUpdateRouteLazy />} />
 					</Route>
@@ -58,8 +61,8 @@ const AppRouter: React.FC = () => (
 						<Route path="table" element={<PreorderTableRouteLazy />} />
 						<Route path="inspect/:id" element={<PreorderInspectRouteLazy />} />
 					</Route> */}
+					{/* <Route path="test" element={<TestRouteLazy />} /> */}
 				</Route>
-				<Route path="test" element={<TestRouteLazy />} />
 			</Routes>
 		</Suspense>
 	</SuspenseRouter>
