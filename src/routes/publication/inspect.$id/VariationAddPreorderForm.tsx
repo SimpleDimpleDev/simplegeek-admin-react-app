@@ -87,7 +87,7 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 	selectedProducts,
 	maxRating,
 }) => {
-	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
+	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery({filter: null});
 
 	const availableProducts = useMemo(() => {
 		if (!categoryId) return [];
