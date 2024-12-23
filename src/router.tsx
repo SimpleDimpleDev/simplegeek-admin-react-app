@@ -39,11 +39,11 @@ const AppRouter: React.FC = () => (
 					<Route path="filter" element={<FilterRouteLazy />} />
 					<Route path="order">
 						<Route path="inspect/:id" element={<OrderInspectRouteLazy />} />
-						<Route path="table/:filter?" element={<OrderTableRouteLazy />} />
+						<Route path="table/:filterString?" element={<OrderTableRouteLazy />} />
 					</Route>
 					<Route path="product">
 						<Route path="create" element={<ProductCreateRouteLazy />} />
-						<Route path="table/:filter?" element={<ProductTableRouteLazy />} />
+						<Route path="table/:filterString?" element={<ProductTableRouteLazy />} />
 						<Route path="inspect/:id" element={<ProductInspectRouteLazy />} />
 						<Route path="edit/:id" element={<ProductUpdateRouteLazy />} />
 					</Route>
