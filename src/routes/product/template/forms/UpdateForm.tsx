@@ -141,7 +141,7 @@ export const ProductTemplateUpdateForm: React.FC<ProductTemplateUpdateFormProps>
 	return (
 		<>
 			<form
-				className="px-2 pt-2 pb-4 h-100 d-f fd-c of-h"
+				className="gap-2 px-2 pt-2 pb-4 h-100 d-f fd-c of-h"
 				onSubmit={handleSubmit(resolvedOnSubmit)}
 				onKeyDown={handleKeyDown}
 				noValidate
@@ -383,7 +383,15 @@ export const ProductTemplateUpdateForm: React.FC<ProductTemplateUpdateFormProps>
 																				fullWidth
 																				value={filterGroupField}
 																				onChange={(_e, data) => {
-																					onChange(data);
+																					onChange(
+																						!data
+																							? null
+																							: {
+																									id: data.id,
+																									title: data.title,
+																									filters: [],
+																							  }
+																					);
 																				}}
 																				disableListWrap
 																				loading={
