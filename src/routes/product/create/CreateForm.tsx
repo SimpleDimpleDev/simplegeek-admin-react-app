@@ -299,6 +299,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 		<>
 			<div className="gap-2 bg-primary pr-1 ai-c br-2 d-f fd-r ps-a" style={{ right: "24px", minWidth: 400 }}>
 				<Autocomplete
+					fullWidth
 					options={templateList?.items || []}
 					loading={templateListIsLoading}
 					loadingText="Загрузка..."
