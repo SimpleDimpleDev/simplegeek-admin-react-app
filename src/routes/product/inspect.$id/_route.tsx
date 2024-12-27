@@ -1,12 +1,14 @@
-import { Button, Divider, Typography } from "@mui/material";
+import { Button, Divider, Snackbar, Typography } from "@mui/material";
+import { useCallback, useState } from "react";
+import { useDeleteProductMutation, useGetProductQuery } from "@api/admin/product";
 import { useNavigate, useParams } from "react-router-dom";
 
 import ActionDialog from "@components/ActionDialog";
 import { ChevronLeft } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { getImageUrl } from "@utils/image";
-import { useGetProductQuery } from "@api/admin/product";
-import { useState } from "react";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSnackbar } from "@hooks/useSnackbar";
 
 export default function ProductInspectRoute() {
 	const navigate = useNavigate();
@@ -18,16 +20,28 @@ export default function ProductInspectRoute() {
 		{ productId },
 		{ refetchOnMountOrArgChange: true }
 	);
-
+	const [deleteItem, { isSuccess: deletionIsSuccess, isError: deletionIsError, error: deletionError }] =
+		useDeleteProductMutation();
 	const [deletionConfirmDialogOpened, setDeletionConfirmDialogOpened] = useState(false);
 
-	const deleteItem = async () => {
-		// const response = await serverAdminApiClient.deleteAbstractItem(item.id);
-		navigate("/product/table");
-	};
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
+
+	const deleteItemSuccessCallback = useCallback(() => {
+		setTimeout(() => navigate("/product/table"), 2500);
+	}, [navigate]);
+
+	useMutationFeedback({
+		title: "Удаление товара",
+		isSuccess: deletionIsSuccess,
+		isError: deletionIsError,
+		error: deletionError,
+		feedbackFn: showSnackbarMessage,
+		successAction: deleteItemSuccessCallback,
+	});
 
 	return (
 		<>
+			<Snackbar open={snackbarOpened} onClose={closeSnackbar} message={snackbarMessage} autoHideDuration={2000} />
 			<ActionDialog
 				title="Удалить товар?"
 				helperText="Это действие невозможно  отменить"
@@ -35,7 +49,7 @@ export default function ProductInspectRoute() {
 				onClose={() => setDeletionConfirmDialogOpened(false)}
 				confirmButton={{
 					text: "Удалить",
-					onClick: deleteItem,
+					onClick: () => deleteItem({ productId }),
 				}}
 				declineButton={{
 					text: "Отмена",
@@ -45,11 +59,9 @@ export default function ProductInspectRoute() {
 
 			<LoadingSpinner isLoading={productIsLoading}>
 				<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
-					<Button
-						onClick={() => navigate(-1)}
-						sx={{ color: "warning.main", width: "fit-content" }}
-					>
-						<ChevronLeft />Назад
+					<Button onClick={() => navigate(-1)} sx={{ color: "warning.main", width: "fit-content" }}>
+						<ChevronLeft />
+						Назад
 					</Button>
 					{!product ? (
 						<div className="w-100 h-100v ai-c d-f jc-c">
