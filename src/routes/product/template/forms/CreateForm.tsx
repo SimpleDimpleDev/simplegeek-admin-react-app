@@ -136,13 +136,13 @@ export const ProductTemplateCreateForm: React.FC<ProductTemplateCreateFormProps>
 	return (
 		<>
 			<form
-				className="gap-2 w-100 d-f fd-c"
+				className="px-2 pt-2 pb-4 h-100 d-f fd-c jc-sb of-h"
 				onSubmit={handleSubmit(resolvedOnSubmit)}
 				onKeyDown={handleKeyDown}
 				noValidate
 			>
-				<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
-					<Typography variant="h5">Шаблон</Typography>
+				<div className="gap-1 d-f fd-c">
+					<Typography variant="subtitle0">Шаблон</Typography>
 					<Controller
 						name="title"
 						control={control}
@@ -159,8 +159,8 @@ export const ProductTemplateCreateForm: React.FC<ProductTemplateCreateFormProps>
 				</div>
 
 				{/* Base data */}
-				<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
-					<Typography variant="h5">О товаре</Typography>
+				<div className="gap-1 d-f fd-c">
+					<Typography variant="subtitle0">О товаре</Typography>
 					<div className="gap-2 d-f fd-c">
 						<Controller
 							name="data.title"
@@ -235,8 +235,8 @@ export const ProductTemplateCreateForm: React.FC<ProductTemplateCreateFormProps>
 				</div>
 
 				{/* Physical Properties */}
-				<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
-					<Typography variant="h5">Физические свойства</Typography>
+				<div className="gap-1 d-f fd-c">
+					<Typography variant="subtitle0">Физические свойства</Typography>
 					<div className="gap-2 d-f fd-c">
 						{selectedPhysicalProperties === null ? (
 							<Typography variant="body1" sx={{ color: "typography.secondary" }}>
@@ -338,8 +338,8 @@ export const ProductTemplateCreateForm: React.FC<ProductTemplateCreateFormProps>
 
 				{/* Attributes */}
 				{selectedCategoryId && (
-					<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
-						<Typography variant="h5">Фильтры</Typography>
+					<div className="gap-1 d-f fd-c">
+						<Typography variant="subtitle0">Фильтры</Typography>
 						<DragDropContext onDragEnd={handleDragAttribute}>
 							<ul style={{ margin: 0, padding: 0, listStyleType: "none" }}>
 								<Droppable droppableId="attributes">
