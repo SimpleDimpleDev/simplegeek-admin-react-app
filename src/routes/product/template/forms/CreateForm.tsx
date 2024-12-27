@@ -136,7 +136,7 @@ export const ProductTemplateCreateForm: React.FC<ProductTemplateCreateFormProps>
 	return (
 		<>
 			<form
-				className="px-2 pt-2 pb-4 h-100 d-f fd-c jc-sb of-h"
+				className="px-2 pt-2 pb-4 h-100 d-f fd-c of-h"
 				onSubmit={handleSubmit(resolvedOnSubmit)}
 				onKeyDown={handleKeyDown}
 				noValidate
