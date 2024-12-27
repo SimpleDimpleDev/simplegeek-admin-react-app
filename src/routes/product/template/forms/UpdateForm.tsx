@@ -389,6 +389,7 @@ export const ProductTemplateUpdateForm: React.FC<ProductTemplateUpdateFormProps>
 																	}) => (
 																		<>
 																			<Autocomplete
+																				disableClearable
 																				fullWidth
 																				value={filterGroupField}
 																				onChange={(_e, data) => {
