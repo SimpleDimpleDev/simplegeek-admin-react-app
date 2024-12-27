@@ -130,7 +130,7 @@ export default function OrderTableRoute() {
 		data: orderList,
 		isLoading: orderListIsLoading,
 		isFetching: orderListIsFetching,
-	} = useGetOrderListQuery({ filter: orderListFilter }, { refetchOnMountOrArgChange: true });
+	} = useGetOrderListQuery({ filter: orderListFilter });
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
