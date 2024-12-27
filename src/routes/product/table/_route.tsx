@@ -26,7 +26,6 @@ const columns: GridColDef<ProductGet>[] = [
 		),
 	},
 	{ field: "category", headerName: "Категория", display: "flex", valueGetter: (_, row) => row.category.title },
-	{ field: "isPublished", headerName: "Есть в публикации", display: "flex", type: "boolean" },
 	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
 ];

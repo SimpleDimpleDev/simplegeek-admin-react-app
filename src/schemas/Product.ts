@@ -21,7 +21,6 @@ export const ProductCreateSchema = z
 	.describe("ProductCreate");
 
 export const ProductGetSchema = AdminGetBaseSchema.extend({
-	isPublished: z.boolean().default(true),
 	category: CategoryGetSchema,
 	title: z.string(),
 	description: z.string().nullable(),

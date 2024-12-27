@@ -93,14 +93,6 @@ export default function ProductInspectRoute() {
 										</Typography>
 										<Typography variant="subtitle0">{product.category.title}</Typography>
 									</div>
-									<div className="gap-1 py-1 d-f fd-c">
-										<Typography variant="body2" sx={{ color: "typography.secondary" }}>
-											Есть в каталоге?
-										</Typography>
-										<Typography variant="subtitle0">
-											{product.isPublished ? "Да" : "Нет"}
-										</Typography>
-									</div>
 									<Typography variant="subtitle0">Физические свойства</Typography>
 									{product.physicalProperties ? (
 										<div className="gap-1 d-f fd-r">
