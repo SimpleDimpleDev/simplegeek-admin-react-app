@@ -298,30 +298,17 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 	return (
 		<>
 			<div className="gap-2 bg-primary pr-1 ai-c br-2 d-f fd-r ps-a" style={{ right: "24px", minWidth: 400 }}>
-				<Select
-					fullWidth
-					value={selectedTemplate?.id || ""}
-					onChange={(event) => {
-						console.log(event.target.value);
-						console.log(templateList?.items.find((template) => template.id === event.target.value));
-						setSelectedTemplate(
-							templateList?.items.find((template) => template.id === event.target.value) || null
-						);
+				<Autocomplete
+					options={templateList?.items || []}
+					loading={templateListIsLoading}
+					loadingText="Загрузка..."
+					getOptionLabel={(option) => option.title}
+					renderInput={(params) => <TextField {...params} variant="outlined" fullWidth label="Шаблон" />}
+					value={selectedTemplate}
+					onChange={(_event, newValue) => {
+						setSelectedTemplate(newValue);
 					}}
-					variant="outlined"
-				>
-					{!templateList || templateListIsLoading ? (
-						<CircularProgress />
-					) : (
-						<>
-							{templateList.items.map((template, index) => (
-								<MenuItem key={index + 1} value={template.id}>
-									<div className="gap-1 ai-c d-f fd-r">{template.title}</div>
-								</MenuItem>
-							))}
-						</>
-					)}
-				</Select>
+				/>
 				<Button variant="contained" disabled={selectedTemplate === null} onClick={handleUseTemplate}>
 					Применить
 				</Button>
