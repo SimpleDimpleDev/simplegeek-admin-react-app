@@ -51,7 +51,7 @@ const categoryApi = adminApi.injectEndpoints({
 				method: "GET",
 			}),
 			transformResponse: (response) => validateData(CategoryListGetSchema, response),
-			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Category", id: item.id })),
+			providesTags: ["Category"],
 		}),
 
 		updateCategory: build.mutation<void, z.infer<typeof CategoryUpdateSchema>>({
@@ -60,7 +60,7 @@ const categoryApi = adminApi.injectEndpoints({
 				method: "PUT",
 				body: body,
 			}),
-			invalidatesTags: (_result, _error, body) => [{ type: "Category", id: body.id }, { type: "Product"}, {type: "Publication"}],
+			invalidatesTags: ["Category", "Product", "Preorder"]
 		}),
 
 		changeImageCategory: build.mutation<void, z.infer<typeof CategoryChangeImageSchema>>({
@@ -73,7 +73,7 @@ const categoryApi = adminApi.injectEndpoints({
 					body: formData,
 				};
 			},
-			invalidatesTags: (_result, _error, body) => [{ type: "Category", id: body.categoryId }],
+			invalidatesTags: ["Category"],
 		}),
 	}),
 	overrideExisting: false,

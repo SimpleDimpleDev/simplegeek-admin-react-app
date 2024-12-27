@@ -46,6 +46,7 @@ export const productApi = adminApi.injectEndpoints({
 				};
 			},
 			transformResponse: (response) => validateData(CreateResponseSchema, response),
+			invalidatesTags: ["Product"],
 		}),
 		getProduct: build.query<z.infer<typeof ProductGetSchema>, { productId: string }>({
 			query: ({ productId }) => ({
@@ -65,6 +66,7 @@ export const productApi = adminApi.injectEndpoints({
 				params: { filter },
 			}),
 			transformResponse: (response) => validateData(ProductListGetSchema, response),
+			providesTags: (_result, _error, data) => [{ type: "Product", id: data.filter || "ALL" }],
 		}),
 		updateProduct: build.mutation<void, z.infer<typeof ProductUpdateSchema>>({
 			query: (data) => {
@@ -74,6 +76,7 @@ export const productApi = adminApi.injectEndpoints({
 					body: data,
 				};
 			},
+			invalidatesTags: ["Product", "Publication"],
 		}),
 		addImageProduct: build.mutation<void, z.infer<typeof ProductAddImageSchema>>({
 			query: (data) => {
@@ -85,13 +88,13 @@ export const productApi = adminApi.injectEndpoints({
 				};
 			},
 		}),
-
 		deleteProduct: build.mutation<void, { productId: string }>({
 			query: ({ productId }) => ({
 				url: "/admin/product",
 				method: "DELETE",
 				params: { id: productId },
 			}),
+			invalidatesTags: ["Product"],
 		}),
 	}),
 });
