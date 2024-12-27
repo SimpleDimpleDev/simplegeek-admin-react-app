@@ -20,7 +20,7 @@ import {
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Delete, DragIndicator, Edit } from "@mui/icons-material";
 import { DragDropContext, Draggable, DropResult, Droppable } from "react-beautiful-dnd";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 import CanvasPreview from "@components/CanvasPreview";
 import { CategoryGet } from "@appTypes/Category";
@@ -193,6 +193,8 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 	const [imageEditor, setImageEditor] = useState<ImageEditorState | null>(null);
 	const [imageResolutionTooLowSnackbarOpen, setImageResolutionTooLowSnackbarOpen] = useState(false);
 
+	const usingTemplate = useRef(false);
+
 	useEffect(() => {
 		const updateLoadedFilterGroups = async () => {
 			if (selectedCategoryId !== "") {
@@ -200,7 +202,11 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 			}
 		};
 		const resetFilterGroups = () => {
-			setValue("filterGroups", []);
+			if (usingTemplate.current) {
+				usingTemplate.current = false;
+			} else {
+				setValue("filterGroups", []);
+			}
 			updateLoadedFilterGroups();
 		};
 
@@ -272,8 +278,9 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 		}
 	};
 
-	const handleSelectTemplate = useCallback(() => {
+	const handleUseTemplate = useCallback(() => {
 		if (!selectedTemplate) return;
+		usingTemplate.current = true;
 		if (selectedTemplate.data.categoryId) setValue("categoryId", selectedTemplate.data.categoryId);
 		if (selectedTemplate.data.title) setValue("title", selectedTemplate.data.title);
 		if (selectedTemplate.data.description) setValue("description", selectedTemplate.data.description);
@@ -290,7 +297,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 
 	return (
 		<>
-			<div className="gap-2 bg-primary pr-1 ai-c br-2 d-f fd-r ps-a" style={{ right: "24px" }}>
+			<div className="gap-2 bg-primary pr-1 ai-c br-2 d-f fd-r ps-a" style={{ right: "24px", minWidth: 400 }}>
 				<Select
 					autoFocus
 					fullWidth
@@ -312,7 +319,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 						))
 					)}
 				</Select>
-				<Button variant="contained" disabled={!selectedTemplate} onClick={handleSelectTemplate}>
+				<Button variant="contained" disabled={!selectedTemplate} onClick={handleUseTemplate}>
 					Применить
 				</Button>
 			</div>

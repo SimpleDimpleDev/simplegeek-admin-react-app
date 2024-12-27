@@ -17,10 +17,10 @@ import { Delete, DragIndicator } from "@mui/icons-material";
 import { DragDropContext, Draggable, DropResult, Droppable } from "react-beautiful-dnd";
 import { ProductTemplateDataResolver, ProductTemplateUpdateSchema } from "@schemas/ProductTemplate";
 import { ProductTemplateGet, ProductTemplateUpdate } from "@appTypes/ProductTemplate";
+import { useEffect, useRef } from "react";
 
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
-import { useEffect } from "react";
 import { useGetCategoryListQuery } from "@api/admin/category";
 import { useLazyGetFilterGroupListQuery } from "@api/admin/filterGroup";
 import { z } from "zod";
@@ -109,6 +109,8 @@ export const ProductTemplateUpdateForm: React.FC<ProductTemplateUpdateFormProps>
 	const selectedFilterGroups = watch("data.filterGroups");
 	const selectedPhysicalProperties = watch("data.physicalProperties");
 
+	const usingTemplate = useRef(true);
+
 	useEffect(() => {
 		const updateLoadedFilterGroups = async () => {
 			if (selectedCategoryId !== null) {
@@ -116,7 +118,11 @@ export const ProductTemplateUpdateForm: React.FC<ProductTemplateUpdateFormProps>
 			}
 		};
 		const resetFilterGroups = () => {
-			setValue("data.filterGroups", []);
+			if (usingTemplate.current) {
+				usingTemplate.current = false;
+			} else {
+				setValue("data.filterGroups", []);
+			}
 			updateLoadedFilterGroups();
 		};
 
