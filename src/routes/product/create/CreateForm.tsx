@@ -299,10 +299,11 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 		<>
 			<div className="gap-2 bg-primary pr-1 ai-c br-2 d-f fd-r ps-a" style={{ right: "24px", minWidth: 400 }}>
 				<Select
-					autoFocus
 					fullWidth
 					value={selectedTemplate?.id || ""}
 					onChange={(event) => {
+						console.log(event.target.value);
+						console.log(templateList?.items.find((template) => template.id === event.target.value));
 						setSelectedTemplate(
 							templateList?.items.find((template) => template.id === event.target.value) || null
 						);
