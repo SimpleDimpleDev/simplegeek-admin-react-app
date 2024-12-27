@@ -187,7 +187,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 	const selectedFilterGroups = watch("filterGroups");
 	const selectedPhysicalProperties = watch("physicalProperties");
 
-	const [selectedTemplate, setSelectedTemplate] = useState<ProductTemplateGet | "NONE">("NONE");
+	const [selectedTemplate, setSelectedTemplate] = useState<ProductTemplateGet | null>(null);
 
 	const [imageFilesUploadedFlow, setImageFilesUploadedFlow] = useState<File[]>([]);
 	const [imageEditor, setImageEditor] = useState<ImageEditorState | null>(null);
@@ -279,7 +279,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 	};
 
 	const handleUseTemplate = useCallback(() => {
-		if (selectedTemplate === "NONE") return;
+		if (selectedTemplate === null) return;
 		usingTemplate.current = true;
 		if (selectedTemplate.data.categoryId) setValue("categoryId", selectedTemplate.data.categoryId);
 		if (selectedTemplate.data.title) setValue("title", selectedTemplate.data.title);
@@ -292,7 +292,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 				weight: selectedTemplate.data.physicalProperties.weight.toString(),
 			});
 		if (selectedTemplate.data.filterGroups.length) setValue("filterGroups", selectedTemplate.data.filterGroups);
-		setSelectedTemplate("NONE");
+		setSelectedTemplate(null);
 	}, [selectedTemplate, setValue]);
 
 	return (
@@ -301,14 +301,12 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 				<FormControl variant="outlined" fullWidth>
 					<InputLabel id="template-select-label">Шаблон</InputLabel>
 					<Select
-						labelId="template-select-label"
-						label="Шаблон"
 						autoFocus
 						fullWidth
-						value={selectedTemplate === "NONE" ? "NONE" : selectedTemplate.id}
+						value={selectedTemplate?.id || ""}
 						onChange={(event) => {
 							setSelectedTemplate(
-								templateList?.items.find((template) => template.id === event.target.value) || "NONE"
+								templateList?.items.find((template) => template.id === event.target.value) || null
 							);
 						}}
 						variant="outlined"
@@ -317,7 +315,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 							<CircularProgress />
 						) : (
 							<>
-								<MenuItem key={"NONE"} value={"NONE"}>
+								<MenuItem value={""}>
 									<div className="gap-1 ai-c d-f fd-r">Не выбран</div>
 								</MenuItem>
 								{templateList.items.map((template) => (
@@ -329,7 +327,8 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 						)}
 					</Select>
 				</FormControl>
-				<Button variant="contained" disabled={selectedTemplate === "NONE"} onClick={handleUseTemplate}>
+
+				<Button variant="contained" disabled={selectedTemplate === null} onClick={handleUseTemplate}>
 					Применить
 				</Button>
 			</div>
