@@ -298,36 +298,32 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 	return (
 		<>
 			<div className="gap-2 bg-primary pr-1 ai-c br-2 d-f fd-r ps-a" style={{ right: "24px", minWidth: 400 }}>
-				<FormControl variant="outlined" fullWidth>
-					<InputLabel id="template-select-label">Шаблон</InputLabel>
-					<Select
-						autoFocus
-						fullWidth
-						value={selectedTemplate?.id || ""}
-						onChange={(event) => {
-							setSelectedTemplate(
-								templateList?.items.find((template) => template.id === event.target.value) || null
-							);
-						}}
-						variant="outlined"
-					>
-						{!templateList || templateListIsLoading ? (
-							<CircularProgress />
-						) : (
-							<>
-								<MenuItem value={""}>
-									<div className="gap-1 ai-c d-f fd-r">Не выбран</div>
+				<Select
+					autoFocus
+					fullWidth
+					value={selectedTemplate?.id || ""}
+					onChange={(event) => {
+						setSelectedTemplate(
+							templateList?.items.find((template) => template.id === event.target.value) || null
+						);
+					}}
+					variant="outlined"
+				>
+					{!templateList || templateListIsLoading ? (
+						<CircularProgress />
+					) : (
+						<>
+							<MenuItem value={""}>
+								<div className="gap-1 ai-c d-f fd-r">Не выбран</div>
+							</MenuItem>
+							{templateList.items.map((template) => (
+								<MenuItem key={template.id} value={template.id}>
+									<div className="gap-1 ai-c d-f fd-r">{template.title}</div>
 								</MenuItem>
-								{templateList.items.map((template) => (
-									<MenuItem key={template.id} value={template.id}>
-										<div className="gap-1 ai-c d-f fd-r">{template.title}</div>
-									</MenuItem>
-								))}
-							</>
-						)}
-					</Select>
-				</FormControl>
-
+							))}
+						</>
+					)}
+				</Select>
 				<Button variant="contained" disabled={selectedTemplate === null} onClick={handleUseTemplate}>
 					Применить
 				</Button>
