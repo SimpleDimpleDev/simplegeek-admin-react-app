@@ -6,7 +6,6 @@ import {
 	Button,
 	Chip,
 	CircularProgress,
-	Divider,
 	FormControl,
 	FormHelperText,
 	IconButton,
@@ -18,8 +17,8 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import { Close, Delete, DragIndicator, Edit } from "@mui/icons-material";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Delete, DragIndicator, Edit } from "@mui/icons-material";
 import { DragDropContext, Draggable, DropResult, Droppable } from "react-beautiful-dnd";
 import React, { useCallback, useEffect } from "react";
 
@@ -120,8 +119,6 @@ const ProductCreateResolver = z.object({
 
 interface ProductCreateFormProps {
 	onSubmit: (data: ProductCreate) => void;
-	templateSelectOpen: boolean;
-	setTemplateSelectOpen: (open: boolean) => void;
 	templateList?: { items: ProductTemplateGet[] } | undefined;
 	templateListIsLoading?: boolean;
 	categoryList?: { items: CategoryGet[] } | undefined;
@@ -134,8 +131,6 @@ interface ProductCreateFormProps {
 
 export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 	onSubmit,
-	templateSelectOpen,
-	setTemplateSelectOpen,
 	templateList,
 	templateListIsLoading,
 	categoryList,
@@ -290,60 +285,37 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 				weight: selectedTemplate.data.physicalProperties.weight.toString(),
 			});
 		if (selectedTemplate.data.filterGroups.length) setValue("filterGroups", selectedTemplate.data.filterGroups);
-		setTemplateSelectOpen(false);
 		setSelectedTemplate(null);
-	}, [selectedTemplate, setTemplateSelectOpen, setValue]);
+	}, [selectedTemplate, setValue]);
 
 	return (
 		<>
-			<Modal
-				sx={{
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center",
-				}}
-				open={!!templateSelectOpen}
-				onClose={() => setTemplateSelectOpen(false)}
-			>
-				<div className="gap-2 bg-primary px-4 py-2 w-mc h-mc ai-c br-3 d-f fd-c">
-					<div className="pr-1 pl-2 ai-c d-f fd-r jc-sb" style={{ height: 72 }}>
-						<IconButton sx={{ opacity: 0 }}>
-							<Close />
-						</IconButton>
-						<Typography variant="h6">Выберите шаблон</Typography>
-						<IconButton onClick={() => setTemplateSelectOpen(false)}>
-							<Close />
-						</IconButton>
-					</div>
-					<Divider />
-					<Select
-						value={selectedTemplate?.id}
-						onChange={(event) => {
-							setSelectedTemplate(
-								templateList?.items.find((template) => template.id === event.target.value) || null
-							);
-						}}
-						fullWidth
-						variant="outlined"
-					>
-						{!templateList || templateListIsLoading ? (
-							<CircularProgress />
-						) : (
-							templateList.items.map((template) => (
-								<MenuItem key={template.id} value={template.id}>
-									<div className="gap-1 ai-c d-f fd-r">{template.title}</div>
-								</MenuItem>
-							))
-						)}
-					</Select>
-					<Typography variant="caption" className="mt-1">
-						Применение перезапишет форму
-					</Typography>
-					<Button disabled={!selectedTemplate} onClick={handleSelectTemplate}>
-						Применить
-					</Button>
-				</div>
-			</Modal>
+			<div className="gap-2 ai-c d-f fd-r ps-a" style={{ top: "24px", right: "40px" }}>
+				<Select
+					autoFocus
+					value={selectedTemplate?.id}
+					onChange={(event) => {
+						setSelectedTemplate(
+							templateList?.items.find((template) => template.id === event.target.value) || null
+						);
+					}}
+					variant="outlined"
+				>
+					{!templateList || templateListIsLoading ? (
+						<CircularProgress />
+					) : (
+						templateList.items.map((template) => (
+							<MenuItem key={template.id} value={template.id}>
+								<div className="gap-1 ai-c d-f fd-r">{template.title}</div>
+							</MenuItem>
+						))
+					)}
+				</Select>
+				<Button variant="contained" disabled={!selectedTemplate} onClick={handleSelectTemplate}>
+					Применить
+				</Button>
+			</div>
+
 			<Modal
 				sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
 				open={!!imageEditor}
