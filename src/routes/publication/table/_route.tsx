@@ -101,19 +101,20 @@ const columns: GridColDef<TableRowData>[] = [
 		display: "flex",
 		type: "number",
 		valueGetter: (_, row) => {
-			if (row.quantity === null) return Infinity;
+			if (row.quantity === null) return "∞";
 			return row.quantity - row.orderedQuantity;
 		},
 		renderCell: (params) => {
 			const quantity = params.row.quantity;
-			if (quantity === Infinity) return "∞";
-			if (quantity === 0)
+			if (quantity === null) return "∞";
+			const restQuantity = quantity - params.row.orderedQuantity;
+			if (restQuantity === 0)
 				return (
 					<Typography variant="body2" color="error">
 						Нет в наличии
 					</Typography>
 				);
-			return `${quantity} шт.`;
+			return `${restQuantity} шт.`;
 		},
 	},
 	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
