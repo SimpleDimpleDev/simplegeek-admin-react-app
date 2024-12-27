@@ -314,11 +314,8 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 						<CircularProgress />
 					) : (
 						<>
-							<MenuItem value={""}>
-								<div className="gap-1 ai-c d-f fd-r">Не выбран</div>
-							</MenuItem>
-							{templateList.items.map((template) => (
-								<MenuItem key={template.id} value={template.id}>
+							{templateList.items.map((template, index) => (
+								<MenuItem key={index + 1} value={template.id}>
 									<div className="gap-1 ai-c d-f fd-r">{template.title}</div>
 								</MenuItem>
 							))}
