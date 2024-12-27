@@ -31,6 +31,7 @@ export const orderApi = adminApi.injectEndpoints({
 				},
 			}),
 			transformResponse: (response) => validateData(OrderListGetSchema, response),
+			providesTags: (_result, _error, { filter }) => [{ type: "Order", id: filter || "ALL" }],
 		}),
 
 		getOrderEditableProps: build.query<z.infer<typeof OrderEditablePropsGetSchema>, { orderId: string }>({
@@ -48,6 +49,7 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				body,
 			}),
+			invalidatesTags: ["Order"],
 		}),
 
 		updateOrderDelivery: build.mutation<void, z.infer<typeof OrderUpdateDeliverySchema>>({
@@ -56,6 +58,7 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				body,
 			}),
+			invalidatesTags: ["Order"],
 		}),
 
 		issueSelfPickupOrders: build.mutation<void, { orderIds: string[] }>({
@@ -64,6 +67,7 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "POST",
 				body: { orderIds },
 			}),
+			invalidatesTags: ["Order"],
 		}),
 
 		refundOrder: build.mutation<void, { orderId: string }>({
@@ -72,6 +76,7 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "POST",
 				body: { orderId },
 			}),
+			invalidatesTags: ["Order"],
 		}),
 	}),
 });
