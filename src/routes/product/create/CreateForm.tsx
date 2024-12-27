@@ -290,9 +290,10 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 
 	return (
 		<>
-			<div className="gap-2 ai-c d-f fd-r ps-a" style={{ top: "24px", right: "40px" }}>
+			<div className="gap-2 bg-primary pr-1 ai-c br-2 d-f fd-r ps-a" style={{ right: "24px" }}>
 				<Select
 					autoFocus
+					fullWidth
 					value={selectedTemplate?.id}
 					onChange={(event) => {
 						setSelectedTemplate(
