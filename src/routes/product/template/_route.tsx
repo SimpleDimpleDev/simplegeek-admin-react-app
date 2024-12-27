@@ -44,6 +44,10 @@ export default function ProductTemplateRoute() {
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
+	const selectedItem = useMemo(() => {
+		return productTemplateList?.items.find((item) => item.id === selectedItemIds.at(0)) || null;
+	}, [productTemplateList, selectedItemIds]);
+
 	const [createModalOpened, setCreateModalOpened] = useState<boolean>(false);
 	const closeCreateModal = useCallback(() => {
 		setCreateModalOpened(false);
@@ -101,10 +105,9 @@ export default function ProductTemplateRoute() {
 				<ProductTemplateCreateForm onSubmit={createProductTemplate} />
 			</ManagementModal>
 			<ManagementModal title="Редактировать шаблон" opened={updateModalOpened} onClose={closeUpdateModal}>
-				<ProductTemplateUpdateForm
-					id={productTemplateList?.items.find((item) => item.id === selectedItemIds.at(0))?.id || ""}
-					onSubmit={updateProductTemplate}
-				/>
+				{selectedItem ? (
+					<ProductTemplateUpdateForm itemToUpdate={selectedItem} onSubmit={updateProductTemplate} />
+				) : null}
 			</ManagementModal>
 			<ActionDialog
 				title="Удалить выбранные шаблоны?"

@@ -1,5 +1,4 @@
 import { AdminGetBaseSchema } from "./Admin";
-import { FilterGroupGetSchema } from "./FilterGroup";
 import { PhysicalPropertiesSchema } from "./PhysicalProperties";
 import { z } from "zod";
 
@@ -9,7 +8,18 @@ export const ProductTemplateDataSchema = z
 		title: z.string().nullable(),
 		description: z.string().nullable(),
 		physicalProperties: PhysicalPropertiesSchema.nullable(),
-		filterGroups: FilterGroupGetSchema.array().nullable(),
+		filterGroups: z
+			.object({
+				id: z.string().min(1),
+				title: z.string().min(1),
+				filters: z
+					.object({
+						id: z.string().min(1),
+						value: z.string().min(1),
+					})
+					.array(),
+			})
+			.array(),
 	})
 	.describe("ProductTemplateData");
 

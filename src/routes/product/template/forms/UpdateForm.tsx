@@ -16,8 +16,8 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Delete, DragIndicator } from "@mui/icons-material";
 import { DragDropContext, Draggable, DropResult, Droppable } from "react-beautiful-dnd";
 import { ProductTemplateDataResolver, ProductTemplateUpdateSchema } from "@schemas/ProductTemplate";
+import { ProductTemplateGet, ProductTemplateUpdate } from "@appTypes/ProductTemplate";
 
-import { ProductTemplateUpdate } from "@appTypes/ProductTemplate";
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
 import { useEffect } from "react";
@@ -61,11 +61,11 @@ const ProductTemplateUpdateResolver = z.object({
 });
 
 interface ProductTemplateUpdateFormProps {
-	id: string;
+	itemToUpdate: ProductTemplateGet;
 	onSubmit: (data: ProductTemplateUpdate) => void;
 }
 
-export const ProductTemplateUpdateForm: React.FC<ProductTemplateUpdateFormProps> = ({ id, onSubmit }) => {
+export const ProductTemplateUpdateForm: React.FC<ProductTemplateUpdateFormProps> = ({ itemToUpdate, onSubmit }) => {
 	const [
 		fetchFilterGroupList,
 		{ data: filterGroupList, isLoading: filterGroupListIsLoading, isFetching: filterGroupListIsFetching },
@@ -79,14 +79,17 @@ export const ProductTemplateUpdateForm: React.FC<ProductTemplateUpdateFormProps>
 	};
 
 	const defaultValues: ProductTemplateUpdateFormData = {
-		id,
-		title: "",
+		...itemToUpdate,
 		data: {
-			title: null,
-			description: null,
-			categoryId: null,
-			physicalProperties: null,
-			filterGroups: [],
+			...itemToUpdate.data,
+			physicalProperties: itemToUpdate.data.physicalProperties
+				? {
+						width: itemToUpdate.data.physicalProperties.width.toString(),
+						height: itemToUpdate.data.physicalProperties.height.toString(),
+						length: itemToUpdate.data.physicalProperties.length.toString(),
+						weight: itemToUpdate.data.physicalProperties.weight.toString(),
+				  }
+				: null,
 		},
 	};
 
