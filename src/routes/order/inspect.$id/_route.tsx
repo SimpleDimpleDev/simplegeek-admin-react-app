@@ -24,7 +24,7 @@ import {
 	Tooltip,
 	Typography,
 } from "@mui/material";
-import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { useCreateOrderEventMutation, useGetOrderEventListQuery } from "@api/admin/orderEvent";
 import {
 	useGetOrderEditablePropsQuery,
@@ -61,14 +61,14 @@ export default function OrderInspectRoute() {
 	const params = useParams();
 	const orderId = params.id;
 	if (!orderId) throw new Response("No order id provided", { status: 404 });
-	const { data: order, isLoading: orderIsLoading } = useGetOrderQuery({ orderId });
+	const { data: order, isLoading: orderIsLoading, refetch: refetchOrder } = useGetOrderQuery({ orderId });
 	const { data: orderEventList, isLoading: orderEventListIsLoading } = useGetOrderEventListQuery(
 		{ orderId },
 		{
 			pollingInterval: 5000,
 		}
 	);
-	const { data: editableProps, isLoading: editablePropsIsLoading } = useGetOrderEditablePropsQuery(
+	const { data: editableProps, isLoading: editablePropsIsLoading, refetch: refetchEditableProps } = useGetOrderEditablePropsQuery(
 		{
 			orderId,
 		},
@@ -202,6 +202,11 @@ export default function OrderInspectRoute() {
 		[order, updateDelivery]
 	);
 
+	const refetchData = useCallback(() => {
+		refetchOrder();
+		refetchEditableProps();
+	}, [refetchEditableProps, refetchOrder]);
+
 	useMutationFeedback({
 		title: "Создание события",
 		isSuccess: eventCreateIsSuccess,
@@ -218,6 +223,7 @@ export default function OrderInspectRoute() {
 		error: statusUpdateError,
 		feedbackFn: showSnackbarMessage,
 		errorAction: handleCancelEditStatus,
+		successAction: refetchData,
 	});
 
 	useMutationFeedback({
@@ -226,6 +232,7 @@ export default function OrderInspectRoute() {
 		isError: deliveryUpdateIsError,
 		error: deliveryUpdateError,
 		feedbackFn: showSnackbarMessage,
+		successAction: refetchData,
 	});
 
 	useMutationFeedback({
@@ -236,6 +243,7 @@ export default function OrderInspectRoute() {
 		feedbackFn: showSnackbarMessage,
 		successAction: () => {
 			setSelfPickupIssueConfirmDialogOpened(false);
+			refetchData();
 		},
 	});
 
@@ -247,6 +255,7 @@ export default function OrderInspectRoute() {
 		feedbackFn: showSnackbarMessage,
 		successAction: () => {
 			setRefundConfirmDialogOpened(false);
+			refetchData();
 		},
 	});
 
@@ -545,8 +554,8 @@ export default function OrderInspectRoute() {
 									</Paper>
 								</div>
 
+								{/* Events */}
 								<div className="gap-2 d-f fd-c" style={{ width: "40%" }}>
-									{/* Events */}
 									<Paper sx={{ p: 2 }}>
 										<div className="pb-2 ai-c d-f fd-r jc-sb">
 											<Typography variant="subtitle0">События</Typography>
@@ -609,7 +618,14 @@ export default function OrderInspectRoute() {
 															</Typography>
 														</div>
 
-														<Typography variant="body1">{event.message}</Typography>
+														<Typography variant="body1">
+															{event.message.split("|").map((line) => (
+																<Fragment key={index}>
+																	{line}
+																	<br />
+																</Fragment>
+															))}
+														</Typography>
 													</div>
 												))
 											)}
