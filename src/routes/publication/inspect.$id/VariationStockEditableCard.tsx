@@ -63,12 +63,12 @@ const VariationStockUpdateResolver = z.object({
 		.nonnegative({ message: "Рейтинг не может быть отрицательным числом" }),
 	quantity: z.coerce
 		.number({ message: "Укажите количество" })
-		.positive({ message: "Количество должно быть положительным числом" }),
+		.nonnegative({ message: "Количество не может быть отрицательным числом" }),
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
 	discount: DiscountResolver.nullable(),
 	quantityRestriction: z.coerce
 		.number()
-		.positive({ message: "Количество должно быть положительным числом" })
+		.positive({ message: "Ограничение должно быть положительным числом" })
 		.nullable(),
 	creditInfo: z.null(),
 });

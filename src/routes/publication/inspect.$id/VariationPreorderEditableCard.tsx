@@ -73,11 +73,11 @@ const VariationPreorderUpdateResolver = z.object({
 		.number({ message: "Укажите рейтинг" })
 		.nonnegative({ message: "Рейтинг не может быть отрицательным числом" }),
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
-	quantity: z.coerce.number().positive({ message: "Количество должно быть положительным числом" }).nullable(),
+	quantity: z.coerce.number().nonnegative({ message: "Количество не может быть отрицательным числом" }).nullable(),
 	discount: DiscountResolver.nullable(),
 	quantityRestriction: z.coerce
 		.number()
-		.positive({ message: "Количество должно быть положительным числом" })
+		.positive({ message: "Ограничение должно быть положительным числом" })
 		.nullable(),
 	isCredit: z.boolean(),
 	creditDeposit: z.coerce
