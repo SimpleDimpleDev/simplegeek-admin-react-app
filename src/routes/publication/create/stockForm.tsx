@@ -70,12 +70,11 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 				productsToAdd.push(product);
 			}
 		}
-		if (productsToAdd[0]) {
+		if (productsToAdd.at(0)?.title) {
 			// @ts-expect-error js-library;
 			const cyrillicToTranslit = new CyrillicToTranslit()
 			defaultValues.link = cyrillicToTranslit.transform(productsToAdd[0].title, '_').toLowerCase();
 		}
-		defaultValues.link = productsToAdd[0].title;
 		defaultValues.categoryId = categoryId || null;
 		defaultValues.items = productsToAdd.map((product) => ({
 			product,
