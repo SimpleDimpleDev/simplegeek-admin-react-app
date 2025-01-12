@@ -1,15 +1,19 @@
-import { Button, Typography } from "@mui/material";
+import { Add, DriveFolderUpload } from "@mui/icons-material";
+import { Button, Snackbar, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { Add } from "@mui/icons-material";
 import AdminTable from "@components/ManagementTable";
+import { ExcelUploadModal } from "@routes/publication/table/ExcelUpload";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { ProductGet } from "@appTypes/Product";
 import { ProductListFilterSchema } from "@schemas/Product";
 import { getImageUrl } from "@utils/image";
 import { useGetProductListQuery } from "@api/admin/product";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSnackbar } from "@hooks/useSnackbar";
+import { useUploadExcelMutation } from "@api/admin/utils";
 
 const columns: GridColDef<ProductGet>[] = [
 	{
@@ -51,7 +55,7 @@ export default function ProductTableRoute() {
 		isLoading: productListIsLoading,
 		isFetching: productListIsFetching,
 	} = useGetProductListQuery({
-		filter: productListFilter,	
+		filter: productListFilter,
 	});
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
@@ -62,8 +66,24 @@ export default function ProductTableRoute() {
 		return productList?.items.find((product) => product.id === selectedItemId) || null;
 	}, [selectedItemIds, productList]);
 
+	const [excelUploadOpen, setExcelUploadOpen] = useState(false);
+	const [uploadExcel, { isSuccess: uploadExcelIsSuccess, isError: uploadExcelIsError, error: uploadExcelError }] =
+		useUploadExcelMutation();
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
+	const closeExcelUpload = useCallback(() => setExcelUploadOpen(false), []);
+	useMutationFeedback({
+		title: "Загрузка Excel",
+		isSuccess: uploadExcelIsSuccess,
+		isError: uploadExcelIsError,
+		error: uploadExcelError,
+		feedbackFn: showSnackbarMessage,
+		successAction: closeExcelUpload,
+	});
+
 	return (
 		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
+			<Snackbar open={snackbarOpened} message={snackbarMessage} onClose={closeSnackbar} autoHideDuration={3000} />
+			<ExcelUploadModal open={excelUploadOpen} onClose={() => setExcelUploadOpen(false)} onSubmit={uploadExcel} />
 			<div className="p-2 d-f fd-r jc-sb">
 				<div>
 					<Typography variant="h5">Товары</Typography>
@@ -71,10 +91,16 @@ export default function ProductTableRoute() {
 						Количество: {productList?.items.length}
 					</Typography>
 				</div>
-				<Button variant="contained" onClick={() => navigate("/product/create")}>
-					<Add />
-					Добавить товар
-				</Button>
+				<div className="gap-2 d-f fd-r">
+					<Button variant="contained" onClick={() => setExcelUploadOpen(true)}>
+						<DriveFolderUpload />
+						Загрузить Excel
+					</Button>
+					<Button variant="contained" onClick={() => navigate("/product/create")}>
+						<Add />
+						Добавить товар
+					</Button>
+				</div>
 			</div>
 
 			<LoadingSpinner isLoading={productListIsLoading || productListIsFetching}>
