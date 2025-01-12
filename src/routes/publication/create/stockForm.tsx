@@ -30,6 +30,7 @@ import {
 import { useCallback, useEffect, useMemo } from "react";
 
 import { CategoryGet } from "@appTypes/Category";
+import CyrillicToTranslit from 'cyrillic-to-translit-js';
 import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
 import { PublicationCreateSchema } from "@schemas/Publication";
@@ -55,7 +56,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 	if (productIds) {
 		let categoryId;
 		const productsToAdd: ProductGet[] = [];
-
+		
 		for (const product of products) {
 			if (productIds.includes(product.id)) {
 				const productCategoryId = product.category.id;
@@ -69,6 +70,12 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 				productsToAdd.push(product);
 			}
 		}
+		if (productsToAdd[0]) {
+			// @ts-expect-error js-library;
+			const cyrillicToTranslit = new CyrillicToTranslit()
+			defaultValues.link = cyrillicToTranslit.transform(productsToAdd[0].title, '_').toLowerCase();
+		}
+		defaultValues.link = productsToAdd[0].title;
 		defaultValues.categoryId = categoryId || null;
 		defaultValues.items = productsToAdd.map((product) => ({
 			product,
