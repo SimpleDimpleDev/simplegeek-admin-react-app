@@ -6,9 +6,9 @@ export const orderStatusBadges: Record<OrderStatus, JSX.Element> = {
 	CANCELLED: <StatusBadge color="icon.secondary">Отменен</StatusBadge>,
 	UNPAID: <StatusBadge color="icon.attention">Не оплачен</StatusBadge>,
 	ACCEPTED: <StatusBadge color="warning.main">Оформлен</StatusBadge>,
-	DELIVERY: <StatusBadge color="primary.main">Передан в доставку</StatusBadge>,
-	READY_FOR_PICKUP: <StatusBadge color="primary.main">Готов к выдаче</StatusBadge>,
-	FINISHED: <StatusBadge color="typography.success">Завершён</StatusBadge>,
+	DELIVERY: <StatusBadge color="rgb(0, 175, 134)">Передан в доставку</StatusBadge>,
+	READY_FOR_PICKUP: <StatusBadge color="icon.success">Готов к выдаче</StatusBadge>,
+	FINISHED: <StatusBadge color="icon.success">Завершен</StatusBadge>,
 };
 
 export const preorderStatusBadges: Record<PreorderStatus, JSX.Element> = {
