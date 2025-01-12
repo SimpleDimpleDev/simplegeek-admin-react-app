@@ -96,6 +96,14 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 	const [cdekWidgetOpen, setCdekWidgetOpen] = useState(false);
 
 	useEffect(() => {
+		console.warn("delivery form mounted");
+	}, []);
+
+	useEffect(() => {
+		console.warn("delivery form rerendered")
+	});
+
+	useEffect(() => {
 		if (delivery) {
 			reset(delivery);
 		}
