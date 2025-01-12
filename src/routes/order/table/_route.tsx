@@ -220,8 +220,9 @@ export default function OrderTableRoute() {
 								{orderListFilter === "ACTION_REQUIRED" && (
 									<Tooltip title="Сделать готовыми для самовывоза.">
 										<IconButton
+											color="primary"
 											disabled={!makeSelfPickupReadyEnabled}
-											onClick={handleMakeSelfPickupReady}
+											onClick={() => setMakeSelfPickupReadyConfirmDialogOpen(true)}
 										>
 											<Business />
 										</IconButton>
