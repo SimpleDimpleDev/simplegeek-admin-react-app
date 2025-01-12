@@ -1,4 +1,4 @@
-import { Button, IconButton, Snackbar, Tooltip, Typography } from "@mui/material";
+import { Button, Snackbar, Tooltip, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { deliveryServiceTitles, orderStatusTitles } from "src/constants";
 import { useCallback, useMemo, useState } from "react";
@@ -219,13 +219,13 @@ export default function OrderTableRoute() {
 							<>
 								{orderListFilter === "ACTION_REQUIRED" && (
 									<Tooltip title="Сделать готовыми для самовывоза.">
-										<IconButton
-											color="primary"
+										<Button
+											variant="contained"
 											disabled={!makeSelfPickupReadyEnabled}
 											onClick={() => setMakeSelfPickupReadyConfirmDialogOpen(true)}
 										>
 											<Business />
-										</IconButton>
+										</Button>
 									</Tooltip>
 								)}
 							</>
