@@ -131,7 +131,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 		<div
 			ref={containerRef}
 			tabIndex={0}
-			className="gap-1 bg-primary px-4 py-2 w-mc h-mc ai-c br-3 d-f fd-c"
+			className="bg-primary p-05 w-mc h-mc ai-c br-2 d-f fd-c ps-r"
 			onKeyDown={handleKeyDown}
 			onWheel={handleScale}
 		>
@@ -160,7 +160,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 			<div className="gap-1 d-f fd-r">
 				{!!imageSrc && (
 					<ReactCrop
-						style={{ height: 768, width: 768 }}
+						style={{ height: 768 }}
 						locked
 						crop={crop}
 						onChange={(_pixelCrop, percentageCrop) => {
@@ -187,6 +187,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
 				)}
 			</div>
 			<Button
+				style={{ position: "absolute", right: 8 }}
 				variant="contained"
 				onClick={() => {
 					console.log({ scale, crop, file });
