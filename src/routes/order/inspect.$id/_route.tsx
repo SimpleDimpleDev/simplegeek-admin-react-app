@@ -24,7 +24,7 @@ import {
 	Tooltip,
 	Typography,
 } from "@mui/material";
-import { Suspense, lazy, useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { useCreateOrderEventMutation, useGetOrderEventListQuery } from "@api/admin/orderEvent";
 import {
 	useGetOrderEditablePropsQuery,
@@ -39,6 +39,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import ActionDialog from "@components/ActionDialog";
 import { DeliveryForm } from "@components/DeliveryForm";
 import { DeliveryInfo } from "./DeliveryInfo";
+import { DeliveryPackage } from "@appTypes/Delivery";
 import { EventCreateForm } from "./EventCreateForm";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
@@ -130,6 +131,18 @@ export default function OrderInspectRoute() {
 
 	const [statusEditing, setStatusEditing] = useState(false);
 	const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "UNDEFINED">("UNDEFINED");
+
+	const packages: DeliveryPackage[] = useMemo(() => {
+		const packages: DeliveryPackage[] = [];
+		if (!order) return packages;
+		for (const item of order.items) {
+			if (!item.physicalProperties) continue;
+			for (let i = 0; i < item.quantity; i++) {
+				packages.push(item.physicalProperties);
+			}
+		}
+		return packages;
+	}, [order]);
 
 	useEffect(() => {
 		if (order) {
@@ -461,8 +474,7 @@ export default function OrderInspectRoute() {
 															delivery: data,
 														});
 													}}
-													// TODO: Add packages
-													packages={[]}
+													packages={packages}
 												/>
 											) : (
 												<DeliveryInfo delivery={order.delivery} />
