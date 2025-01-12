@@ -100,7 +100,7 @@ const DeliveryForm: React.FC<DeliveryFormProps> = React.memo(({ packages, onChan
 	}, []);
 
 	useEffect(() => {
-		console.warn("delivery form rerendered")
+		console.warn("delivery form rerendered");
 	});
 
 	useEffect(() => {
@@ -121,6 +121,10 @@ const DeliveryForm: React.FC<DeliveryFormProps> = React.memo(({ packages, onChan
 
 	const handleChooseCdekAddress = (data: CDEKDeliveryData) => {
 		setValue("cdekDeliveryData", data);
+		setValue("point", {
+			code: data.address.code,
+			address: `${data.address.city}, ${data.address.address}`,
+		});
 		setCdekWidgetOpen(false);
 	};
 
