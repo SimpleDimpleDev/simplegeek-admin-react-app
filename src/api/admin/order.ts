@@ -51,7 +51,14 @@ export const orderApi = adminApi.injectEndpoints({
 			}),
 			invalidatesTags: ["Order"],
 		}),
-
+		makeSelfPickupReady: build.mutation<void, { ids: string[] }>({
+			query: ({ ids }) => ({
+				url: "/admin/order/self-pickup-ready",
+				method: "PATCH",
+				body: { ids },
+			}),
+			invalidatesTags: ["Order"],
+		}),
 		updateOrderDelivery: build.mutation<void, z.infer<typeof OrderUpdateDeliverySchema>>({
 			query: (body) => ({
 				url: "/admin/order/delivery",
@@ -87,6 +94,7 @@ export const {
 	useGetOrderEditablePropsQuery,
 
 	useUpdateOrderDeliveryMutation,
+	useMakeSelfPickupReadyMutation,
 	useUpdateOrderStatusMutation,
 
 	useIssueSelfPickupOrdersMutation,
