@@ -158,7 +158,7 @@ export default function AppLayout() {
 					</Box>
 					<Box padding={"0 16px"}>
 						<Button
-							onClick={() => (window.location.href = "https://24simplegeek.ru/")}
+							onClick={() => (window.location.href = "https://simplegeek.ru/")}
 							style={{ textDecoration: "none" }}
 						>
 							<ListItem
