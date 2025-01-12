@@ -1,6 +1,7 @@
 import {
 	Apps,
 	Business,
+	CancelPresentation,
 	Category,
 	EditNoteRounded,
 	ExpandLess,
@@ -148,6 +149,11 @@ export default function AppLayout() {
 									to="/order/table/READY_FOR_SELF_PICKUP"
 									icon={<Business />}
 									text={"Самовывоз"}
+								/>
+								<NavButton
+									to="/order/table/CANCELLED"
+									icon={<CancelPresentation />}
+									text={"Отменённые"}
 								/>
 								<NavButton to="/order/table" end icon={<Reorder />} text={"Все"} />
 							</NavList>

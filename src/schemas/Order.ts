@@ -20,6 +20,7 @@ export const OrderStatusSchema = z.enum([
 export const OrderListFilterSchema = z.enum([
 	"ACTION_REQUIRED",
 	"READY_FOR_SELF_PICKUP",
+	"CANCELLED",
 ]).optional();
 
 export const OrderCreateSchema = z.object({
