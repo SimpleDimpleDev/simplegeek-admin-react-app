@@ -23,7 +23,10 @@ const columns: GridColDef<ProductGet>[] = [
 		renderCell: (params) => (
 			<div className="gap-1 ai-c d-f fd-r">
 				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
-					<img src={getImageUrl(params.row.images[0].url, "small")} className="contain" />
+					<img
+						src={params.row.images.at(0) ? getImageUrl(params.row.images[0].url, "small") : ""}
+						className="contain"
+					/>
 				</div>
 				{params.row.title}
 			</div>

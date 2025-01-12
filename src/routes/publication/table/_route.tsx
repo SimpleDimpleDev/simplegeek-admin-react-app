@@ -40,7 +40,14 @@ const columns: GridColDef<TableRowData>[] = [
 		renderCell: (params) => (
 			<div className="gap-1 ai-c d-f fd-r">
 				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
-					<img className="contain" src={getImageUrl(params.row.product.images[0].url, "small")} />
+					<img
+						className="contain"
+						src={
+							params.row.product.images.at(0)
+								? getImageUrl(params.row.product.images[0].url, "small")
+								: ""
+						}
+					/>
 				</div>
 				<Typography
 					variant="body2"
@@ -167,10 +174,8 @@ export default function PublicationTableRoute() {
 		);
 	}, [selectedItemIds, publicationsList]);
 
-
 	return (
 		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
-			
 			<div className="p-2 d-f fd-r jc-sb">
 				<div>
 					<Typography variant="h5">Каталог</Typography>
