@@ -1,5 +1,5 @@
 export const YandexMapsApiKey = 'd717dceb-63dc-41b9-8868-b4a77acb6f12'
-export const CDEKWidgetServicePath = 'https://api.24simplegeek.ru/api/cdek'
+export const CDEKWidgetServicePath = `${process.env.SHOP_API_URL}/api/cdek`
 
 interface CDEKFromPoint {
     country_code: string,
