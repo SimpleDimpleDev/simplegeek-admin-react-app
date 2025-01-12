@@ -80,7 +80,12 @@ export const ProductTemplateCreateForm: React.FC<ProductTemplateCreateFormProps>
 			title: null,
 			description: null,
 			categoryId: null,
-			physicalProperties: null,
+			physicalProperties: {
+				length: "",
+				width: "",
+				height: "",
+				weight: "",
+			},
 			filterGroups: [],
 		},
 	};
@@ -245,6 +250,28 @@ export const ProductTemplateCreateForm: React.FC<ProductTemplateCreateFormProps>
 						) : (
 							<div className="gap-2 d-f fd-r">
 								<Controller
+									name="data.physicalProperties.length"
+									control={control}
+									render={({ field: { onChange, value }, fieldState: { error } }) => (
+										<TextField
+											type="string"
+											label="Длина, сантиметров"
+											variant="outlined"
+											fullWidth
+											value={value}
+											onChange={handleIntChange(onChange)}
+											error={!!error}
+											helperText={error?.message}
+											slotProps={{
+												input: {
+													endAdornment: <Typography variant="body1">см</Typography>,
+												},
+											}}
+										/>
+									)}
+								/>
+
+								<Controller
 									name="data.physicalProperties.width"
 									control={control}
 									render={({ field: { onChange, value }, fieldState: { error } }) => (
@@ -273,28 +300,6 @@ export const ProductTemplateCreateForm: React.FC<ProductTemplateCreateFormProps>
 										<TextField
 											type="string"
 											label="Высота, сантиметров"
-											variant="outlined"
-											fullWidth
-											value={value}
-											onChange={handleIntChange(onChange)}
-											error={!!error}
-											helperText={error?.message}
-											slotProps={{
-												input: {
-													endAdornment: <Typography variant="body1">см</Typography>,
-												},
-											}}
-										/>
-									)}
-								/>
-
-								<Controller
-									name="data.physicalProperties.length"
-									control={control}
-									render={({ field: { onChange, value }, fieldState: { error } }) => (
-										<TextField
-											type="string"
-											label="Длина, сантиметров"
 											variant="outlined"
 											fullWidth
 											value={value}
