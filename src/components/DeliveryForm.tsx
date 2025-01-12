@@ -3,7 +3,7 @@ import { CDEKDeliveryInfo, CDEKWidget } from "./widgets/cdek";
 import { Controller, useForm } from "react-hook-form";
 import { Delivery, DeliveryPackage, DeliveryPoint, DeliveryService, Recipient } from "@appTypes/Delivery";
 import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { CDEKDeliveryData } from "@appTypes/CDEK";
 import { CardRadio } from "./CardRadio";
@@ -53,14 +53,14 @@ const DeliveryFormResolver = z
 		}
 	);
 
-interface DeliveryFormProps {
+export interface DeliveryFormProps {
 	delivery?: Delivery;
 	onChange: (data: z.infer<typeof DeliverySchema>) => void;
 	packages: DeliveryPackage[];
 	isMobile?: boolean;
 }
 
-const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, delivery, isMobile }) => {
+const DeliveryForm: React.FC<DeliveryFormProps> = React.memo(({ packages, onChange, delivery, isMobile }) => {
 	const {
 		control,
 		watch,
@@ -308,6 +308,6 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 			</form>
 		</>
 	);
-};
+});
 
 export { DeliveryForm };

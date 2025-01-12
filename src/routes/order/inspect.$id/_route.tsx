@@ -40,6 +40,7 @@ import ActionDialog from "@components/ActionDialog";
 import { DeliveryForm } from "@components/DeliveryForm";
 import { DeliveryInfo } from "./DeliveryInfo";
 import { DeliveryPackage } from "@appTypes/Delivery";
+import { DeliverySchema } from "@schemas/Delivery";
 import { EventCreateForm } from "./EventCreateForm";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
@@ -51,6 +52,7 @@ import { orderStatusBadges } from "@components/Badges";
 import { orderStatusTitles } from "src/constants";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
+import { z } from "zod";
 
 const OrderCDEKSection = lazy(() => import("./CDEKSection"));
 
@@ -188,6 +190,17 @@ export default function OrderInspectRoute() {
 		if (!order) return;
 		refundOrder({ orderId: order.id });
 	};
+
+	const handleUpdateDelivery = useCallback(
+		(data: z.infer<typeof DeliverySchema>) => {
+			if (!order) return;
+			updateDelivery({
+				id: order.id,
+				delivery: data,
+			});
+		},
+		[order, updateDelivery]
+	);
 
 	useMutationFeedback({
 		title: "Создание события",
@@ -468,12 +481,7 @@ export default function OrderInspectRoute() {
 											editableProps.delivery ? (
 												<DeliveryForm
 													delivery={order.delivery}
-													onChange={(data) => {
-														updateDelivery({
-															id: order.id,
-															delivery: data,
-														});
-													}}
+													onChange={handleUpdateDelivery}
 													packages={packages}
 												/>
 											) : (
