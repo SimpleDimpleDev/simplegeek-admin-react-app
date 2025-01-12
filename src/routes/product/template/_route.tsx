@@ -22,7 +22,6 @@ import { useSnackbar } from "@hooks/useSnackbar";
 
 const columns: GridColDef<ProductTemplateGet>[] = [
 	{ field: "title", headerName: "Название шаблона", display: "flex" },
-	{ field: "answer", headerName: "Ответ", display: "flex" },
 	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
 ];
