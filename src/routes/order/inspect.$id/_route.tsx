@@ -328,14 +328,11 @@ export default function OrderInspectRoute() {
 										value={selectedStatus}
 										onChange={handleSelectStatus}
 									>
-										{Array.from(orderStatusTitles.entries()).map(([status]) => (
-											<MenuItem
-												disabled={!editableProps.statuses.includes(status)}
-												value={status}
-											>
-												{orderStatusBadges[status]}
-											</MenuItem>
-										))}
+										{Array.from(orderStatusTitles.entries())
+											.filter(([status]) => editableProps.statuses.includes(status))
+											.map(([status]) => (
+												<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
+											))}
 									</Select>
 
 									{statusEditing ? (
