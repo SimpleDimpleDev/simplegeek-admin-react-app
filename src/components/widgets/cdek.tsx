@@ -1,11 +1,4 @@
-import {
-	CDEKAddress,
-	CDEKDeliveryData,
-	CDEKDeliveryType,
-	CDEKDoorAddress,
-	CDEKOfficeAddress,
-	CDEKTariff,
-} from "@appTypes/CDEK";
+import { CDEKAddress, CDEKDeliveryData, CDEKDeliveryType, CDEKOfficeAddress, CDEKTariff } from "@appTypes/CDEK";
 import { CDEKFromPoint, CDEKWidgetServicePath, YandexMapsApiKey } from "@config/cdek";
 
 import React from "react";
@@ -123,12 +116,7 @@ const CDEKDeliveryInfo: React.FC<CDEKDeliveryData> = ({ deliveryType, tariff, ad
 			</>
 		);
 	} else if (deliveryType === "door") {
-		const definedAddress = address as CDEKDoorAddress;
-		AddressInfo = () => (
-			<>
-				<Typography variant={"body1"}>Адрес: {definedAddress.formatted}</Typography>
-			</>
-		);
+		return <Typography variant={"body1"}>Доставка до двери не поддерживается</Typography>;
 	} else {
 		console.error("Unknown delivery type");
 		return (
