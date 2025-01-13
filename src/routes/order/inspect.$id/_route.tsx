@@ -72,10 +72,7 @@ const InvoiceBlock = ({ invoice }: InvoiceBlockProps) => {
 						second: "numeric",
 					}).format(invoice.createdAt)}
 				</Typography>
-				<div className="gap-1 ai-c d-f fd-c">
-					<Typography variant="body1">Статус:</Typography>
-					{InvoiceStatusBadges[invoice.status]}
-				</div>
+				<div className="gap-1 ai-fs d-f fd-c">{InvoiceStatusBadges[invoice.status]}</div>
 			</div>
 		</Paper>
 	);
@@ -334,14 +331,16 @@ export default function OrderInspectRoute() {
 
 							<div className="gap-2 d-f fd-r">
 								{/* Status */}
-								<Paper sx={{ p: 2, width: "max-content" }}>
-									<div className="gap-1 h-100 d-f fd-c">
-										<Typography variant="subtitle0">Статус</Typography>
-										<SelectConfirm
-											options={orderStatusBadges}
-											defaultOption={order.status}
-											onConfirm={(status) => handleSaveStatus(status)}
-										/>
+								<Paper sx={{ p: 2, width: "310px" }}>
+									<div className="gap-1 h-100 d-f fd-c jc-sb">
+										<div>
+											<Typography variant="subtitle0">Статус</Typography>
+											<SelectConfirm
+												options={orderStatusBadges}
+												defaultOption={order.status}
+												onConfirm={(status) => handleSaveStatus(status)}
+											/>
+										</div>
 										<div className="w-mc">
 											<Button
 												disabled={!editableProps.isRefundable}
