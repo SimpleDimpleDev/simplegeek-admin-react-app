@@ -1,12 +1,17 @@
+import { UserRole, UserState } from "@appTypes/User";
+
 import { DeliveryService } from "@appTypes/Delivery";
 import { OrderStatus } from "@appTypes/Order";
 import { PreorderStatus } from "@appTypes/Preorder";
-import { UserRoleSchema } from "@schemas/User";
-import { z } from "zod";
 
-export const userRoleTitles: Map<z.infer<typeof UserRoleSchema>, string> = new Map([
+export const userRoleTitles: Map<UserRole, string> = new Map([
 	["Admin", "Администратор"],
 	["Customer", "Покупатель"],
+]);
+
+export const userStateTitles: Map<UserState, string> = new Map([
+	["active", "Активен"],
+	["inactive", "Неактивен"],
 ]);
 
 export const orderStatusTitles: Map<OrderStatus, string> = new Map([

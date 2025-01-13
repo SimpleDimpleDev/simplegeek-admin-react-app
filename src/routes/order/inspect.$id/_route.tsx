@@ -14,15 +14,13 @@ import {
 	CircularProgress,
 	Divider,
 	IconButton,
-	MenuItem,
 	Paper,
-	Select,
 	Snackbar,
 	Stack,
 	Tooltip,
 	Typography,
 } from "@mui/material";
-import { Fragment, Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, Suspense, lazy, useCallback, useMemo, useState } from "react";
 import { useCreateOrderEventMutation, useGetOrderEventListQuery } from "@api/admin/orderEvent";
 import {
 	useGetOrderEditablePropsQuery,
@@ -44,10 +42,10 @@ import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "@components/ManagementModal";
 import { OrderStatus } from "@appTypes/Order";
+import { SelectConfirm } from "@components/SelectConfirm";
 import { getImageUrl } from "@utils/image";
 import { getRuGoodsWord } from "@utils/lexical";
 import { orderStatusBadges } from "@components/Badges";
-import { orderStatusTitles } from "src/constants";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 import { z } from "zod";
@@ -129,36 +127,17 @@ export default function OrderInspectRoute() {
 
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
-	const [eventCreateModalOpened, setEventCreateModalOpened] = useState(false);
 	const [selfPickupIssueConfirmDialogOpened, setSelfPickupIssueConfirmDialogOpened] = useState(false);
 	const [refundConfirmDialogOpened, setRefundConfirmDialogOpened] = useState(false);
+	const [eventCreateModalOpened, setEventCreateModalOpened] = useState(false);
 
-	const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "UNDEFINED">("UNDEFINED");
-
-	const statusChanged = useMemo(() => order?.status !== selectedStatus, [order?.status, selectedStatus]);
-
-	useEffect(() => {
-		if (order) {
-			setSelectedStatus(order.status);
-		}
-	}, [order]);
-
-	const handleCloseEventCreateModal = useCallback(() => {
-		setEventCreateModalOpened(false);
-	}, []);
-
-	const handleSaveStatus = () => {
+	const handleSaveStatus = (status: OrderStatus) => {
 		if (!order) return;
-		if (selectedStatus === "UNDEFINED") return;
 		updateStatus({
 			id: order.id,
-			status: selectedStatus,
+			status,
 		});
 	};
-
-	const handleCancelEditStatus = useCallback(() => {
-		setSelectedStatus(order?.status ?? "UNDEFINED");
-	}, [order?.status]);
 
 	const handleIssueSelfPickup = () => {
 		if (!order) return;
@@ -170,17 +149,9 @@ export default function OrderInspectRoute() {
 		refundOrder({ orderId: order.id });
 	};
 
-	const packages: DeliveryPackage[] = useMemo(() => {
-		const packages: DeliveryPackage[] = [];
-		if (!order) return packages;
-		for (const item of order.items) {
-			if (!item.physicalProperties) continue;
-			for (let i = 0; i < item.quantity; i++) {
-				packages.push(item.physicalProperties);
-			}
-		}
-		return packages;
-	}, [order]);
+	const handleCloseEventCreateModal = useCallback(() => {
+		setEventCreateModalOpened(false);
+	}, []);
 
 	const handleUpdateDelivery = useCallback(
 		(data: z.infer<typeof DeliverySchema>) => {
@@ -198,6 +169,18 @@ export default function OrderInspectRoute() {
 		refetchEditableProps();
 	}, [refetchEditableProps, refetchOrder]);
 
+	const packages: DeliveryPackage[] = useMemo(() => {
+		const packages: DeliveryPackage[] = [];
+		if (!order) return packages;
+		for (const item of order.items) {
+			if (!item.physicalProperties) continue;
+			for (let i = 0; i < item.quantity; i++) {
+				packages.push(item.physicalProperties);
+			}
+		}
+		return packages;
+	}, [order]);
+
 	useMutationFeedback({
 		title: "Создание события",
 		isSuccess: eventCreateIsSuccess,
@@ -213,7 +196,6 @@ export default function OrderInspectRoute() {
 		isError: statusUpdateIsError,
 		error: statusUpdateError,
 		feedbackFn: showSnackbarMessage,
-		errorAction: handleCancelEditStatus,
 		successAction: refetchData,
 	});
 
@@ -323,35 +305,11 @@ export default function OrderInspectRoute() {
 								<div className="gap-2 ai-c d-f fd-r">
 									<Typography variant="subtitle0">Статус</Typography>
 
-									<Select
-										disabled={selectedStatus === "UNDEFINED"}
-										value={selectedStatus}
-										onChange={(e) => setSelectedStatus(e.target.value as OrderStatus)}
-									>
-										{" "}
-										{selectedStatus === "UNDEFINED" && (
-											<MenuItem value="UNDEFINED">Загрузка</MenuItem>
-										)}
-										{Array.from(orderStatusTitles.entries())
-											.filter(
-												([status]) =>
-													editableProps.statuses.includes(status) || status === order.status
-											)
-											.map(([status]) => (
-												<MenuItem value={status}>{orderStatusBadges[status]}</MenuItem>
-											))}
-									</Select>
-
-									{selectedStatus !== "UNDEFINED" && statusChanged && (
-										<>
-											<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
-												<Check />
-											</IconButton>
-											<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditStatus}>
-												<Close />
-											</IconButton>
-										</>
-									)}
+									<SelectConfirm
+										options={orderStatusBadges}
+										defaultOption={order.status}
+										onConfirm={(status) => handleSaveStatus(status)}
+									/>
 								</div>
 
 								<div className="w-mc">

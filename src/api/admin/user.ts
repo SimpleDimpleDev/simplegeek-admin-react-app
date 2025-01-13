@@ -1,4 +1,4 @@
-import { UserGetSchema, UserListGetSchema, UserRoleSchema } from "@schemas/User";
+import { UserGetSchema, UserListGetSchema, UserRoleSchema, UserStateSchema } from "@schemas/User";
 
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
@@ -33,7 +33,16 @@ export const userApi = adminApi.injectEndpoints({
 			}),
 			invalidatesTags: (_result, _error, { id }) => [{ type: "User", id }],
 		}),
+		
+		updateUserState: build.mutation<void, { id: string; state: z.infer<typeof UserStateSchema> }>({
+			query: ({ id, state }) => ({
+				url: "/admin/user/state",
+				method: "PATCH",
+				body: { id, state },
+			}),
+			invalidatesTags: (_result, _error, { id }) => [{ type: "User", id }],
+		})
 	}),
 });
 
-export const { useGetUserQuery, useGetUserListQuery, useUpdateUserRoleMutation } = userApi;
+export const { useGetUserQuery, useGetUserListQuery, useUpdateUserRoleMutation, useUpdateUserStateMutation } = userApi;
