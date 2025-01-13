@@ -4,8 +4,7 @@ import { Close, Download } from "@mui/icons-material";
 import Dropzone from "react-dropzone";
 import { useState } from "react";
 
-const templateDownloadLink =
-	"https://downloadscdn6.freepik.com/187299/40/39890.jpg?filename=link-icon-left-side-with-white-backround.jpg&token=exp=1736684039~hmac=0fb936aa366d41becf0e16f6b3a8d550&filename=39890.jpg";
+const templateDownloadLink = `${import.meta.env.SHOP_API_URL}/admin/utils/download-excel`;
 
 type ExcelUploadModalProps = {
 	open: boolean;
