@@ -336,7 +336,19 @@ export default function OrderInspectRoute() {
 										<div>
 											<Typography variant="subtitle0">Статус</Typography>
 											<SelectConfirm
-												options={orderStatusBadges}
+												options={Object.entries(orderStatusBadges)
+													.filter(
+														([status]) =>
+															editableProps.statuses.includes(status as OrderStatus) ||
+															status === order.status
+													)
+													.map(
+														([status, badge]) =>
+															({ value: status, label: badge } as {
+																value: OrderStatus;
+																label: JSX.Element;
+															})
+													)}
 												defaultOption={order.status}
 												onConfirm={(status) => handleSaveStatus(status)}
 											/>
