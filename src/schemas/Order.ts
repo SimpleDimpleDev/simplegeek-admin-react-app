@@ -73,6 +73,7 @@ export const OrderListGetSchema = z.object({
 export const OrderEditablePropsGetSchema = z.object({
 	delivery: z.boolean(),
 	statuses: OrderStatusSchema.array(),
+	isRefundable: z.boolean(),
 });
 
 export const OrderUpdateStatusSchema = z.object({

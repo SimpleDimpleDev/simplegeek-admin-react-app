@@ -43,7 +43,7 @@ const SelectConfirm = <T extends string>({ options, defaultOption, onConfirm }: 
     }, [options]);
 
 	return (
-		<div className="gap-2 ai-c d-f fd-r">
+		<div className="gap-1 ai-c d-f fd-r">
 			<Select
 				disabled={selectedOption === "UNDEFINED"}
 				value={selectedOption}

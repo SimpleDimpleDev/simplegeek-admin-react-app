@@ -21,6 +21,7 @@ import {
 	Typography,
 } from "@mui/material";
 import { Fragment, Suspense, lazy, useCallback, useMemo, useState } from "react";
+import { InvoiceStatusBadges, orderStatusBadges } from "@components/Badges";
 import { useCreateOrderEventMutation, useGetOrderEventListQuery } from "@api/admin/orderEvent";
 import {
 	useGetOrderEditablePropsQuery,
@@ -38,6 +39,7 @@ import { DeliveryInfo } from "./DeliveryInfo";
 import { DeliveryPackage } from "@appTypes/Delivery";
 import { DeliverySchema } from "@schemas/Delivery";
 import { EventCreateForm } from "./EventCreateForm";
+import { InvoiceGet } from "@appTypes/Payment";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "@components/ManagementModal";
@@ -45,10 +47,39 @@ import { OrderStatus } from "@appTypes/Order";
 import { SelectConfirm } from "@components/SelectConfirm";
 import { getImageUrl } from "@utils/image";
 import { getRuGoodsWord } from "@utils/lexical";
-import { orderStatusBadges } from "@components/Badges";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 import { z } from "zod";
+
+type InvoiceBlockProps = {
+	invoice: InvoiceGet;
+};
+
+const InvoiceBlock = ({ invoice }: InvoiceBlockProps) => {
+	return (
+		<Paper sx={{ p: 2 }}>
+			<Typography variant="subtitle0">{invoice.title}</Typography>
+			<div className="gap-1 mt-2 d-f fd-c">
+				<Typography variant="body1">Сумма: {invoice.amount}₽</Typography>
+				<Typography variant="body1">
+					Создан:{" "}
+					{new Intl.DateTimeFormat("ru", {
+						year: "numeric",
+						month: "numeric",
+						day: "numeric",
+						hour: "numeric",
+						minute: "numeric",
+						second: "numeric",
+					}).format(invoice.createdAt)}
+				</Typography>
+				<div className="gap-1 ai-c d-f fd-c">
+					<Typography variant="body1">Статус:</Typography>
+					{InvoiceStatusBadges[invoice.status]}
+				</div>
+			</div>
+		</Paper>
+	);
+};
 
 const OrderCDEKSection = lazy(() => import("./CDEKSection"));
 
@@ -291,40 +322,40 @@ export default function OrderInspectRoute() {
 						</div>
 					) : (
 						<div className="gap-2 d-f fd-c">
+							{/* Main info */}
 							<Typography variant="h5">
 								Заказ от {new Intl.DateTimeFormat("ru").format(order.createdAt)}
 							</Typography>
-
-							{/* Main info */}
 							<div className="gap-1 pt-2 d-f fd-c">
 								<Typography variant="subtitle0" sx={{ color: "typography.secondary" }}>
 									ID: {order.id}
 								</Typography>
-
-								{/* Status */}
-								<div className="gap-2 ai-c d-f fd-r">
-									<Typography variant="subtitle0">Статус</Typography>
-
-									<SelectConfirm
-										options={orderStatusBadges}
-										defaultOption={order.status}
-										onConfirm={(status) => handleSaveStatus(status)}
-									/>
-								</div>
-
-								<div className="w-mc">
-									<Button
-										variant="contained"
-										color="error"
-										onClick={() => setRefundConfirmDialogOpened(true)}
-										sx={{ color: "white" }}
-									>
-										Вернуть заказ
-									</Button>
-								</div>
 							</div>
 
 							<div className="gap-2 d-f fd-r">
+								{/* Status */}
+								<Paper sx={{ p: 2, width: "max-content" }}>
+									<div className="gap-1 h-100 d-f fd-c">
+										<Typography variant="subtitle0">Статус</Typography>
+										<SelectConfirm
+											options={orderStatusBadges}
+											defaultOption={order.status}
+											onConfirm={(status) => handleSaveStatus(status)}
+										/>
+										<div className="w-mc">
+											<Button
+												disabled={!editableProps.isRefundable}
+												variant="contained"
+												color="error"
+												onClick={() => setRefundConfirmDialogOpened(true)}
+												sx={{ color: "white" }}
+											>
+												Вернуть заказ
+											</Button>
+										</div>
+									</div>
+								</Paper>
+
 								{/* User */}
 								<Paper sx={{ p: 2, width: "max-content" }}>
 									<div className="gap-1 h-100 d-f fd-c">
@@ -402,33 +433,7 @@ export default function OrderInspectRoute() {
 								)}
 
 								{/* Initial Payment(Deposit) */}
-								<Paper sx={{ p: 2 }}>
-									<Typography variant="subtitle0">
-										{order.initialInvoice.title ?? "Депозит"}
-									</Typography>
-									<div className="gap-1 mt-2 d-f fd-c">
-										<Typography variant="body1">Сумма: {order.initialInvoice.amount}₽</Typography>
-										<Typography variant="body1">
-											Создан:{" "}
-											{new Intl.DateTimeFormat("ru", {
-												year: "numeric",
-												month: "numeric",
-												day: "numeric",
-												hour: "numeric",
-												minute: "numeric",
-												second: "numeric",
-											}).format(order.initialInvoice.createdAt)}
-										</Typography>
-										<div className="gap-1 ai-c d-f fd-r">
-											<Typography variant="body1">Оплачено:</Typography>
-											{order.initialInvoice.isPaid ? (
-												<Check sx={{ color: "success.main" }} />
-											) : (
-												<Close sx={{ color: "error.main" }} />
-											)}
-										</div>
-									</div>
-								</Paper>
+								<InvoiceBlock invoice={order.initialInvoice} />
 							</div>
 
 							<div className="gap-2 d-f fd-r">
