@@ -244,7 +244,6 @@ const AdminTable = ({
 					rowSelection={true}
 					rowSelectionModel={selectedRows}
 					onRowSelectionModelChange={onRowSelect}
-					hideFooter
 					getRowId={getRowId}
 					getRowHeight={() => "auto"}
 					initialState={{
