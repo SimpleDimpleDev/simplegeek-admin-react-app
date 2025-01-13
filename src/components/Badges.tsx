@@ -1,3 +1,4 @@
+import { InvoiceStatus } from "@appTypes/Payment";
 import { OrderStatus } from "@appTypes/Order";
 import { PreorderStatus } from "@appTypes/Preorder";
 import { StatusBadge } from "./StatusBadge";
@@ -19,4 +20,11 @@ export const preorderStatusBadges: Record<PreorderStatus, JSX.Element> = {
 	LOCAL_SHIPPING: <StatusBadge color="icon.brandSecondary">Доставка на склад РФ</StatusBadge>,
 	DISPATCH: <StatusBadge color="icon.brandSecondary">На складе</StatusBadge>,
 	FINISHED: <StatusBadge color="icon.brandSecondary">Завершен</StatusBadge>,
+};
+
+export const InvoiceStatusBadges: Record<InvoiceStatus, JSX.Element> = {
+	PAID: <StatusBadge color="icon.success">Оплачен</StatusBadge>,
+	UNPAID: <StatusBadge color="icon.attention">Не оплачен</StatusBadge>,
+	REFUNDED: <StatusBadge color="icon.secondary">Произведён возврат</StatusBadge>,
+	WAITING: <StatusBadge color="icon.brandSecondary">Ожидание банка</StatusBadge>,
 };
