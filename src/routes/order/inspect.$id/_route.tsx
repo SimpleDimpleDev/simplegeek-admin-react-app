@@ -3,7 +3,6 @@ import {
 	Check,
 	ChevronLeft,
 	Close,
-	Edit,
 	MessageOutlined,
 	RssFeed,
 	Settings,
@@ -18,7 +17,6 @@ import {
 	MenuItem,
 	Paper,
 	Select,
-	SelectChangeEvent,
 	Snackbar,
 	Stack,
 	Tooltip,
@@ -68,7 +66,11 @@ export default function OrderInspectRoute() {
 			pollingInterval: 5000,
 		}
 	);
-	const { data: editableProps, isLoading: editablePropsIsLoading, refetch: refetchEditableProps } = useGetOrderEditablePropsQuery(
+	const {
+		data: editableProps,
+		isLoading: editablePropsIsLoading,
+		refetch: refetchEditableProps,
+	} = useGetOrderEditablePropsQuery(
 		{
 			orderId,
 		},
@@ -131,8 +133,42 @@ export default function OrderInspectRoute() {
 	const [selfPickupIssueConfirmDialogOpened, setSelfPickupIssueConfirmDialogOpened] = useState(false);
 	const [refundConfirmDialogOpened, setRefundConfirmDialogOpened] = useState(false);
 
-	const [statusEditing, setStatusEditing] = useState(false);
 	const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "UNDEFINED">("UNDEFINED");
+
+	const statusChanged = useMemo(() => order?.status !== selectedStatus, [order?.status, selectedStatus]);
+
+	useEffect(() => {
+		if (order) {
+			setSelectedStatus(order.status);
+		}
+	}, [order]);
+
+	const handleCloseEventCreateModal = useCallback(() => {
+		setEventCreateModalOpened(false);
+	}, []);
+
+	const handleSaveStatus = () => {
+		if (!order) return;
+		if (selectedStatus === "UNDEFINED") return;
+		updateStatus({
+			id: order.id,
+			status: selectedStatus,
+		});
+	};
+
+	const handleCancelEditStatus = useCallback(() => {
+		setSelectedStatus(order?.status ?? "UNDEFINED");
+	}, [order?.status]);
+
+	const handleIssueSelfPickup = () => {
+		if (!order) return;
+		issueSelfPickup({ orderIds: [order.id] });
+	};
+
+	const handleRefund = () => {
+		if (!order) return;
+		refundOrder({ orderId: order.id });
+	};
 
 	const packages: DeliveryPackage[] = useMemo(() => {
 		const packages: DeliveryPackage[] = [];
@@ -145,51 +181,6 @@ export default function OrderInspectRoute() {
 		}
 		return packages;
 	}, [order]);
-
-	useEffect(() => {
-		if (order) {
-			setSelectedStatus(order.status);
-		}
-	}, [order]);
-
-	const handleCloseEventCreateModal = useCallback(() => {
-		setEventCreateModalOpened(false);
-	}, []);
-
-	const handleStartEditStatus = () => {
-		setStatusEditing(true);
-	};
-
-	const handleSelectStatus = (event: SelectChangeEvent) => {
-		if (!statusEditing) return;
-		setSelectedStatus(event.target.value as OrderStatus);
-	};
-
-	const handleSaveStatus = () => {
-		if (!statusEditing) return;
-		if (!order) return;
-		if (selectedStatus === "UNDEFINED") return;
-		updateStatus({
-			id: order.id,
-			status: selectedStatus,
-		});
-		setStatusEditing(false);
-	};
-
-	const handleCancelEditStatus = useCallback(() => {
-		setSelectedStatus(order?.status ?? "UNDEFINED");
-		setStatusEditing(false);
-	}, [order?.status]);
-
-	const handleIssueSelfPickup = () => {
-		if (!order) return;
-		issueSelfPickup({ orderIds: [order.id] });
-	};
-
-	const handleRefund = () => {
-		if (!order) return;
-		refundOrder({ orderId: order.id });
-	};
 
 	const handleUpdateDelivery = useCallback(
 		(data: z.infer<typeof DeliverySchema>) => {
@@ -333,10 +324,14 @@ export default function OrderInspectRoute() {
 									<Typography variant="subtitle0">Статус</Typography>
 
 									<Select
-										disabled={!statusEditing}
+										disabled={selectedStatus === "UNDEFINED"}
 										value={selectedStatus}
-										onChange={handleSelectStatus}
+										onChange={(e) => setSelectedStatus(e.target.value as OrderStatus)}
 									>
+										{" "}
+										{selectedStatus === "UNDEFINED" && (
+											<MenuItem value="UNDEFINED">Загрузка</MenuItem>
+										)}
 										{Array.from(orderStatusTitles.entries())
 											.filter(
 												([status]) =>
@@ -347,7 +342,7 @@ export default function OrderInspectRoute() {
 											))}
 									</Select>
 
-									{statusEditing ? (
+									{selectedStatus !== "UNDEFINED" && statusChanged && (
 										<>
 											<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
 												<Check />
@@ -356,10 +351,6 @@ export default function OrderInspectRoute() {
 												<Close />
 											</IconButton>
 										</>
-									) : (
-										<IconButton onClick={handleStartEditStatus}>
-											<Edit />
-										</IconButton>
 									)}
 								</div>
 
