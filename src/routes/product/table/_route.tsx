@@ -155,10 +155,8 @@ export default function ProductTableRoute() {
 							<>
 								<div className="gap-05 ai-c d-f fd-r">
 									<Button
-										sx={{
-											height: "max-content",
-											width: "max-content",
-										}}
+										sx={{ height: "max-content" }}
+										fullWidth
 										variant="contained"
 										disabled={!selectedItemIds.length}
 										onClick={() => {
