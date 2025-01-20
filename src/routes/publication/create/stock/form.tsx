@@ -57,8 +57,9 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 		let categoryId;
 		const productsToAdd: ProductGet[] = [];
 		
-		for (const product of products) {
-			if (productIds.includes(product.id)) {
+		for (const productId of productIds) {
+			const product = products.find((product) => product.id === productId);
+			if (product) {
 				const productCategoryId = product.category.id;
 				if (categoryId) {
 					if (categoryId !== productCategoryId) {
