@@ -158,7 +158,7 @@ export default function PreorderInspectRoute() {
 
 	const { data: preorder, isLoading: preorderIsLoading } = useGetPreorderQuery({ preorderId });
 
-	const { data: publicationsList, isLoading: publicationsListIsLoading } = useGetPublicationListQuery();
+	const { data: publicationsList, isLoading: publicationsListIsLoading } = useGetPublicationListQuery({ preorderId });
 
 	const formattedPublications = useMemo(
 		() => (publicationsList ? formatPublications(publicationsList.items) : undefined),
