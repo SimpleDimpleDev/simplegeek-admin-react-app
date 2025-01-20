@@ -26,7 +26,7 @@ import { useLazyGetFilterGroupListQuery } from "@api/admin/filterGroup";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// TODO: preorder feature
+// TODO: Optional physical properties feature
 // Checkbox,
 // FormControlLabel,
 
@@ -243,6 +243,7 @@ export const ProductTemplateCreateForm: React.FC<ProductTemplateCreateFormProps>
 				<div className="gap-1 d-f fd-c">
 					<Typography variant="subtitle0">Физические свойства</Typography>
 					<div className="gap-2 d-f fd-c">
+						// TODO: Optional physical properties feature
 						{selectedPhysicalProperties === null ? (
 							<Typography variant="body1" sx={{ color: "typography.secondary" }}>
 								Товар невозможно опубликовать в розницу без указания физических свойств

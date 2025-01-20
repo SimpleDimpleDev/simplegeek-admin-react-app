@@ -39,6 +39,7 @@ const columns: GridColDef<PreorderGet>[] = [
 export default function PreorderTableRoute() {
 	const navigate = useNavigate();
 	const { data: preorderList, isLoading: preorderListIsLoading } = useGetPreorderListQuery();
+
 	const [
 		createPreorder,
 		{

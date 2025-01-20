@@ -6,6 +6,7 @@ import {
 	EditNoteRounded,
 	ExpandLess,
 	ExpandMore,
+	FlightTakeoff,
 	Info,
 	Logout,
 	NewReleases,
@@ -157,8 +158,7 @@ export default function AppLayout() {
 								/>
 								<NavButton to="/order/table" end icon={<Reorder />} text={"Все"} />
 							</NavList>
-							{/* TODO: Preorder feature */}
-							{/* <NavButton to="/preorder/table" icon={<FlightTakeoff />} text={"Предзаказы"} /> */}
+							<NavButton to="/preorder/table" icon={<FlightTakeoff />} text={"Предзаказы"} />
 							<NavButton to="/faq" icon={<Info />} text={"FAQ"} />
 						</List>
 					</Box>

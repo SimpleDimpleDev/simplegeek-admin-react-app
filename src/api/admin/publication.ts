@@ -32,10 +32,15 @@ export const publicationApi = adminApi.injectEndpoints({
 			transformResponse: (response) => validateData(PublicationGetSchema, response),
 		}),
 
-		getPublicationList: build.query<z.infer<typeof PublicationListGetSchema>, void>({
-			query: () => ({
+		getPublicationList: build.query<z.infer<typeof PublicationListGetSchema>, { preorderId?: string } | void>({
+			query: (args) => ({
 				url: "/admin/publication-list",
 				method: "GET",
+				params: args
+					? {
+							preorderId: args.preorderId,
+					  }
+					: {},
 			}),
 			transformResponse: (response) => validateData(PublicationListGetSchema, response),
 			providesTags: ["Publication"],
@@ -98,7 +103,7 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "DELETE",
 				params: { id: variationId },
 			}),
-			invalidatesTags: ["Publication"]
+			invalidatesTags: ["Publication"],
 		}),
 
 		activateCatalogItem: build.mutation<void, { publicationId: string; variationId: string }>({
@@ -107,7 +112,7 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				params: { id: variationId },
 			}),
-			invalidatesTags: ["Publication"]
+			invalidatesTags: ["Publication"],
 		}),
 
 		deactivateCatalogItem: build.mutation<void, { publicationId: string; variationId: string }>({
@@ -116,7 +121,7 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				params: { id: variationId },
 			}),
-			invalidatesTags: ["Publication"]
+			invalidatesTags: ["Publication"],
 		}),
 	}),
 });

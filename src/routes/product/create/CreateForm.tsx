@@ -39,7 +39,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// TODO: preorder feature
+// TODO: Optional physical properties feature
 // Checkbox,
 // FormControlLabel,
 
@@ -429,7 +429,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 				<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 					<Typography variant="h5">Физические свойства</Typography>
 					<div className="gap-2 d-f fd-c">
-						{/* TODO: Preorder feature */}
+						{/* // TODO: Optional physical properties feature */}
 						{/* <Controller
 							name="physicalProperties"
 							control={control}

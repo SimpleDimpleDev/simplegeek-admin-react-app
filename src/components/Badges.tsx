@@ -13,13 +13,12 @@ export const orderStatusBadges: Record<OrderStatus, JSX.Element> = {
 };
 
 export const preorderStatusBadges: Record<PreorderStatus, JSX.Element> = {
-	NEW: <StatusBadge color="primary.main">Новый</StatusBadge>,
-	FUNDING: <StatusBadge color="icon.brandSecondary">Сбор</StatusBadge>,
+	NEW: <StatusBadge color="rgb(0, 175, 134)">Новый</StatusBadge>,
 	WAITING_FOR_RELEASE: <StatusBadge color="icon.brandSecondary">Ожидание релиза</StatusBadge>,
 	FOREIGN_SHIPPING: <StatusBadge color="icon.brandSecondary">Доставка на зарубежный склад</StatusBadge>,
 	LOCAL_SHIPPING: <StatusBadge color="icon.brandSecondary">Доставка на склад РФ</StatusBadge>,
-	DISPATCH: <StatusBadge color="icon.brandSecondary">На складе</StatusBadge>,
-	FINISHED: <StatusBadge color="icon.brandSecondary">Завершен</StatusBadge>,
+	DISPATCH: <StatusBadge color="icon.success">На складе</StatusBadge>,
+	FINISHED: <StatusBadge color="icon.secondary">Завершен</StatusBadge>,
 };
 
 export const InvoiceStatusBadges: Record<InvoiceStatus, JSX.Element> = {

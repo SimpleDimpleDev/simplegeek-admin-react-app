@@ -25,7 +25,6 @@ export const orderStatusTitles: Map<OrderStatus, string> = new Map([
 
 export const preorderStatusTitles: Map<PreorderStatus, string> = new Map([
 	["NEW", "Новый"],
-	["FUNDING", "Сбор"],
 	["WAITING_FOR_RELEASE", "Ожидание релиза"],
 	["FOREIGN_SHIPPING", "Доставка на зарубежный склад"],
 	["LOCAL_SHIPPING", "Доставка на склад РФ"],
