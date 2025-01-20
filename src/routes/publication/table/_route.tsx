@@ -183,7 +183,7 @@ export default function PublicationTableRoute() {
 						Количество публикаций: {formattedPublications?.length}
 					</Typography>
 				</div>
-				<Button variant="contained" onClick={() => navigate("/publication/create")}>
+				<Button variant="contained" onClick={() => navigate("/publication/create/stock")}>
 					<Add />
 					Добавить публикацию
 				</Button>
