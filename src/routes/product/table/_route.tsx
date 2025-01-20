@@ -81,7 +81,7 @@ export default function ProductTableRoute() {
 		return productList?.items.find((product) => product.id === selectedItemId) || null;
 	}, [selectedItemIds, productList]);
 
-	const [publicationTarget, setPublicationTarget] = useState<PublicationTarget>({ type: "STOCK", label: "Розница" });
+	const [publicationTarget, setPublicationTarget] = useState<PublicationTarget>({ type: "STOCK", label: "розницу" });
 	const { data: preorderList } = useGetPreorderListQuery();
 
 	const publicationTargets: PublicationTarget[] = useMemo(() => {
@@ -155,6 +155,10 @@ export default function ProductTableRoute() {
 							<>
 								<div className="gap-05 ai-c d-f fd-r">
 									<Button
+										sx={{
+											height: "max-content",
+											width: "max-content",
+										}}
 										variant="contained"
 										disabled={!selectedItemIds.length}
 										onClick={() => {
