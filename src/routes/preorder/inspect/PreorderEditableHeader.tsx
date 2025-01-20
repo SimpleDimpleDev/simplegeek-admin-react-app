@@ -79,6 +79,7 @@ const PreorderEditableHeader = ({ preorder, onUpdate, updateSuccess }: PreorderE
 				title: preorder.title,
 				expectedArrival: preorder.expectedArrival,
 			});
+			setIsEditing(false);
 		}
 	}, [preorder, reset, updateSuccess]);
 
@@ -115,9 +116,9 @@ const PreorderEditableHeader = ({ preorder, onUpdate, updateSuccess }: PreorderE
 							render={({ field: { value, onChange }, fieldState: { error } }) => (
 								<TextField
 									{...textFieldProps}
-                                    type="text"
-                                    value={value}
-                                    onChange={onChange}
+									type="text"
+									value={value}
+									onChange={onChange}
 									variant={"standard"}
 									disabled={!isEditing}
 									error={!!error}
@@ -131,11 +132,11 @@ const PreorderEditableHeader = ({ preorder, onUpdate, updateSuccess }: PreorderE
 							Товары доступны для покупки
 						</Typography>
 						<Controller
-                            disabled={!isEditing}
 							name="isActive"
 							control={control}
 							render={({ field: { value, onChange } }) => (
 								<Checkbox
+									disabled={!isEditing}
 									checked={value}
 									onChange={(_, value) => {
 										onChange(value);
@@ -157,7 +158,7 @@ const PreorderEditableHeader = ({ preorder, onUpdate, updateSuccess }: PreorderE
 									<TextField
 										{...textFieldProps}
 										type="text"
-                                        variant={"standard"}
+										variant={"standard"}
 										disabled={value === null || !isEditing}
 										value={value ?? "-"}
 										onChange={onChange}
@@ -167,7 +168,7 @@ const PreorderEditableHeader = ({ preorder, onUpdate, updateSuccess }: PreorderE
 									<FormControlLabel
 										control={
 											<Checkbox
-                                                disabled={!isEditing}
+												disabled={!isEditing}
 												checked={value === null}
 												onChange={(_, value) => {
 													if (value) {
