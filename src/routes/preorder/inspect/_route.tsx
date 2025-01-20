@@ -182,6 +182,8 @@ export default function PreorderInspectRoute() {
 		return preorder.stages.findIndex((stage) => stage === preorder.status);
 	}, [preorder]);
 
+	console.log("currentStageIndex", currentStageIndex);
+
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 	const selectedPublication = useMemo(() => {
 		if (selectedItemIds.length !== 1) return null;
@@ -289,16 +291,18 @@ export default function PreorderInspectRoute() {
 								updateSuccess={updatePreorderIsSuccess}
 							/>
 							<Paper sx={{ padding: 2 }}>
-								<Stepper activeStep={currentStageIndex || -1}>
-									{preorder.stages.map((stage) => (
-										<Step key={stage}>
-											<StepLabel>{preorderStatusTitles.get(stage)}</StepLabel>
-										</Step>
-									))}
-								</Stepper>
-								<Button variant="contained" onClick={() => setAdvanceDialogOpen(true)}>
-									Перейти в следующий этап
-								</Button>
+								<div className="gap-2 d-f fd-c">
+									<Stepper activeStep={currentStageIndex}>
+										{preorder.stages.map((stage) => (
+											<Step key={stage}>
+												<StepLabel>{preorderStatusTitles.get(stage)}</StepLabel>
+											</Step>
+										))}
+									</Stepper>
+									<Button variant="contained" onClick={() => setAdvanceDialogOpen(true)}>
+										Перейти в следующий этап
+									</Button>
+								</div>
 							</Paper>
 						</>
 					)}
