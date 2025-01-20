@@ -18,6 +18,7 @@ interface TableRowData {
 	link: string;
 	publicationId: string;
 	variationIndex: number | null;
+	isActive: boolean;
 	product: ProductGet;
 	price: number;
 	discount: {
@@ -70,6 +71,12 @@ const columns: GridColDef<TableRowData>[] = [
 	{
 		field: "link",
 		headerName: "Ссылка",
+		display: "flex",
+	},
+	{
+		field: "isActive",
+		type: "boolean",
+		headerName: "Активен",
 		display: "flex",
 	},
 	{
@@ -136,6 +143,7 @@ const formatPublications = (publications: PublicationGet[]): TableRowData[] => {
 				link: publication.link,
 				publicationId: publication.id,
 				variationIndex: item.variationIndex,
+				isActive: item.isActive,
 				product: item.product,
 				price: item.price,
 				discount: item.discount,
