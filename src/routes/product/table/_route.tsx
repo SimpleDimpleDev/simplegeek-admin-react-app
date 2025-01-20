@@ -1,5 +1,5 @@
 import { Add, DriveFolderUpload } from "@mui/icons-material";
-import { Button, Snackbar, Typography } from "@mui/material";
+import { Autocomplete, Button, Snackbar, TextField, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -11,6 +11,7 @@ import { ProductGet } from "@appTypes/Product";
 import { ProductListFilterSchema } from "@schemas/Product";
 import { getImageUrl } from "@utils/image";
 import { useGetProductListQuery } from "@api/admin/product";
+import { useLazyGetPreorderListQuery } from "@api/admin/preorder";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 import { useUploadExcelMutation } from "@api/admin/utils";
@@ -36,6 +37,17 @@ const columns: GridColDef<ProductGet>[] = [
 	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
 ];
+
+type PublicationTarget =
+	| {
+			label: string;
+			type: "STOCK";
+	  }
+	| {
+			label: string;
+			type: "PREORDER";
+			preorderId: string;
+	  };
 
 export default function ProductTableRoute() {
 	const navigate = useNavigate();
@@ -69,11 +81,33 @@ export default function ProductTableRoute() {
 		return productList?.items.find((product) => product.id === selectedItemId) || null;
 	}, [selectedItemIds, productList]);
 
+	const [publicationTarget, setPublicationTarget] = useState<PublicationTarget>({ type: "STOCK", label: "Розница" });
+	const [fetchPreorderList, { data: preorderList, isLoading: preorderListIsLoading }] = useLazyGetPreorderListQuery();
+
+	const publicationTargets: PublicationTarget[] = useMemo(() => {
+		const targets = [{ label: "розницу", type: "STOCK" } as PublicationTarget];
+		if (preorderList?.items.length) {
+			targets.push(
+				...preorderList.items.map(
+					(preorder) =>
+						({
+							label: `${preorder.title}`,
+							type: "PREORDER",
+							preorderId: preorder.id,
+						} as PublicationTarget)
+				)
+			);
+		}
+		return targets;
+	}, [preorderList]);
+
 	const [excelUploadOpen, setExcelUploadOpen] = useState(false);
 	const [uploadExcel, { isSuccess: uploadExcelIsSuccess, isError: uploadExcelIsError, error: uploadExcelError }] =
 		useUploadExcelMutation();
+
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 	const closeExcelUpload = useCallback(() => setExcelUploadOpen(false), []);
+
 	useMutationFeedback({
 		title: "Загрузка Excel",
 		isSuccess: uploadExcelIsSuccess,
@@ -119,20 +153,40 @@ export default function ProductTableRoute() {
 						selectedRows={selectedItemIds}
 						headerButtons={
 							<>
-								<Button
-									variant="contained"
-									disabled={!selectedItemIds.length}
-									onClick={() => {
-										const productIdsParam = selectedItemIds
-											.map((id) => `productId[]=${id}`)
-											.join("&");
-										navigate(`/publication/create?${productIdsParam}`);
-									}}
-								>
-									{selectedItemIds.length > 1
-										? "Опубликовать вариативный товар"
-										: "Опубликовать товар"}
-								</Button>
+								<div className="gap-05 d-f fd-r">
+									<Button
+										variant="contained"
+										disabled={!selectedItemIds.length}
+										onClick={() => {
+											const productIdsParam = selectedItemIds
+												.map((id) => `productId[]=${id}`)
+												.join("&");
+											navigate(
+												`/publication/create/${
+													publicationTarget.type === "STOCK"
+														? "stock/"
+														: `preorder/${publicationTarget.preorderId}/`
+												}?${productIdsParam}`
+											);
+										}}
+									>
+										{selectedItemIds.length > 1
+											? "Опубликовать вариативный товар"
+											: "Опубликовать товар"}
+									</Button>
+									<Typography>в</Typography>
+									<Autocomplete
+										options={publicationTargets}
+										loading={preorderListIsLoading}
+										renderInput={(params) => <TextField {...params} label="цель публикации" />}
+										getOptionLabel={(option) => option.label}
+										value={publicationTarget}
+										onChange={(_, value) => {
+											setPublicationTarget(value as PublicationTarget);
+										}}
+										onOpen={() => fetchPreorderList()}
+									/>
+								</div>
 							</>
 						}
 						leftHeaderButtons={

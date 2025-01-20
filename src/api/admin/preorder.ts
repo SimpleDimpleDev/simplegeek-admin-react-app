@@ -58,6 +58,7 @@ export const {
 	useCreatePreorderMutation,
 	useGetPreorderQuery,
 	useGetPreorderListQuery,
+	useLazyGetPreorderListQuery,
 	useUpdatePreorderMutation,
 	usePromotePreorderMutation,
 } = preorderApi;
