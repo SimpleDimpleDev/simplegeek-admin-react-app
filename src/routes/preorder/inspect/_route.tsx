@@ -252,7 +252,7 @@ export default function PreorderInspectRoute() {
 				opened={advanceDialogOpen}
 				onClose={handleCloseAdvanceDialog}
 				confirmButton={{
-					text: "Переходить",
+					text: "Перейти",
 					onClick: () => advancePreorder({ preorderId }),
 				}}
 				declineButton={{ text: "Отменить" }}
@@ -299,8 +299,12 @@ export default function PreorderInspectRoute() {
 											</Step>
 										))}
 									</Stepper>
-									<Button variant="contained" onClick={() => setAdvanceDialogOpen(true)}>
-										Перейти в следующий этап
+									<Button
+										sx={{ width: "fit-content" }}
+										variant="contained"
+										onClick={() => setAdvanceDialogOpen(true)}
+									>
+										Перейти на следующий этап
 									</Button>
 								</div>
 							</Paper>
