@@ -33,7 +33,7 @@ const preorderApi = adminApi.injectEndpoints({
 				method: "GET",
 				params: args || {},
 			}),
-			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Preorder", id: item.id })),
+			providesTags: ["Preorder"],
 			transformResponse: (response) => PreorderListGetSchema.parse(response),
 		}),
 		updatePreorder: build.mutation<void, z.infer<typeof PreorderUpdateSchema>>({

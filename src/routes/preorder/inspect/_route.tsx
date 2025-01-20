@@ -1,10 +1,11 @@
 import { Add, ChevronLeft } from "@mui/icons-material";
-import { Button, Snackbar, Typography } from "@mui/material";
+import { Button, Paper, Snackbar, Step, StepLabel, Stepper, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
-import { useGetPreorderQuery, useUpdatePreorderMutation } from "@api/admin/preorder";
-import { useMemo, useState } from "react";
+import { useAdvancePreorderMutation, useGetPreorderQuery, useUpdatePreorderMutation } from "@api/admin/preorder";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import ActionDialog from "@components/ActionDialog";
 import AdminTable from "@components/ManagementTable";
 import { CreditInfo } from "@appTypes/Payment";
 import { LoadingOverlay } from "@components/LoadingOverlay";
@@ -14,6 +15,7 @@ import { PreorderGet } from "@appTypes/Preorder";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationGet } from "@appTypes/Publication";
 import { getImageUrl } from "@utils/image";
+import { preorderStatusTitles } from "src/constants";
 import { useGetPublicationListQuery } from "@api/admin/publication";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
@@ -175,6 +177,11 @@ export default function PreorderInspectRoute() {
 		[publicationsList]
 	);
 
+	const currentStageIndex = useMemo(() => {
+		if (!preorder) return undefined;
+		return preorder.stages.findIndex((stage) => stage === preorder.status);
+	}, [preorder]);
+
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 	const selectedPublication = useMemo(() => {
 		if (selectedItemIds.length !== 1) return null;
@@ -199,7 +206,20 @@ export default function PreorderInspectRoute() {
 		},
 	] = useUpdatePreorderMutation();
 
+	const [
+		advancePreorder,
+		{
+			isLoading: advancePreorderIsLoading,
+			isSuccess: advancePreorderIsSuccess,
+			isError: advancePreorderIsError,
+			error: advancePreorderError,
+		},
+	] = useAdvancePreorderMutation();
+
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
+	const [advanceDialogOpen, setAdvanceDialogOpen] = useState(false);
+
+	const handleCloseAdvanceDialog = useCallback(() => setAdvanceDialogOpen(false), []);
 
 	useMutationFeedback({
 		title: "Обновление предзаказа",
@@ -209,11 +229,32 @@ export default function PreorderInspectRoute() {
 		feedbackFn: showSnackbarMessage,
 	});
 
-	const showLoadingOverlay = updatePreorderIsLoading;
+	useMutationFeedback({
+		title: "Переход в следующий этап",
+		isSuccess: advancePreorderIsSuccess,
+		isError: advancePreorderIsError,
+		error: advancePreorderError,
+		feedbackFn: showSnackbarMessage,
+		successAction: handleCloseAdvanceDialog,
+		errorAction: handleCloseAdvanceDialog,
+	});
+
+	const showLoadingOverlay = updatePreorderIsLoading || advancePreorderIsLoading;
 
 	return (
 		<>
 			<LoadingOverlay isOpened={showLoadingOverlay} />
+			<ActionDialog
+				title="Переход в следующий этап"
+				helperText="Это действие необратимо"
+				opened={advanceDialogOpen}
+				onClose={handleCloseAdvanceDialog}
+				confirmButton={{
+					text: "Переходить",
+					onClick: () => advancePreorder({ preorderId }),
+				}}
+				declineButton={{ text: "Отменить" }}
+			/>
 			<Snackbar open={snackbarOpened} onClose={closeSnackbar} message={snackbarMessage} autoHideDuration={2000} />
 			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
 				<Button onClick={() => navigate(-1)} sx={{ color: "warning.main", width: "fit-content" }}>
@@ -247,6 +288,18 @@ export default function PreorderInspectRoute() {
 								onUpdate={updatePreorder}
 								updateSuccess={updatePreorderIsSuccess}
 							/>
+							<Paper sx={{ padding: 2 }}>
+								<Stepper activeStep={currentStageIndex || -1}>
+									{preorder.stages.map((stage) => (
+										<Step key={stage}>
+											<StepLabel>{preorderStatusTitles.get(stage)}</StepLabel>
+										</Step>
+									))}
+								</Stepper>
+								<Button variant="contained" onClick={() => setAdvanceDialogOpen(true)}>
+									Перейти в следующий этап
+								</Button>
+							</Paper>
 						</>
 					)}
 				</LoadingSpinner>
