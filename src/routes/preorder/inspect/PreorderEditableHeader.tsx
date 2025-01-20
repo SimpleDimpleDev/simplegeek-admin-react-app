@@ -77,6 +77,7 @@ const PreorderEditableHeader = ({ preorder, onUpdate, updateSuccess }: PreorderE
 			reset({
 				id: preorder.id,
 				title: preorder.title,
+                isActive: preorder.isActive,
 				expectedArrival: preorder.expectedArrival,
 			});
 			setIsEditing(false);
