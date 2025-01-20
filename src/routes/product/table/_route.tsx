@@ -153,9 +153,9 @@ export default function ProductTableRoute() {
 						selectedRows={selectedItemIds}
 						headerButtons={
 							<>
-								<div className="gap-05 ai-c d-f fd-r">
+								<div className="gap-05 w-100 ai-c d-f fd-r jc-fe">
 									<Button
-										sx={{ height: "max-content" }}
+										sx={{ width: "max-content", flexShrink: 0 }}
 										fullWidth
 										variant="contained"
 										disabled={!selectedItemIds.length}
@@ -178,7 +178,9 @@ export default function ProductTableRoute() {
 									</Button>
 									<Typography variant="subtitle0">в</Typography>
 									<Autocomplete
-										fullWidth
+										sx={{
+											width: "24%"
+										}}
 										options={publicationTargets}
 										renderInput={(params) => <TextField {...params} label="цель публикации" />}
 										getOptionLabel={(option) => option.label}

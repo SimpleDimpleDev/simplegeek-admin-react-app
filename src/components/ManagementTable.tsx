@@ -217,7 +217,7 @@ const AdminTable = ({
 		<>
 			<div className="gap-2 pt-2 d-f fd-c">
 				<div className="w-100 d-f fd-r jc-sb">
-					<div className="gap-1 ai-c d-f fd-r">
+					<div className="gap-1 w-100 ai-c d-f fd-r">
 						<IconButton
 							onClick={() =>
 								apiRef.current.autosizeColumns({
@@ -232,7 +232,7 @@ const AdminTable = ({
 						</IconButton>
 						{leftHeaderButtons}
 					</div>
-					<div className="gap-1 ai-c d-f fd-r">{headerButtons}</div>
+					<div className="gap-1 w-100 ai-c d-f fd-r">{headerButtons}</div>
 				</div>
 			</div>
 
