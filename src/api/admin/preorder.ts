@@ -27,10 +27,11 @@ const preorderApi = adminApi.injectEndpoints({
 			providesTags: (_result, _error, { preorderId }) => [{ type: "Preorder", id: preorderId }],
 			transformResponse: (response) => PreorderGetSchema.parse(response),
 		}),
-		getPreorderList: build.query<z.infer<typeof PreorderListGetSchema>, void>({
-			query: () => ({
+		getPreorderList: build.query<z.infer<typeof PreorderListGetSchema>, void | { allowPublish: boolean }>({
+			query: (args) => ({
 				url: "/admin/preorder-list",
 				method: "GET",
+				params: args || {},
 			}),
 			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Preorder", id: item.id })),
 			transformResponse: (response) => PreorderListGetSchema.parse(response),

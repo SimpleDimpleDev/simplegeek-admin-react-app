@@ -82,7 +82,7 @@ export default function ProductTableRoute() {
 	}, [selectedItemIds, productList]);
 
 	const [publicationTarget, setPublicationTarget] = useState<PublicationTarget>({ type: "STOCK", label: "розницу" });
-	const { data: preorderList } = useGetPreorderListQuery();
+	const { data: preorderList } = useGetPreorderListQuery({allowPublish: true});
 
 	const publicationTargets: PublicationTarget[] = useMemo(() => {
 		const targets = [{ label: "розницу", type: "STOCK" } as PublicationTarget];
