@@ -112,10 +112,12 @@ const PreorderEditableHeader = ({ preorder, onUpdate, updateSuccess }: PreorderE
 						<Controller
 							name="title"
 							control={control}
-							render={({ field, fieldState: { error } }) => (
+							render={({ field: { value, onChange }, fieldState: { error } }) => (
 								<TextField
 									{...textFieldProps}
-									{...field}
+                                    type="text"
+                                    value={value}
+                                    onChange={onChange}
 									variant={"standard"}
 									disabled={!isEditing}
 									error={!!error}
@@ -126,9 +128,10 @@ const PreorderEditableHeader = ({ preorder, onUpdate, updateSuccess }: PreorderE
 					</div>
 					<div className="gap-1 pl-2 w-100 ai-fs d-f fd-c">
 						<Typography variant="body2" sx={{ color: "typography.secondary" }}>
-							Продажа включена
+							Товары доступны для покупки
 						</Typography>
 						<Controller
+                            disabled={!isEditing}
 							name="isActive"
 							control={control}
 							render={({ field: { value, onChange } }) => (
@@ -147,24 +150,24 @@ const PreorderEditableHeader = ({ preorder, onUpdate, updateSuccess }: PreorderE
 							Примерная дата доставки
 						</Typography>
 						<Controller
-							name="title"
+							name="expectedArrival"
 							control={control}
 							render={({ field: { value, onChange }, fieldState: { error } }) => (
-								<div>
+								<div className="gap-05 d-f fd-c">
 									<TextField
 										{...textFieldProps}
-										label="Примерная дата доставки"
 										type="text"
-										disabled={value === null}
+                                        variant={"standard"}
+										disabled={value === null || !isEditing}
 										value={value ?? "-"}
 										onChange={onChange}
 										error={!!error}
 										helperText={error?.message}
-										fullWidth
 									/>
 									<FormControlLabel
 										control={
 											<Checkbox
+                                                disabled={!isEditing}
 												checked={value === null}
 												onChange={(_, value) => {
 													if (value) {

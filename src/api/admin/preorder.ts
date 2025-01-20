@@ -43,11 +43,11 @@ const preorderApi = adminApi.injectEndpoints({
 			}),
 			invalidatesTags: (_result, _error, body) => [{ type: "Preorder", id: body.id }],
 		}),
-		promotePreorder: build.mutation<void, { preorderId: string }>({
+		advancePreorder: build.mutation<void, { preorderId: string }>({
 			query: (data) => ({
-				url: "/admin/preorder/promote",
+				url: "/admin/preorder/advance",
 				method: "PATCH",
-				params: { id: data.preorderId },
+				body: { id: data.preorderId },
 			}),
 			invalidatesTags: (_result, _error, body) => [{ type: "Preorder", id: body.preorderId }],
 		}),
@@ -60,5 +60,5 @@ export const {
 	useGetPreorderListQuery,
 	useLazyGetPreorderListQuery,
 	useUpdatePreorderMutation,
-	usePromotePreorderMutation,
+	useAdvancePreorderMutation,
 } = preorderApi;
