@@ -35,6 +35,7 @@ export const PreorderUpdateSchema = z
 	.object({
 		id: z.string(),
 		title: z.string(),
+		isActive: z.boolean(),
 		expectedArrival: z.string().nullable(),
 	})
 	.describe("PreorderUpdate");

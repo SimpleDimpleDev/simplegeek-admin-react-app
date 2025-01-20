@@ -1,18 +1,22 @@
 import { Add, ChevronLeft } from "@mui/icons-material";
-import { Button, Typography } from "@mui/material";
+import { Button, Snackbar, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
+import { useGetPreorderQuery, useUpdatePreorderMutation } from "@api/admin/preorder";
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import AdminTable from "@components/ManagementTable";
 import { CreditInfo } from "@appTypes/Payment";
+import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import { PreorderEditableHeader } from "./PreorderEditableHeader";
 import { PreorderGet } from "@appTypes/Preorder";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationGet } from "@appTypes/Publication";
 import { getImageUrl } from "@utils/image";
-import { useGetPreorderQuery } from "@api/admin/preorder";
 import { useGetPublicationListQuery } from "@api/admin/publication";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSnackbar } from "@hooks/useSnackbar";
 
 interface TableRowData {
 	link: string;
@@ -165,16 +169,13 @@ export default function PreorderInspectRoute() {
 	if (!preorderId) throw new Response("No preorder id provided", { status: 404 });
 
 	const { data: preorder, isLoading: preorderIsLoading } = useGetPreorderQuery({ preorderId });
-
 	const { data: publicationsList, isLoading: publicationsListIsLoading } = useGetPublicationListQuery({ preorderId });
-
 	const formattedPublications = useMemo(
 		() => (publicationsList ? formatPublications(publicationsList.items) : undefined),
 		[publicationsList]
 	);
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
-
 	const selectedPublication = useMemo(() => {
 		if (selectedItemIds.length !== 1) return null;
 		const selectedItemId = selectedItemIds[0];
@@ -188,70 +189,102 @@ export default function PreorderInspectRoute() {
 		);
 	}, [selectedItemIds, publicationsList]);
 
+	const [
+		updatePreorder,
+		{
+			isLoading: updatePreorderIsLoading,
+			isSuccess: updatePreorderIsSuccess,
+			isError: updatePreorderIsError,
+			error: updatePreorderError,
+		},
+	] = useUpdatePreorderMutation();
+
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
+
+	useMutationFeedback({
+		title: "Обновление предзаказа",
+		isSuccess: updatePreorderIsSuccess,
+		isError: updatePreorderIsError,
+		error: updatePreorderError,
+		feedbackFn: showSnackbarMessage,
+	});
+
+	const showLoadingOverlay = updatePreorderIsLoading;
+
 	return (
-		<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
-			<Button onClick={() => navigate(-1)} sx={{ color: "warning.main", width: "fit-content" }}>
-				<ChevronLeft />
-				Назад
-			</Button>
-			<LoadingSpinner isLoading={preorderIsLoading}>
-				{!preorder ? (
-					<div className="w-100 h-100v ai-c d-f jc-c">
-						<Typography variant="h5">Что-то пошло не так</Typography>
-					</div>
-				) : (
-					<>
-						<div className="p-2 d-f fd-r jc-sb">
-							<div>
-								<Typography variant="h5">Предзаказ {preorder.title}</Typography>
-								<Typography variant="body2" color="typography.secondary">
-									Количество публикаций: {formattedPublications?.length}
-								</Typography>
-							</div>
-							<Button
-								variant="contained"
-								onClick={() => navigate(`/publication/create/preorder/${preorder.id}`)}
-							>
-								<Add />
-								Добавить публикацию
-							</Button>
+		<>
+			<LoadingOverlay isOpened={showLoadingOverlay} />
+			<Snackbar open={snackbarOpened} onClose={closeSnackbar} message={snackbarMessage} autoHideDuration={2000} />
+			<div className="gap-2 px-3 pt-1 pb-4 h-100 d-f fd-c" style={{ minHeight: "100vh" }}>
+				<Button onClick={() => navigate(-1)} sx={{ color: "warning.main", width: "fit-content" }}>
+					<ChevronLeft />
+					Назад
+				</Button>
+				<LoadingSpinner isLoading={preorderIsLoading}>
+					{!preorder ? (
+						<div className="w-100 h-100v ai-c d-f jc-c">
+							<Typography variant="h5">Что-то пошло не так</Typography>
 						</div>
-					</>
-				)}
-			</LoadingSpinner>
-			<LoadingSpinner isLoading={publicationsListIsLoading}>
-				{!formattedPublications ? (
-					<div className="w-100 h-100v ai-c d-f jc-c">
-						<Typography variant="h5">Не удалось загрузить публикации предзаказа</Typography>
-					</div>
-				) : (
-					<>
-						<AdminTable
-							columns={columns}
-							data={formattedPublications}
-							onRowSelect={setSelectedItemIds}
-							selectedRows={selectedItemIds}
-							getRowId={(item) => {
-								const variationString = item.variationIndex !== null ? `?v=${item.variationIndex}` : "";
-								return `${item.publicationId}${variationString}`;
-							}}
-							leftHeaderButtons={
-								<>
-									<Button
-										variant="contained"
-										disabled={!selectedPublication}
-										onClick={() => {
-											navigate(`/publication/inspect/${selectedItemIds.at(0)}`);
-										}}
-									>
-										Подробнее
-									</Button>
-								</>
-							}
-						/>
-					</>
-				)}
-			</LoadingSpinner>
-		</div>
+					) : (
+						<>
+							<div className="p-2 d-f fd-r jc-sb">
+								<div>
+									<Typography variant="h5">Предзаказ {preorder.title}</Typography>
+									<Typography variant="body2" color="typography.secondary">
+										Количество публикаций: {formattedPublications?.length}
+									</Typography>
+								</div>
+								<Button
+									variant="contained"
+									onClick={() => navigate(`/publication/create/preorder/${preorder.id}`)}
+								>
+									<Add />
+									Добавить публикацию
+								</Button>
+							</div>
+							<PreorderEditableHeader
+								preorder={preorder}
+								onUpdate={updatePreorder}
+								updateSuccess={updatePreorderIsSuccess}
+							/>
+						</>
+					)}
+				</LoadingSpinner>
+				<LoadingSpinner isLoading={publicationsListIsLoading}>
+					{!formattedPublications ? (
+						<div className="w-100 h-100v ai-c d-f jc-c">
+							<Typography variant="h5">Не удалось загрузить публикации предзаказа</Typography>
+						</div>
+					) : (
+						<>
+							<AdminTable
+								columns={columns}
+								data={formattedPublications}
+								onRowSelect={setSelectedItemIds}
+								selectedRows={selectedItemIds}
+								getRowId={(item) => {
+									const variationString =
+										item.variationIndex !== null ? `?v=${item.variationIndex}` : "";
+									return `${item.publicationId}${variationString}`;
+								}}
+								leftHeaderButtons={
+									<>
+										<Button
+											variant="contained"
+											disabled={!selectedPublication}
+											onClick={() => {
+												navigate(`/publication/inspect/${selectedItemIds.at(0)}`);
+											}}
+										>
+											Подробнее
+										</Button>
+									</>
+								}
+							/>
+						</>
+					)}
+				</LoadingSpinner>
+			</div>
+		</>
 	);
 }
