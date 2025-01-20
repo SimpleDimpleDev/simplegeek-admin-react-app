@@ -48,7 +48,7 @@ const AppRouter: React.FC = () => (
 						<Route path="template" element={<ProductTemplateRouteLazy />} />
 					</Route>
 					<Route path="publication">
-						<Route path="create" element={<PublicationCreateStockRouteLazy />}>
+						<Route path="create">
 							<Route path="stock" element={<PublicationCreateStockRouteLazy />} />
 							<Route path="preorder/:id" element={<PublicationCreatePreorderRouteLazy />} />
 						</Route>
