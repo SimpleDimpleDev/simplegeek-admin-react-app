@@ -19,10 +19,10 @@ const preorderApi = adminApi.injectEndpoints({
 			invalidatesTags: ["Preorder"],
 		}),
 		getPreorder: build.query<z.infer<typeof PreorderGetSchema>, { preorderId: string }>({
-			query: () => ({
+			query: ({ preorderId }) => ({
 				url: "/admin/preorder",
 				method: "GET",
-				params: { id: "preorderId" },
+				params: { id: preorderId },
 			}),
 			providesTags: (_result, _error, { preorderId }) => [{ type: "Preorder", id: preorderId }],
 			transformResponse: (response) => PreorderGetSchema.parse(response),
