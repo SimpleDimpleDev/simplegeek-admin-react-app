@@ -10,8 +10,8 @@ import { LoadingSpinner } from "@components/LoadingSpinner";
 import { ProductGet } from "@appTypes/Product";
 import { ProductListFilterSchema } from "@schemas/Product";
 import { getImageUrl } from "@utils/image";
+import { useGetPreorderListQuery } from "@api/admin/preorder";
 import { useGetProductListQuery } from "@api/admin/product";
-import { useLazyGetPreorderListQuery } from "@api/admin/preorder";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 import { useUploadExcelMutation } from "@api/admin/utils";
@@ -82,7 +82,7 @@ export default function ProductTableRoute() {
 	}, [selectedItemIds, productList]);
 
 	const [publicationTarget, setPublicationTarget] = useState<PublicationTarget>({ type: "STOCK", label: "Розница" });
-	const [fetchPreorderList, { data: preorderList, isLoading: preorderListIsLoading }] = useLazyGetPreorderListQuery();
+	const { data: preorderList } = useGetPreorderListQuery();
 
 	const publicationTargets: PublicationTarget[] = useMemo(() => {
 		const targets = [{ label: "розницу", type: "STOCK" } as PublicationTarget];
@@ -153,7 +153,7 @@ export default function ProductTableRoute() {
 						selectedRows={selectedItemIds}
 						headerButtons={
 							<>
-								<div className="gap-05 d-f fd-r">
+								<div className="gap-05 ai-c d-f fd-r">
 									<Button
 										variant="contained"
 										disabled={!selectedItemIds.length}
@@ -174,17 +174,16 @@ export default function ProductTableRoute() {
 											? "Опубликовать вариативный товар"
 											: "Опубликовать товар"}
 									</Button>
-									<Typography>в</Typography>
+									<Typography variant="subtitle0">в</Typography>
 									<Autocomplete
+										fullWidth
 										options={publicationTargets}
-										loading={preorderListIsLoading}
 										renderInput={(params) => <TextField {...params} label="цель публикации" />}
 										getOptionLabel={(option) => option.label}
 										value={publicationTarget}
 										onChange={(_, value) => {
 											setPublicationTarget(value as PublicationTarget);
 										}}
-										onOpen={() => fetchPreorderList()}
 									/>
 								</div>
 							</>
