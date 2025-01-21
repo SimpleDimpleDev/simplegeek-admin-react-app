@@ -179,10 +179,8 @@ export default function PreorderInspectRoute() {
 
 	const currentStageIndex = useMemo(() => {
 		if (!preorder) return undefined;
-		return preorder.stages.findIndex((stage) => stage === preorder.status);
+		return preorder.stages.findIndex((stage) => stage === preorder.status) + 1;
 	}, [preorder]);
-
-	console.log("currentStageIndex", currentStageIndex);
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 	const selectedPublication = useMemo(() => {
@@ -299,13 +297,15 @@ export default function PreorderInspectRoute() {
 											</Step>
 										))}
 									</Stepper>
-									<Button
-										sx={{ width: "fit-content" }}
-										variant="contained"
-										onClick={() => setAdvanceDialogOpen(true)}
-									>
-										Перейти на следующий этап
-									</Button>
+									{currentStageIndex || 0 < preorder.stages.length && (
+										<Button
+											sx={{ width: "fit-content" }}
+											variant="contained"
+											onClick={() => setAdvanceDialogOpen(true)}
+										>
+											Перейти на следующий этап
+										</Button>
+									)}
 								</div>
 							</Paper>
 						</>
