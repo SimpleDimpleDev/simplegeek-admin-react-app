@@ -179,7 +179,9 @@ export default function PreorderInspectRoute() {
 
 	const currentStageIndex = useMemo(() => {
 		if (!preorder) return undefined;
-		return preorder.stages.findIndex((stage) => stage === preorder.status) + 1;
+		let stage = preorder.stages.findIndex((stage) => stage === preorder.status);
+		if (stage === preorder.stages.length - 1) stage += 1;
+		return stage;
 	}, [preorder]);
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
@@ -291,13 +293,24 @@ export default function PreorderInspectRoute() {
 							<Paper sx={{ padding: 2 }}>
 								<div className="gap-2 d-f fd-c">
 									<Stepper activeStep={currentStageIndex}>
-										{preorder.stages.map((stage) => (
-											<Step key={stage}>
-												<StepLabel>{preorderStatusTitles.get(stage)}</StepLabel>
-											</Step>
-										))}
+										{preorder.stages.map((stage, index) => {
+											const labelProps: {
+												optional?: React.ReactNode;
+											} = {};
+											if (index === currentStageIndex)
+												labelProps.optional = (
+													<Typography variant="caption">Текущий</Typography>
+												);
+											return (
+												<Step key={stage}>
+													<StepLabel {...labelProps}>
+														{preorderStatusTitles.get(stage)}
+													</StepLabel>
+												</Step>
+											);
+										})}
 									</Stepper>
-									{currentStageIndex || 0 < preorder.stages.length && (
+									{(currentStageIndex || 0) < preorder.stages.length && (
 										<Button
 											sx={{ width: "fit-content" }}
 											variant="contained"
