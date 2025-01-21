@@ -294,17 +294,16 @@ export default function PreorderInspectRoute() {
 								<div className="gap-2 d-f fd-c">
 									<Stepper activeStep={currentStageIndex}>
 										{preorder.stages.map((stage, index) => {
-											const labelProps: {
-												optional?: React.ReactNode;
-											} = {};
-											if (index === currentStageIndex)
-												labelProps.optional = (
-													<Typography variant="caption">Текущий</Typography>
-												);
 											return (
 												<Step key={stage}>
-													<StepLabel {...labelProps}>
-														{preorderStatusTitles.get(stage)}
+													<StepLabel>
+														{index === currentStageIndex ? (
+															<Typography variant="subtitle0">
+																{preorderStatusTitles.get(stage)}
+															</Typography>
+														) : (
+															preorderStatusTitles.get(stage)
+														)}
 													</StepLabel>
 												</Step>
 											);
