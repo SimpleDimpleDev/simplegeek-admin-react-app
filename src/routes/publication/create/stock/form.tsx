@@ -85,7 +85,8 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 			quantity: "",
 			quantityRestriction: null,
 		}));
-	} else {
+	} 
+	if (defaultValues.items.length === 0) {
 		defaultValues.items.push({
 			product: null,
 			rating: "0",

@@ -551,7 +551,9 @@ const getDefaultFormValues = ({ products, productIds, preorderId }: getDefaultFo
 			creditDeposit: null,
 			creditPayments: [],
 		}));
-	} else {
+	} 
+
+	if (defaultValues.items.length === 0) {
 		defaultValues.items.push({
 			product: null,
 			rating: "0",
@@ -564,7 +566,7 @@ const getDefaultFormValues = ({ products, productIds, preorderId }: getDefaultFo
 			creditDeposit: null,
 			creditPayments: [],
 		});
-	}
+	}	
 
 	return defaultValues;
 };
