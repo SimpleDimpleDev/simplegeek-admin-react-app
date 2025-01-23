@@ -279,6 +279,8 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 								<FormControlLabel
 									control={
 										<Checkbox
+											// TODO: enable on full preorder
+											disabled
 											checked={quantityIsUnlimited}
 											onChange={(_, value) => {
 												if (value) {
@@ -367,6 +369,8 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 							label="Товар в рассрочку"
 							control={
 								<Checkbox
+									// TODO: enable on full preorder
+									disabled
 									checked={isCredit}
 									onChange={(_, checked) => {
 										if (checked) {

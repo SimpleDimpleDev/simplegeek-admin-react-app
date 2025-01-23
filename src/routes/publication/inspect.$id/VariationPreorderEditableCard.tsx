@@ -321,7 +321,9 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 									</Typography>
 									<div className="ai-c d-f fd-r">
 										<Checkbox
-											disabled={!isEditing}
+											// TODO: enable on full preorder
+											disabled
+											// disabled={!isEditing}
 											checked={quantityIsUnlimited}
 											onChange={(_, checked) => {
 												if (checked) {
@@ -628,7 +630,9 @@ const VariationPreorderEditableCard: React.FC<VariationPreorderEditableCardProps
 									control={
 										<Checkbox
 											checked={isCredit}
-											disabled={!isEditing}
+											// TODO: enable on full preorder
+											disabled
+											// disabled={!isEditing}
 											onChange={(_, checked) => {
 												if (checked) {
 													setValue(`isCredit`, true);

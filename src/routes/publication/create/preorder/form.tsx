@@ -293,6 +293,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 							<FormControlLabel
 								control={
 									<Checkbox
+										// TODO: enable on full preorder
+										disabled
 										checked={quantityIsUnlimited}
 										onChange={(_, value) => {
 											if (value) {
@@ -381,6 +383,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						label="Товар в рассрочку"
 						control={
 							<Checkbox
+								// TODO: enable on full preorder
+								disabled
 								checked={isCredit}
 								onChange={(_, checked) => {
 									if (checked) {
@@ -717,6 +721,8 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 									Стоимость доставки включена в цену
 								</InputLabel>
 								<Select
+									// TODO: enable on full preorder
+									disabled
 									labelId={`delivery-cost-included-label`}
 									label="Стоимость доставки включена в цену"
 									variant="outlined"
