@@ -215,6 +215,7 @@ export default function OrderTableRoute() {
 						data={orderList.items}
 						onRowSelect={setSelectedItemIds}
 						selectedRows={selectedItemIds}
+						sorting={orderListFilter === "ACTION_REQUIRED" ? [{ field: "createdAt", sort: "asc" }] : []}
 						headerButtons={
 							<>
 								{orderListFilter === "ACTION_REQUIRED" && (

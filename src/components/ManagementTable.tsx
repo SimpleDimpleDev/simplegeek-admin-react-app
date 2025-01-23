@@ -9,6 +9,7 @@ import {
 	GridRowIdGetter,
 	GridValidRowModel,
 	GridToolbar,
+	GridSortModel,
 } from "@mui/x-data-grid";
 
 import { ReactNode } from "react";
@@ -200,6 +201,7 @@ interface Props {
 	leftHeaderButtons?: ReactNode;
 	headerButtons?: ReactNode;
 	getRowId?: GridRowIdGetter;
+	sorting?: GridSortModel;
 }
 
 const AdminTable = ({
@@ -210,6 +212,7 @@ const AdminTable = ({
 	leftHeaderButtons,
 	headerButtons,
 	getRowId,
+	sorting,
 }: Props) => {
 	const apiRef = useGridApiRef();
 
@@ -248,7 +251,7 @@ const AdminTable = ({
 					getRowHeight={() => "auto"}
 					initialState={{
 						sorting: {
-							sortModel: [{ field: "createdAt", sort: "desc" }],
+							sortModel: sorting || [{ field: "createdAt", sort: "desc" }],
 						},
 						columns: {
 							columnVisibilityModel: {
