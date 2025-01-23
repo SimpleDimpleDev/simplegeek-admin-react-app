@@ -232,7 +232,7 @@ const AdminTable = ({
 						</IconButton>
 						{leftHeaderButtons}
 					</div>
-					<div className="gap-1 w-100 ai-c d-f fd-r">{headerButtons}</div>
+					<div className="gap-1 w-100 ai-c d-f fd-r jc-fe">{headerButtons}</div>
 				</div>
 			</div>
 
