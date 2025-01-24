@@ -50,7 +50,7 @@ const preorderApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				body: { id: data.preorderId },
 			}),
-			invalidatesTags: (_result, _error, body) => [{ type: "Preorder", id: body.preorderId }],
+			invalidatesTags: (_result, _error, body) => [{ type: "Preorder", id: body.preorderId }, "Publication"],
 		}),
 	}),
 });
