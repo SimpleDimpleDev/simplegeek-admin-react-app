@@ -324,6 +324,9 @@ export default function OrderInspectRoute() {
 								Заказ от {new Intl.DateTimeFormat("ru").format(order.createdAt)}
 							</Typography>
 							<div className="gap-1 pt-2 d-f fd-c">
+								<Typography variant="subtitle0">
+									Тип: {order.preorder ? `Предзаказ ${order.preorder.title}` : "Розница"}
+								</Typography>
 								<Typography variant="subtitle0" sx={{ color: "typography.secondary" }}>
 									ID: {order.id}
 								</Typography>
