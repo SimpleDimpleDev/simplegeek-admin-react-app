@@ -1,6 +1,16 @@
 import "dayjs/locale/ru";
 
-import { Button, Checkbox, Divider, FormControlLabel, FormGroup, FormLabel, Stack, TextField } from "@mui/material";
+import {
+	Button,
+	Checkbox,
+	Divider,
+	FormControlLabel,
+	FormGroup,
+	FormLabel,
+	Stack,
+	TextField,
+	Typography,
+} from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { PreorderCreateSchema, PreorderOptionalStatusSchema } from "@schemas/Preorder";
 
@@ -56,13 +66,16 @@ const PreorderCreateForm: React.FC<PreorderCreateFormProps> = ({ onSubmit }) => 
 					name="title"
 					control={control}
 					render={({ field, fieldState }) => (
-						<TextField
-							{...field}
-							label="Название"
-							error={!!fieldState.error}
-							helperText={fieldState.error?.message}
-							fullWidth
-						/>
+						<div className="gap-05 d-f fd-c">
+							<TextField
+								{...field}
+								label="Название"
+								error={!!fieldState.error}
+								helperText={fieldState.error?.message}
+								fullWidth
+							/>
+							<Typography variant="caption">В названии не нужно писать "Предзаказ".</Typography>
+						</div>
 					)}
 				/>
 				<Controller
