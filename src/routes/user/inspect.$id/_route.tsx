@@ -114,14 +114,14 @@ export default function UserInspectRoute() {
 								</>
 							)}
 
-							<div className="gap-1 ai-c d-f fd-r">
+							{/* <div className="gap-1 ai-c d-f fd-r">
 								<Button
 									variant="contained"
 									onClick={() => navigate(`/order/table?f=user:equals:${user.email}`)}
 								>
 									Заказы
 								</Button>
-							</div>
+							</div> */}
 
 							<div className="section">
 								<Typography variant="subtitle0">Информация</Typography>
