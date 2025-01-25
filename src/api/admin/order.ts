@@ -21,19 +21,24 @@ export const orderApi = adminApi.injectEndpoints({
 			}),
 			transformResponse: (response) => validateData(OrderGetSchema, response),
 		}),
-
-		getOrderList: build.query<z.infer<typeof OrderListGetSchema>, { filter: z.infer<typeof OrderListFilterSchema> }>({
-			query: ({ filter }) => ({
+		getOrderList: build.query<z.infer<typeof OrderListGetSchema>, { filter?: z.infer<typeof OrderListFilterSchema>, userId?: string }>({
+			query: ({ filter, userId }) => ({
 				url: "/admin/order-list",
 				method: "GET",
 				params: {
 					filter,
+					userId,
 				},
 			}),
 			transformResponse: (response) => validateData(OrderListGetSchema, response),
-			providesTags: (_result, _error, { filter }) => [{ type: "Order", id: filter || "ALL" }],
+			providesTags: (_result, _error, { filter, userId }) => {
+				if (userId) {
+					return []
+				} else {
+					return [{ type: "Order", id: filter || "ALL" }]
+				}
+			},
 		}),
-
 		getOrderEditableProps: build.query<z.infer<typeof OrderEditablePropsGetSchema>, { orderId: string }>({
 			query: ({ orderId }) => ({
 				url: "/admin/order/editable-props",

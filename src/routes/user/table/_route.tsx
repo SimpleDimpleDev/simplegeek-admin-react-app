@@ -2,8 +2,8 @@ import { Button, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
 
-import AdminTable from "@components/ManagementTable";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import ManagementTable from "@components/ManagementTable";
 import { UserGet } from "@appTypes/User";
 import { useGetUserListQuery } from "@api/admin/user";
 import { useNavigate } from "react-router-dom";
@@ -51,7 +51,7 @@ export default function UserTableRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<AdminTable
+					<ManagementTable
 						columns={columns}
 						data={userList.items}
 						onRowSelect={setSelectedItemIds}

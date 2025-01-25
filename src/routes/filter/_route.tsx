@@ -10,12 +10,12 @@ import {
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
-import AdminTable from "@components/ManagementTable";
 import { FilterGroupCreateForm } from "./CreateForm";
 import { FilterGroupGet } from "@appTypes/Filters";
 import { FilterGroupUpdateForm } from "./UpdateForm";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "@components/ManagementModal";
+import ManagementTable from "@components/ManagementTable";
 import { useLazyGetCategoryListQuery } from "@api/admin/category";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
@@ -213,7 +213,7 @@ export default function FilterRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<AdminTable
+					<ManagementTable
 						columns={columns}
 						data={filterGroupList.items}
 						onRowSelect={setSelectedItemIds}

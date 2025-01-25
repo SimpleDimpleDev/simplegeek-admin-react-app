@@ -3,9 +3,9 @@ import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
 
 import { Add } from "@mui/icons-material";
-import AdminTable from "@components/ManagementTable";
 import { CreditInfo } from "@appTypes/Payment";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import ManagementTable from "@components/ManagementTable";
 import { PreorderGet } from "@appTypes/Preorder";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationGet } from "@appTypes/Publication";
@@ -203,7 +203,7 @@ export default function PublicationTableRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<AdminTable
+					<ManagementTable
 						columns={columns}
 						data={formattedPublications}
 						onRowSelect={setSelectedItemIds}

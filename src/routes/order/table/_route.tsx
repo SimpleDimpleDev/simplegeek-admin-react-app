@@ -6,9 +6,9 @@ import { useGetOrderListQuery, useMakeSelfPickupReadyMutation } from "@api/admin
 import { useNavigate, useParams } from "react-router-dom";
 
 import ActionDialog from "@components/ActionDialog";
-import AdminTable from "@components/ManagementTable";
 import { Business } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import ManagementTable from "@components/ManagementTable";
 import { OrderGet } from "@appTypes/Order";
 import { OrderListFilterSchema } from "@schemas/Order";
 import { orderStatusBadges } from "@components/Badges";
@@ -210,7 +210,7 @@ export default function OrderTableRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<AdminTable
+					<ManagementTable
 						columns={selfPickupColumns}
 						data={orderList.items}
 						onRowSelect={setSelectedItemIds}

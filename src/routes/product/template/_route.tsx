@@ -10,10 +10,10 @@ import {
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
-import AdminTable from "@components/ManagementTable";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "@components/ManagementModal";
+import ManagementTable from "@components/ManagementTable";
 import { ProductTemplateCreateForm } from "./forms/CreateForm";
 import { ProductTemplateGet } from "@appTypes/ProductTemplate";
 import { ProductTemplateUpdateForm } from "./forms/UpdateForm";
@@ -139,7 +139,7 @@ export default function ProductTemplateRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<AdminTable
+					<ManagementTable
 						columns={columns}
 						data={productTemplateList.items}
 						onRowSelect={setSelectedItemIds}

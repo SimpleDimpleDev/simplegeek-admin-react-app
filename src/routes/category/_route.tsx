@@ -12,7 +12,6 @@ import {
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
-import AdminTable from "../../components/ManagementTable";
 import { CategoryChangeImageForm } from "./ChangeImageForm";
 import { CategoryCreateForm } from "./CreateForm";
 import { CategoryGet } from "@appTypes/Category";
@@ -20,6 +19,7 @@ import { CategoryUpdateForm } from "./UpdateForm";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../../components/ManagementModal";
+import ManagementTable from "../../components/ManagementTable";
 import { getImageUrl } from "@utils/image";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
@@ -180,7 +180,7 @@ export default function CategoryRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<AdminTable
+					<ManagementTable
 						columns={columns}
 						data={categoryList.items}
 						onRowSelect={setSelectedItemIds}

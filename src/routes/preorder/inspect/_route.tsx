@@ -6,10 +6,10 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import ActionDialog from "@components/ActionDialog";
-import AdminTable from "@components/ManagementTable";
 import { CreditInfo } from "@appTypes/Payment";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import ManagementTable from "@components/ManagementTable";
 import { PreorderEditableHeader } from "./PreorderEditableHeader";
 import { PreorderGet } from "@appTypes/Preorder";
 import { ProductGet } from "@appTypes/Product";
@@ -330,7 +330,7 @@ export default function PreorderInspectRoute() {
 						</div>
 					) : (
 						<>
-							<AdminTable
+							<ManagementTable
 								columns={columns}
 								data={formattedPublications}
 								onRowSelect={setSelectedItemIds}

@@ -4,9 +4,9 @@ import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import AdminTable from "@components/ManagementTable";
 import { ExcelUploadModal } from "@routes/publication/table/ExcelUpload";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import ManagementTable from "@components/ManagementTable";
 import { ProductGet } from "@appTypes/Product";
 import { ProductListFilterSchema } from "@schemas/Product";
 import { getImageUrl } from "@utils/image";
@@ -146,7 +146,7 @@ export default function ProductTableRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<AdminTable
+					<ManagementTable
 						columns={columns}
 						data={productList?.items}
 						onRowSelect={setSelectedItemIds}

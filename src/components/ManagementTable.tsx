@@ -12,7 +12,7 @@ import {
 	GridSortModel,
 } from "@mui/x-data-grid";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 
 const GRID_DEFAULT_LOCALE_TEXT: GridLocaleText = {
 	// Root
@@ -204,7 +204,7 @@ interface Props {
 	sorting?: GridSortModel;
 }
 
-const AdminTable = ({
+const ManagementTable = ({
 	columns,
 	data,
 	selectedRows,
@@ -215,6 +215,12 @@ const AdminTable = ({
 	sorting,
 }: Props) => {
 	const apiRef = useGridApiRef();
+
+	useEffect(() => {
+		if (sorting) {
+			apiRef.current.setSortModel(sorting);
+		}
+	}, [apiRef, sorting]);
 
 	return (
 		<>
@@ -296,4 +302,4 @@ const AdminTable = ({
 	);
 };
 
-export default AdminTable;
+export default ManagementTable;

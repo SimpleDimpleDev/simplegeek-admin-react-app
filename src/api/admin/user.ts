@@ -1,5 +1,6 @@
 import { UserGetSchema, UserListGetSchema, UserRoleSchema, UserStateSchema } from "@schemas/User";
 
+import { DeliverySchema } from "@schemas/Delivery";
 import { adminApi } from "./root";
 import { validateData } from "@utils/validation";
 import { z } from "zod";
@@ -15,7 +16,15 @@ export const userApi = adminApi.injectEndpoints({
 			transformResponse: (response) => validateData(UserGetSchema, response),
 			providesTags: (_result, _error, { userId }) => [{ type: "User", id: userId }],
 		}),
-
+		getUserSavedDelivery: build.query<z.infer<typeof DeliverySchema>, { userId: string }>({
+			query: ({ userId }) => ({
+				url: "/admin/user/saved-delivery",
+				params: { id: userId },
+				method: "GET",
+			}),
+			transformResponse: (response) => validateData(DeliverySchema, response),
+			providesTags: (_result, _error, { userId }) => [{ type: "User", id: userId }],
+		}),
 		getUserList: build.query<z.infer<typeof UserListGetSchema>, void>({
 			query: () => ({
 				url: "/admin/user-list",
@@ -33,7 +42,7 @@ export const userApi = adminApi.injectEndpoints({
 			}),
 			invalidatesTags: (_result, _error, { id }) => [{ type: "User", id }],
 		}),
-		
+
 		updateUserState: build.mutation<void, { id: string; state: z.infer<typeof UserStateSchema> }>({
 			query: ({ id, state }) => ({
 				url: "/admin/user/state",
@@ -41,8 +50,14 @@ export const userApi = adminApi.injectEndpoints({
 				body: { id, state },
 			}),
 			invalidatesTags: (_result, _error, { id }) => [{ type: "User", id }],
-		})
+		}),
 	}),
 });
 
-export const { useGetUserQuery, useGetUserListQuery, useUpdateUserRoleMutation, useUpdateUserStateMutation } = userApi;
+export const {
+	useGetUserQuery,
+	useGetUserSavedDeliveryQuery,
+	useGetUserListQuery,
+	useUpdateUserRoleMutation,
+	useUpdateUserStateMutation,
+} = userApi;
