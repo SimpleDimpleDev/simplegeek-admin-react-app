@@ -664,13 +664,6 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 		}
 	};
 
-	const handleGenerateLink = () => {
-		const product = watch("items").at(0)?.product;
-		if (product) {
-			setValue("link", generateLink(product.title));
-		}
-	};
-
 	return (
 		<form className="gap-2 w-100 d-f fd-c" onSubmit={handleSubmit(formattedOnSubmit)} noValidate>
 			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
@@ -679,7 +672,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 						name="link"
 						control={control}
 						render={({ field, fieldState: { error } }) => (
-							<div className="gap-1 d-f fd-r">
+							<div className="gap-1 w-100 d-f fd-r">
 								<TextField
 									{...field}
 									label="Ссылка"
@@ -690,7 +683,14 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 									helperText={error?.message}
 								/>
 								<Tooltip title="Сгенерировать ссылку на основании названия продукта">
-									<IconButton onClick={handleGenerateLink}>
+									<IconButton
+										onClick={() => {
+											const product = watch("items").at(0)?.product;
+											if (product) {
+												field.onChange(generateLink(product.title));
+											}
+										}}
+									>
 										<Shortcut />
 									</IconButton>
 								</Tooltip>
