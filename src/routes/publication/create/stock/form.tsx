@@ -501,16 +501,6 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 						control={control}
 						render={({ field: { value, onChange: onLinkChange }, fieldState: { error } }) => (
 							<div className="gap-1 w-100 d-f fd-r">
-								<TextField
-									value={value}
-									onChange={(e) => onLinkChange(e.target.value)}
-									label="Ссылка"
-									required
-									variant="outlined"
-									fullWidth
-									error={!!error}
-									helperText={error?.message}
-								/>
 								<Tooltip title="Сгенерировать ссылку на основании названия продукта">
 									<IconButton
 										onClick={() => {
@@ -523,6 +513,16 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 										<Shortcut />
 									</IconButton>
 								</Tooltip>
+								<TextField
+									value={value}
+									onChange={(e) => onLinkChange(e.target.value)}
+									label="Ссылка"
+									required
+									variant="outlined"
+									fullWidth
+									error={!!error}
+									helperText={error?.message}
+								/>
 							</div>
 						)}
 					/>
