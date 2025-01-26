@@ -15,10 +15,11 @@ import {
 	Stack,
 	Switch,
 	TextField,
+	Tooltip,
 	Typography,
 } from "@mui/material";
 import { Control, Controller, FieldErrors, UseFormWatch, useFieldArray, useForm } from "react-hook-form";
-import { Delete, DragIndicator } from "@mui/icons-material";
+import { Delete, DragIndicator, Shortcut } from "@mui/icons-material";
 import { DiscountResolver, SlugResolver } from "../../utils";
 import {
 	DragDropContext,
@@ -30,10 +31,10 @@ import {
 import { useCallback, useEffect, useMemo } from "react";
 
 import { CategoryGet } from "@appTypes/Category";
-import CyrillicToTranslit from 'cyrillic-to-translit-js';
 import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
 import { PublicationCreateSchema } from "@schemas/Publication";
+import { generateLink } from "@utils/lexical";
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
 import { z } from "zod";
@@ -56,7 +57,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 	if (productIds) {
 		let categoryId;
 		const productsToAdd: ProductGet[] = [];
-		
+
 		for (const productId of productIds) {
 			const product = products.find((product) => product.id === productId);
 			if (product) {
@@ -72,9 +73,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 			}
 		}
 		if (productsToAdd.at(0)?.title) {
-			// @ts-expect-error js-library;
-			const cyrillicToTranslit = new CyrillicToTranslit()
-			defaultValues.link = cyrillicToTranslit.transform(productsToAdd[0].title, '_').toLowerCase();
+			defaultValues.link = generateLink(productsToAdd[0].title);
 		}
 		defaultValues.categoryId = categoryId || null;
 		defaultValues.items = productsToAdd.map((product) => ({
@@ -85,7 +84,7 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 			quantity: "",
 			quantityRestriction: null,
 		}));
-	} 
+	}
 	if (defaultValues.items.length === 0) {
 		defaultValues.items.push({
 			product: null,
@@ -423,7 +422,6 @@ type PublicationCreateStockFormProps = {
 	maxRating?: number;
 };
 
-
 export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProps> = ({
 	productList,
 	productListIsLoading,
@@ -494,6 +492,13 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 		}
 	};
 
+	const handleGenerateLink = () => {
+		const product = watch("items").at(0)?.product;
+		if (product) {
+			setValue("link", generateLink(product.title));
+		}
+	};
+
 	return (
 		<form className="gap-2 w-100 d-f fd-c" onSubmit={handleSubmit(formattedOnSubmit)} noValidate>
 			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
@@ -502,15 +507,22 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 						name="link"
 						control={control}
 						render={({ field, fieldState: { error } }) => (
-							<TextField
-								{...field}
-								label="Ссылка"
-								fullWidth
-								required
-								variant="outlined"
-								error={!!error}
-								helperText={error?.message}
-							/>
+							<div className="gap-1 d-f fd-r">
+								<TextField
+									{...field}
+									label="Ссылка"
+									required
+									variant="outlined"
+									fullWidth
+									error={!!error}
+									helperText={error?.message}
+								/>
+								<Tooltip title="Сгенерировать ссылку на основании названия продукта">
+									<IconButton onClick={handleGenerateLink}>
+										<Shortcut />
+									</IconButton>
+								</Tooltip>
+							</div>
 						)}
 					/>
 
