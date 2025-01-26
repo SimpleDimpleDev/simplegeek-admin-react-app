@@ -496,11 +496,11 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 		<form className="gap-2 w-100 d-f fd-c" onSubmit={handleSubmit(formattedOnSubmit)} noValidate>
 			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 				<div className="gap-2 d-f fd-r">
-					<Controller
-						name="link"
-						control={control}
-						render={({ field: { value, onChange: onLinkChange }, fieldState: { error } }) => (
-							<div className="gap-1 w-100 d-f fd-r">
+				<div className="gap-1 w-100 d-f fd-r">
+						<Controller
+							name="link"
+							control={control}
+							render={({ field: { onChange: onLinkChange } }) => (
 								<Tooltip title="Сгенерировать ссылку на основании названия продукта">
 									<IconButton
 										onClick={() => {
@@ -513,6 +513,12 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 										<Shortcut />
 									</IconButton>
 								</Tooltip>
+							)}
+						/>
+						<Controller
+							name="link"
+							control={control}
+							render={({ field: { value, onChange: onLinkChange }, fieldState: { error } }) => (
 								<TextField
 									value={value}
 									onChange={(e) => onLinkChange(e.target.value)}
@@ -523,10 +529,9 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 									error={!!error}
 									helperText={error?.message}
 								/>
-							</div>
-						)}
-					/>
-
+							)}
+						/>
+					</div>
 					<Controller
 						name="categoryId"
 						control={control}
