@@ -499,10 +499,11 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 					<Controller
 						name="link"
 						control={control}
-						render={({ field, fieldState: { error } }) => (
+						render={({ field: { value, onChange: onLinkChange }, fieldState: { error } }) => (
 							<div className="gap-1 w-100 d-f fd-r">
 								<TextField
-									{...field}
+									value={value}
+									onChange={(e) => onLinkChange(e.target.value)}
 									label="Ссылка"
 									required
 									variant="outlined"
@@ -515,7 +516,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 										onClick={() => {
 											const product = watch("items").at(0)?.product;
 											if (product) {
-												field.onChange(generateLink(product.title));
+												onLinkChange(generateLink(product.title));
 											}
 										}}
 									>
