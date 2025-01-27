@@ -1,4 +1,5 @@
-import { Button, Divider, Snackbar, Stack, Typography } from "@mui/material";
+import { Button, Divider, IconButton, Snackbar, Stack, Tooltip, Typography } from "@mui/material";
+import { ChevronLeft, OpenInNew } from "@mui/icons-material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { UserRole, UserState } from "@appTypes/User";
 import { deliveryServiceTitles, orderStatusTitles, userRoleTitles, userStateTitles } from "src/constants";
@@ -11,7 +12,6 @@ import {
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { ChevronLeft } from "@mui/icons-material";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementTable from "@components/ManagementTable";
@@ -225,7 +225,18 @@ export default function UserInspectRoute() {
 							<div className="section">
 								<Typography variant="subtitle0">Информация</Typography>
 								<Typography variant="body1">Email: {user.email}</Typography>
-								<Typography variant="body1">VK ID: {user.vkId ?? "Не подключён"}</Typography>
+								<div className="gap-1 d-f fd-r">
+									<Typography variant="body1">VK ID: {user.vkId ?? "Не подключён"}</Typography>
+									{user.vkId && (
+										<Tooltip title="Открыть в VK">
+											<IconButton
+												onClick={() => window.open(`https://vk.com/id${user.vkId}`, "_blank")}
+											>
+												<OpenInNew />
+											</IconButton>
+										</Tooltip>
+									)}
+								</div>
 								<Typography variant="body1">
 									Создан: {new Intl.DateTimeFormat("ru-RU").format(user.createdAt)}
 								</Typography>
