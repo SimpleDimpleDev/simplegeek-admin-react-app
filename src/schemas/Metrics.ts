@@ -1,8 +1,7 @@
-import { ISOToDateSchema } from "./Primitives";
 import { z } from "zod";
 
 export const DataPointSchema = z.object({
-	date: ISOToDateSchema,
+	date: z.string().date().pipe(z.coerce.date()),
 	value: z.number(),
 });
 
