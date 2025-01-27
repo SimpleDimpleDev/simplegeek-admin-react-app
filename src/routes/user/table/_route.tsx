@@ -11,6 +11,13 @@ import { userRoleTitles } from "src/constants";
 
 const columns: GridColDef<UserGet>[] = [
 	{ field: "role", headerName: "Роль", display: "flex", valueGetter: (_, row) => userRoleTitles.get(row.role) },
+	{
+		field: "isActive",
+		headerName: "Активен",
+		display: "flex",
+		type: "boolean",
+		valueGetter: (_, row) => row.state === "active",
+	},
 	{ field: "email", headerName: "Email", display: "flex" },
 	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
