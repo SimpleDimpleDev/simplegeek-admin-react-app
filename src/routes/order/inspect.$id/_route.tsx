@@ -21,7 +21,7 @@ import {
 	Typography,
 } from "@mui/material";
 import { Fragment, Suspense, lazy, useCallback, useMemo, useState } from "react";
-import { InvoiceStatusBadges, orderStatusBadges } from "@components/Badges";
+import { invoiceStatusBadges, orderStatusBadges } from "@components/Badges";
 import { useCreateOrderEventMutation, useGetOrderEventListQuery } from "@api/admin/orderEvent";
 import {
 	useGetOrderEditablePropsQuery,
@@ -72,7 +72,7 @@ const InvoiceBlock = ({ invoice }: InvoiceBlockProps) => {
 						second: "numeric",
 					}).format(invoice.createdAt)}
 				</Typography>
-				<div className="gap-1 ai-fs d-f fd-c">{InvoiceStatusBadges[invoice.status]}</div>
+				<div className="gap-1 ai-fs d-f fd-c">{invoiceStatusBadges[invoice.status]}</div>
 			</div>
 		</Paper>
 	);

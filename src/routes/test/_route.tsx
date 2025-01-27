@@ -1,7 +1,7 @@
 import { Paper, Typography } from "@mui/material";
 
 import { InvoiceGet } from "@appTypes/Payment";
-import { InvoiceStatusBadges } from "@components/Badges";
+import { invoiceStatusBadges } from "@components/Badges";
 
 const testInvoices: InvoiceGet[] = [
 	{
@@ -64,7 +64,7 @@ const InvoiceBlock = ({ invoice }: InvoiceBlockProps) => {
 					}).format(invoice.createdAt)}
 				</Typography>
 
-				<div className="gap-1 ai-fs d-f fd-c">{InvoiceStatusBadges[invoice.status]}</div>
+				<div className="gap-1 ai-fs d-f fd-c">{invoiceStatusBadges[invoice.status]}</div>
 			</div>
 		</Paper>
 	);
