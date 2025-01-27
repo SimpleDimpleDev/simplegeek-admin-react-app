@@ -1,11 +1,10 @@
+import { CircularProgress, Typography } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useGetMetricsChartsQuery, useGetMetricsSummaryQuery } from "@api/admin/metrics";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LineChart } from "@mui/x-charts";
-import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import { Typography } from "@mui/material";
 import dayjs from "dayjs";
 import { useState } from "react";
 
@@ -37,7 +36,6 @@ export default function IndexRoute() {
 
 	return (
 		<>
-			<LoadingOverlay isOpened={chartsIsFetching} />
 			<div className="px-3 pt-1 pb-4 d-f fd-c" style={{ height: "100%" }}>
 				<div className="p-2 d-f fd-r jc-sb">
 					<Typography variant="h5">Главная</Typography>
@@ -84,45 +82,57 @@ export default function IndexRoute() {
 							</div>
 							<div className="gap-1 d-f fd-c">
 								<Typography variant="subtitle0">Количество заказов</Typography>
-								<LineChart
-									{...chartProps}
-									dataset={charts.orderQuantityDataSet}
-									xAxis={[
-										{
-											id: "years",
-											dataKey: "date",
-											scaleType: "time",
-											valueFormatter: (date) => dayjs(date).format("MM-DD"),
-										},
-									]}
-									series={[
-										{
-											id: "series1",
-											dataKey: "value",
-										},
-									]}
-								/>
+								{chartsIsFetching ? (
+									<div style={{ width: 1540, height: 280 }} className="ai-c d-f jc-c">
+										<CircularProgress />
+									</div>
+								) : (
+									<LineChart
+										{...chartProps}
+										dataset={charts.orderQuantityDataSet}
+										xAxis={[
+											{
+												id: "years",
+												dataKey: "date",
+												scaleType: "utc",
+												valueFormatter: (date) => dayjs(date).format("MM-DD"),
+											},
+										]}
+										series={[
+											{
+												id: "series1",
+												dataKey: "value",
+											},
+										]}
+									/>
+								)}
 							</div>
 							<div className="gap-1 d-f fd-c">
 								<Typography variant="subtitle0">Выручка</Typography>
-								<LineChart
-									{...chartProps}
-									dataset={charts.incomeDataSet}
-									xAxis={[
-										{
-											id: "years",
-											dataKey: "date",
-											scaleType: "time",
-											valueFormatter: (date) => dayjs(date).format("MM-DD"),
-										},
-									]}
-									series={[
-										{
-											id: "series1",
-											dataKey: "value",
-										},
-									]}
-								/>
+								{chartsIsFetching ? (
+									<div style={{ width: 1540, height: 280 }} className="ai-c d-f jc-c">
+										<CircularProgress />
+									</div>
+								) : (
+									<LineChart
+										{...chartProps}
+										dataset={charts.incomeDataSet}
+										xAxis={[
+											{
+												id: "years",
+												dataKey: "date",
+												scaleType: "utc",
+												valueFormatter: (date) => dayjs(date).format("MM-DD"),
+											},
+										]}
+										series={[
+											{
+												id: "series1",
+												dataKey: "value",
+											},
+										]}
+									/>
+								)}
 							</div>
 						</div>
 					)}
