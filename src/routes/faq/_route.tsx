@@ -6,11 +6,11 @@ import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemListQ
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
-import AdminTable from "../../components/ManagementTable";
 import { FAQItemGet } from "@appTypes/FAQ";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../../components/ManagementModal";
+import ManagementTable from "../../components/ManagementTable";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
 
@@ -129,7 +129,7 @@ export default function FaqRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<AdminTable
+					<ManagementTable
 						columns={columns}
 						data={FAQItemList.items}
 						onRowSelect={setSelectedItemIds}

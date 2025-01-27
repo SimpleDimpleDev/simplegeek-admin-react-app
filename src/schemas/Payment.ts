@@ -26,19 +26,23 @@ export const CreditInfoGetSchema = z
 	})
 	.describe("CreditInfoGet");
 
+export const InvoiceStatusSchema = z.enum(["UNPAID", "WAITING", "PAID", "REFUNDED"]).describe("InvoiceStatus");
+
 export const InvoiceGetSchema = AdminGetBaseSchema.extend({
-	title: z.string().nullable(),
+	title: z.string(),
 	amount: z.number(),
-	isPaid: z.boolean(),
+	status: InvoiceStatusSchema,
 	expiresAt: ISOToDateSchema.nullable(),
 }).describe("InvoiceGet");
 
 export const CreditGetSchema = z
 	.object({
 		deposit: z.number(),
-		payments: z.object({
-			invoice: InvoiceGetSchema,
-			deadline: ISOToDateSchema,
-		}).array(),
+		payments: z
+			.object({
+				invoice: InvoiceGetSchema,
+				deadline: ISOToDateSchema,
+			})
+			.array(),
 	})
 	.describe("CreditGet");

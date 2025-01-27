@@ -3,7 +3,6 @@ import {
 	Check,
 	ChevronLeft,
 	Close,
-	Edit,
 	MessageOutlined,
 	RssFeed,
 	Settings,
@@ -15,16 +14,14 @@ import {
 	CircularProgress,
 	Divider,
 	IconButton,
-	MenuItem,
 	Paper,
-	Select,
-	SelectChangeEvent,
 	Snackbar,
 	Stack,
 	Tooltip,
 	Typography,
 } from "@mui/material";
-import { Suspense, lazy, useCallback, useEffect, useState } from "react";
+import { Fragment, Suspense, lazy, useCallback, useMemo, useState } from "react";
+import { invoiceStatusBadges, orderStatusBadges } from "@components/Badges";
 import { useCreateOrderEventMutation, useGetOrderEventListQuery } from "@api/admin/orderEvent";
 import {
 	useGetOrderEditablePropsQuery,
@@ -39,17 +36,47 @@ import { useNavigate, useParams } from "react-router-dom";
 import ActionDialog from "@components/ActionDialog";
 import { DeliveryForm } from "@components/DeliveryForm";
 import { DeliveryInfo } from "./DeliveryInfo";
+import { DeliveryPackage } from "@appTypes/Delivery";
+import { DeliverySchema } from "@schemas/Delivery";
 import { EventCreateForm } from "./EventCreateForm";
+import { InvoiceGet } from "@appTypes/Payment";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "@components/ManagementModal";
 import { OrderStatus } from "@appTypes/Order";
+import { SelectConfirm } from "@components/SelectConfirm";
 import { getImageUrl } from "@utils/image";
 import { getRuGoodsWord } from "@utils/lexical";
-import { orderStatusBadges } from "@components/Badges";
-import { orderStatusTitles } from "src/constants";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useSnackbar } from "@hooks/useSnackbar";
+import { z } from "zod";
+
+type InvoiceBlockProps = {
+	invoice: InvoiceGet;
+};
+
+const InvoiceBlock = ({ invoice }: InvoiceBlockProps) => {
+	return (
+		<Paper sx={{ p: 2 }}>
+			<Typography variant="subtitle0">{invoice.title}</Typography>
+			<div className="gap-1 mt-2 d-f fd-c">
+				<Typography variant="body1">Сумма: {invoice.amount}₽</Typography>
+				<Typography variant="body1">
+					Создан:{" "}
+					{new Intl.DateTimeFormat("ru", {
+						year: "numeric",
+						month: "numeric",
+						day: "numeric",
+						hour: "numeric",
+						minute: "numeric",
+						second: "numeric",
+					}).format(invoice.createdAt)}
+				</Typography>
+				<div className="gap-1 ai-fs d-f fd-c">{invoiceStatusBadges[invoice.status]}</div>
+			</div>
+		</Paper>
+	);
+};
 
 const OrderCDEKSection = lazy(() => import("./CDEKSection"));
 
@@ -58,14 +85,18 @@ export default function OrderInspectRoute() {
 	const params = useParams();
 	const orderId = params.id;
 	if (!orderId) throw new Response("No order id provided", { status: 404 });
-	const { data: order, isLoading: orderIsLoading } = useGetOrderQuery({ orderId });
+	const { data: order, isLoading: orderIsLoading, refetch: refetchOrder } = useGetOrderQuery({ orderId });
 	const { data: orderEventList, isLoading: orderEventListIsLoading } = useGetOrderEventListQuery(
 		{ orderId },
 		{
 			pollingInterval: 5000,
 		}
 	);
-	const { data: editableProps, isLoading: editablePropsIsLoading } = useGetOrderEditablePropsQuery(
+	const {
+		data: editableProps,
+		isLoading: editablePropsIsLoading,
+		refetch: refetchEditableProps,
+	} = useGetOrderEditablePropsQuery(
 		{
 			orderId,
 		},
@@ -124,47 +155,17 @@ export default function OrderInspectRoute() {
 
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
-	const [eventCreateModalOpened, setEventCreateModalOpened] = useState(false);
 	const [selfPickupIssueConfirmDialogOpened, setSelfPickupIssueConfirmDialogOpened] = useState(false);
 	const [refundConfirmDialogOpened, setRefundConfirmDialogOpened] = useState(false);
+	const [eventCreateModalOpened, setEventCreateModalOpened] = useState(false);
 
-	const [statusEditing, setStatusEditing] = useState(false);
-	const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "UNDEFINED">("UNDEFINED");
-
-	useEffect(() => {
-		if (order) {
-			setSelectedStatus(order.status);
-		}
-	}, [order]);
-
-	const handleCloseEventCreateModal = useCallback(() => {
-		setEventCreateModalOpened(false);
-	}, []);
-
-	const handleStartEditStatus = () => {
-		setStatusEditing(true);
-	};
-
-	const handleSelectStatus = (event: SelectChangeEvent) => {
-		if (!statusEditing) return;
-		setSelectedStatus(event.target.value as OrderStatus);
-	};
-
-	const handleSaveStatus = () => {
-		if (!statusEditing) return;
+	const handleSaveStatus = (status: OrderStatus) => {
 		if (!order) return;
-		if (selectedStatus === "UNDEFINED") return;
 		updateStatus({
 			id: order.id,
-			status: selectedStatus,
+			status,
 		});
-		setStatusEditing(false);
 	};
-
-	const handleCancelEditStatus = useCallback(() => {
-		setSelectedStatus(order?.status ?? "UNDEFINED");
-		setStatusEditing(false);
-	}, [order?.status]);
 
 	const handleIssueSelfPickup = () => {
 		if (!order) return;
@@ -175,6 +176,38 @@ export default function OrderInspectRoute() {
 		if (!order) return;
 		refundOrder({ orderId: order.id });
 	};
+
+	const handleCloseEventCreateModal = useCallback(() => {
+		setEventCreateModalOpened(false);
+	}, []);
+
+	const handleUpdateDelivery = useCallback(
+		(data: z.infer<typeof DeliverySchema>) => {
+			if (!order) return;
+			updateDelivery({
+				id: order.id,
+				delivery: data,
+			});
+		},
+		[order, updateDelivery]
+	);
+
+	const refetchData = useCallback(() => {
+		refetchOrder();
+		refetchEditableProps();
+	}, [refetchEditableProps, refetchOrder]);
+
+	const packages: DeliveryPackage[] = useMemo(() => {
+		const packages: DeliveryPackage[] = [];
+		if (!order) return packages;
+		for (const item of order.items) {
+			if (!item.physicalProperties) continue;
+			for (let i = 0; i < item.quantity; i++) {
+				packages.push(item.physicalProperties);
+			}
+		}
+		return packages;
+	}, [order]);
 
 	useMutationFeedback({
 		title: "Создание события",
@@ -191,7 +224,7 @@ export default function OrderInspectRoute() {
 		isError: statusUpdateIsError,
 		error: statusUpdateError,
 		feedbackFn: showSnackbarMessage,
-		errorAction: handleCancelEditStatus,
+		successAction: refetchData,
 	});
 
 	useMutationFeedback({
@@ -200,6 +233,7 @@ export default function OrderInspectRoute() {
 		isError: deliveryUpdateIsError,
 		error: deliveryUpdateError,
 		feedbackFn: showSnackbarMessage,
+		successAction: refetchData,
 	});
 
 	useMutationFeedback({
@@ -210,6 +244,7 @@ export default function OrderInspectRoute() {
 		feedbackFn: showSnackbarMessage,
 		successAction: () => {
 			setSelfPickupIssueConfirmDialogOpened(false);
+			refetchData();
 		},
 	});
 
@@ -221,6 +256,7 @@ export default function OrderInspectRoute() {
 		feedbackFn: showSnackbarMessage,
 		successAction: () => {
 			setRefundConfirmDialogOpened(false);
+			refetchData();
 		},
 	});
 
@@ -283,64 +319,57 @@ export default function OrderInspectRoute() {
 						</div>
 					) : (
 						<div className="gap-2 d-f fd-c">
+							{/* Main info */}
 							<Typography variant="h5">
 								Заказ от {new Intl.DateTimeFormat("ru").format(order.createdAt)}
 							</Typography>
-
-							{/* Main info */}
 							<div className="gap-1 pt-2 d-f fd-c">
+								<Typography variant="subtitle0">
+									Тип: {order.preorder ? `Предзаказ ${order.preorder.title}` : "Розница"}
+								</Typography>
 								<Typography variant="subtitle0" sx={{ color: "typography.secondary" }}>
 									ID: {order.id}
 								</Typography>
-
-								{/* Status */}
-								<div className="gap-2 ai-c d-f fd-r">
-									<Typography variant="subtitle0">Статус</Typography>
-
-									<Select
-										disabled={!statusEditing}
-										value={selectedStatus}
-										onChange={handleSelectStatus}
-									>
-										{Array.from(orderStatusTitles.entries()).map(([status]) => (
-											<MenuItem
-												disabled={!editableProps.statuses.includes(status)}
-												value={status}
-											>
-												{orderStatusBadges[status]}
-											</MenuItem>
-										))}
-									</Select>
-
-									{statusEditing ? (
-										<>
-											<IconButton sx={{ color: "success.main" }} onClick={handleSaveStatus}>
-												<Check />
-											</IconButton>
-											<IconButton sx={{ color: "error.main" }} onClick={handleCancelEditStatus}>
-												<Close />
-											</IconButton>
-										</>
-									) : (
-										<IconButton onClick={handleStartEditStatus}>
-											<Edit />
-										</IconButton>
-									)}
-								</div>
-
-								<div className="w-mc">
-									<Button
-										variant="contained"
-										color="error"
-										onClick={() => setRefundConfirmDialogOpened(true)}
-										sx={{ color: "white" }}
-									>
-										Вернуть заказ
-									</Button>
-								</div>
 							</div>
 
 							<div className="gap-2 d-f fd-r">
+								{/* Status */}
+								<Paper sx={{ p: 2, width: "310px" }}>
+									<div className="gap-1 h-100 d-f fd-c jc-sb">
+										<div>
+											<Typography variant="subtitle0">Статус</Typography>
+											<SelectConfirm
+												options={Object.entries(orderStatusBadges)
+													.filter(
+														([status]) =>
+															editableProps.statuses.includes(status as OrderStatus) ||
+															status === order.status
+													)
+													.map(
+														([status, badge]) =>
+															({ value: status, label: badge } as {
+																value: OrderStatus;
+																label: JSX.Element;
+															})
+													)}
+												defaultOption={order.status}
+												onConfirm={(status) => handleSaveStatus(status)}
+											/>
+										</div>
+										<div className="w-mc">
+											<Button
+												disabled={!editableProps.isRefundable}
+												variant="contained"
+												color="error"
+												onClick={() => setRefundConfirmDialogOpened(true)}
+												sx={{ color: "white" }}
+											>
+												Вернуть заказ
+											</Button>
+										</div>
+									</div>
+								</Paper>
+
 								{/* User */}
 								<Paper sx={{ p: 2, width: "max-content" }}>
 									<div className="gap-1 h-100 d-f fd-c">
@@ -418,33 +447,7 @@ export default function OrderInspectRoute() {
 								)}
 
 								{/* Initial Payment(Deposit) */}
-								<Paper sx={{ p: 2 }}>
-									<Typography variant="subtitle0">
-										{order.initialInvoice.title ?? "Депозит"}
-									</Typography>
-									<div className="gap-1 mt-2 d-f fd-c">
-										<Typography variant="body1">Сумма: {order.initialInvoice.amount}₽</Typography>
-										<Typography variant="body1">
-											Создан:{" "}
-											{new Intl.DateTimeFormat("ru", {
-												year: "numeric",
-												month: "numeric",
-												day: "numeric",
-												hour: "numeric",
-												minute: "numeric",
-												second: "numeric",
-											}).format(order.initialInvoice.createdAt)}
-										</Typography>
-										<div className="gap-1 ai-c d-f fd-r">
-											<Typography variant="body1">Оплачено:</Typography>
-											{order.initialInvoice.isPaid ? (
-												<Check sx={{ color: "success.main" }} />
-											) : (
-												<Close sx={{ color: "error.main" }} />
-											)}
-										</div>
-									</div>
-								</Paper>
+								<InvoiceBlock invoice={order.initialInvoice} />
 							</div>
 
 							<div className="gap-2 d-f fd-r">
@@ -455,14 +458,8 @@ export default function OrderInspectRoute() {
 											editableProps.delivery ? (
 												<DeliveryForm
 													delivery={order.delivery}
-													onChange={(data) => {
-														updateDelivery({
-															id: order.id,
-															delivery: data,
-														});
-													}}
-													// TODO: Add packages
-													packages={[]}
+													onChange={handleUpdateDelivery}
+													packages={packages}
 												/>
 											) : (
 												<DeliveryInfo delivery={order.delivery} />
@@ -525,8 +522,8 @@ export default function OrderInspectRoute() {
 									</Paper>
 								</div>
 
+								{/* Events */}
 								<div className="gap-2 d-f fd-c" style={{ width: "40%" }}>
-									{/* Events */}
 									<Paper sx={{ p: 2 }}>
 										<div className="pb-2 ai-c d-f fd-r jc-sb">
 											<Typography variant="subtitle0">События</Typography>
@@ -589,7 +586,14 @@ export default function OrderInspectRoute() {
 															</Typography>
 														</div>
 
-														<Typography variant="body1">{event.message}</Typography>
+														<Typography variant="body1">
+															{event.message.split("|").map((line) => (
+																<Fragment key={index}>
+																	{line}
+																	<br />
+																</Fragment>
+															))}
+														</Typography>
 													</div>
 												))
 											)}

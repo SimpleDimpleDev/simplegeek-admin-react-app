@@ -20,10 +20,7 @@ export const publicationApi = adminApi.injectEndpoints({
 				body: data,
 			}),
 			transformResponse: (response) => validateData(CreateResponseSchema, response),
-			invalidatesTags: (_result, _error, data) => [
-				...data.items.map((item) => ({ type: "Product" as const, id: item.productId })),
-				{ type: "Publication" },
-			],
+			invalidatesTags: ["Product", "Publication"],
 		}),
 
 		getPublication: build.query<z.infer<typeof PublicationGetSchema>, { publicationId: string }>({
@@ -33,16 +30,20 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "GET",
 			}),
 			transformResponse: (response) => validateData(PublicationGetSchema, response),
-			providesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
 		}),
 
-		getPublicationList: build.query<z.infer<typeof PublicationListGetSchema>, void>({
-			query: () => ({
+		getPublicationList: build.query<z.infer<typeof PublicationListGetSchema>, { preorderId?: string } | void>({
+			query: (args) => ({
 				url: "/admin/publication-list",
 				method: "GET",
+				params: args
+					? {
+							preorderId: args.preorderId,
+					  }
+					: {},
 			}),
 			transformResponse: (response) => validateData(PublicationListGetSchema, response),
-			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Publication", id: item.id })),
+			providesTags: ["Publication"],
 		}),
 
 		updatePublication: build.mutation<void, z.infer<typeof PublicationUpdateSchema>>({
@@ -51,7 +52,7 @@ export const publicationApi = adminApi.injectEndpoints({
 				url: "/admin/publication",
 				body: data,
 			}),
-			invalidatesTags: (_result, _error, data) => [{ type: "Publication", id: data.id }],
+			invalidatesTags: ["Publication"],
 		}),
 
 		deletePublication: build.mutation<void, { publicationId: string }>({
@@ -60,7 +61,7 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "DELETE",
 				params: { id: publicationId },
 			}),
-			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
+			invalidatesTags: ["Publication"],
 		}),
 
 		getMaxRating: build.query<z.infer<typeof MaxRatingGetSchema>, void>({
@@ -81,7 +82,7 @@ export const publicationApi = adminApi.injectEndpoints({
 				body: data,
 				params: { publicationId, isActive },
 			}),
-			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
+			invalidatesTags: ["Product", "Publication"],
 		}),
 
 		updateCatalogItem: build.mutation<
@@ -93,7 +94,7 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "PUT",
 				body: data,
 			}),
-			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
+			invalidatesTags: ["Publication"],
 		}),
 
 		deleteCatalogItem: build.mutation<void, { publicationId: string; variationId: string }>({
@@ -102,7 +103,7 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "DELETE",
 				params: { id: variationId },
 			}),
-			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
+			invalidatesTags: ["Publication"],
 		}),
 
 		activateCatalogItem: build.mutation<void, { publicationId: string; variationId: string }>({
@@ -111,7 +112,7 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				params: { id: variationId },
 			}),
-			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
+			invalidatesTags: ["Publication"],
 		}),
 
 		deactivateCatalogItem: build.mutation<void, { publicationId: string; variationId: string }>({
@@ -120,7 +121,7 @@ export const publicationApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				params: { id: variationId },
 			}),
-			invalidatesTags: (_result, _error, { publicationId }) => [{ type: "Publication", id: publicationId }],
+			invalidatesTags: ["Publication"],
 		}),
 	}),
 });

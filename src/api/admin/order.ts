@@ -1,6 +1,7 @@
 import {
 	OrderEditablePropsGetSchema,
 	OrderGetSchema,
+	OrderListFilterSchema,
 	OrderListGetSchema,
 	OrderUpdateDeliverySchema,
 	OrderUpdateStatusSchema,
@@ -19,18 +20,25 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "GET",
 			}),
 			transformResponse: (response) => validateData(OrderGetSchema, response),
-			providesTags: (_result, _error, { orderId }) => [{ type: "Order", id: orderId }],
 		}),
-
-		getOrderList: build.query<z.infer<typeof OrderListGetSchema>, void>({
-			query: () => ({
+		getOrderList: build.query<z.infer<typeof OrderListGetSchema>, { filter?: z.infer<typeof OrderListFilterSchema>, userId?: string }>({
+			query: ({ filter, userId }) => ({
 				url: "/admin/order-list",
 				method: "GET",
+				params: {
+					filter,
+					userId,
+				},
 			}),
 			transformResponse: (response) => validateData(OrderListGetSchema, response),
-			providesTags: ["Order"],
+			providesTags: (_result, _error, { filter, userId }) => {
+				if (userId) {
+					return []
+				} else {
+					return [{ type: "Order", id: filter || "ALL" }]
+				}
+			},
 		}),
-
 		getOrderEditableProps: build.query<z.infer<typeof OrderEditablePropsGetSchema>, { orderId: string }>({
 			query: ({ orderId }) => ({
 				url: "/admin/order/editable-props",
@@ -46,16 +54,23 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "PATCH",
 				body,
 			}),
-			invalidatesTags: (_result, _error, { id }) => [{ type: "Order", id }],
+			invalidatesTags: ["Order"],
 		}),
-
+		makeSelfPickupReady: build.mutation<void, { ids: string[] }>({
+			query: ({ ids }) => ({
+				url: "/admin/order/self-pickup-ready",
+				method: "PATCH",
+				body: { ids },
+			}),
+			invalidatesTags: ["Order"],
+		}),
 		updateOrderDelivery: build.mutation<void, z.infer<typeof OrderUpdateDeliverySchema>>({
 			query: (body) => ({
 				url: "/admin/order/delivery",
 				method: "PATCH",
 				body,
 			}),
-			invalidatesTags: (_result, _error, { id }) => [{ type: "Order", id }],
+			invalidatesTags: ["Order"],
 		}),
 
 		issueSelfPickupOrders: build.mutation<void, { orderIds: string[] }>({
@@ -64,7 +79,7 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "POST",
 				body: { orderIds },
 			}),
-			invalidatesTags: (_result, _error, { orderIds }) => orderIds.map((id) => ({ type: "Order", id })),
+			invalidatesTags: ["Order"],
 		}),
 
 		refundOrder: build.mutation<void, { orderId: string }>({
@@ -73,7 +88,7 @@ export const orderApi = adminApi.injectEndpoints({
 				method: "POST",
 				body: { orderId },
 			}),
-			invalidatesTags: (_result, _error, { orderId }) => [{ type: "Order", id: orderId }],
+			invalidatesTags: ["Order"],
 		}),
 	}),
 });
@@ -82,8 +97,9 @@ export const {
 	useGetOrderQuery,
 	useGetOrderListQuery,
 	useGetOrderEditablePropsQuery,
-	
+
 	useUpdateOrderDeliveryMutation,
+	useMakeSelfPickupReadyMutation,
 	useUpdateOrderStatusMutation,
 
 	useIssueSelfPickupOrdersMutation,

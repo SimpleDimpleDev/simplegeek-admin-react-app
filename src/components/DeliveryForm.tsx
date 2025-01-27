@@ -3,7 +3,7 @@ import { CDEKDeliveryInfo, CDEKWidget } from "./widgets/cdek";
 import { Controller, useForm } from "react-hook-form";
 import { Delivery, DeliveryPackage, DeliveryPoint, DeliveryService, Recipient } from "@appTypes/Delivery";
 import { MuiTelInput, matchIsValidTel } from "mui-tel-input";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { CDEKDeliveryData } from "@appTypes/CDEK";
 import { CardRadio } from "./CardRadio";
@@ -53,14 +53,14 @@ const DeliveryFormResolver = z
 		}
 	);
 
-interface DeliveryFormProps {
+export interface DeliveryFormProps {
 	delivery?: Delivery;
 	onChange: (data: z.infer<typeof DeliverySchema>) => void;
 	packages: DeliveryPackage[];
 	isMobile?: boolean;
 }
 
-const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, delivery, isMobile }) => {
+const DeliveryForm: React.FC<DeliveryFormProps> = React.memo(({ packages, onChange, delivery, isMobile }) => {
 	const {
 		control,
 		watch,
@@ -96,6 +96,14 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 	const [cdekWidgetOpen, setCdekWidgetOpen] = useState(false);
 
 	useEffect(() => {
+		console.warn("delivery form mounted");
+	}, []);
+
+	useEffect(() => {
+		console.warn("delivery form rerendered");
+	});
+
+	useEffect(() => {
 		if (delivery) {
 			reset(delivery);
 		}
@@ -113,6 +121,10 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 
 	const handleChooseCdekAddress = (data: CDEKDeliveryData) => {
 		setValue("cdekDeliveryData", data);
+		setValue("point", {
+			code: data.address.code,
+			address: `${data.address.city}, ${data.address.address}`,
+		});
 		setCdekWidgetOpen(false);
 	};
 
@@ -300,6 +312,6 @@ const DeliveryForm: React.FC<DeliveryFormProps> = ({ packages, onChange, deliver
 			</form>
 		</>
 	);
-};
+});
 
 export { DeliveryForm };

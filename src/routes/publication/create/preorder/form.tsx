@@ -1,6 +1,6 @@
 import "dayjs/locale/ru";
 
-import { AllInclusive, Delete, DragIndicator } from "@mui/icons-material";
+import { AllInclusive, Delete, DragIndicator, Shortcut } from "@mui/icons-material";
 import {
 	Autocomplete,
 	Button,
@@ -17,6 +17,7 @@ import {
 	Select,
 	Stack,
 	TextField,
+	Tooltip,
 	Typography,
 } from "@mui/material";
 import {
@@ -28,7 +29,7 @@ import {
 	useFieldArray,
 	useForm,
 } from "react-hook-form";
-import { DiscountResolver, SlugResolver } from "../utils";
+import { DiscountResolver, SlugResolver } from "../../utils";
 import {
 	DragDropContext,
 	Draggable,
@@ -43,11 +44,11 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { CategoryGet } from "@appTypes/Category";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { PreorderGet } from "@appTypes/Preorder";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
 import { PublicationCreateSchema } from "@schemas/Publication";
 import dayjs from "dayjs";
+import { generateLink } from "@utils/lexical";
 import { getImageUrl } from "@utils/image";
 import tz from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -84,11 +85,11 @@ const CatalogItemPublishPreorderResolver = z.object({
 		.number({ message: "Укажите рейтинг" })
 		.nonnegative({ message: "Рейтинг не может быть отрицательным числом" }),
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
-	quantity: z.coerce.number().positive({ message: "Количество должно быть положительным числом" }).nullable(),
+	quantity: z.coerce.number().nonnegative({ message: "Количество не может быть отрицательным числом" }).nullable(),
 	discount: DiscountResolver.nullable(),
 	quantityRestriction: z.coerce
 		.number()
-		.positive({ message: "Количество должно быть положительным числом" })
+		.positive({ message: "Ограничение должно быть положительным числом" })
 		.nullable(),
 	isCredit: z.boolean(),
 	creditDeposit: z.coerce
@@ -106,17 +107,17 @@ const CatalogItemPublishPreorderResolver = z.object({
 });
 
 type PublicationCreatePreorderFormData = {
+	preorderId: string;
 	link: string | null;
-	preorderId: string | null;
 	categoryId: string | null;
 	items: CatalogItemPublishPreorderFormData[];
-	shippingCostIncluded: ShippingCostIncluded | null;
+	shippingCostIncluded: ShippingCostIncluded;
 	isActive: boolean;
 };
 
 const PublicationCreatePreorderResolver = z.object({
+	preorderId: z.string().min(1),
 	link: SlugResolver,
-	preorderId: z.string({ message: "Выберите предзаказ" }).min(1, { message: "Выберите предзаказ" }),
 	categoryId: z.string({ message: "Выберите категорию" }).min(1, { message: "Выберите категорию" }),
 	items: CatalogItemPublishPreorderResolver.array().nonempty({
 		message: "У публикации должен быть хотя бы один товар",
@@ -293,6 +294,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 							<FormControlLabel
 								control={
 									<Checkbox
+										// TODO: enable on full preorder
+										disabled
 										checked={quantityIsUnlimited}
 										onChange={(_, value) => {
 											if (value) {
@@ -381,6 +384,8 @@ const ItemForm: React.FC<ItemFormProps> = ({
 						label="Товар в рассрочку"
 						control={
 							<Checkbox
+								// TODO: enable on full preorder
+								disabled
 								checked={isCredit}
 								onChange={(_, checked) => {
 									if (checked) {
@@ -496,18 +501,17 @@ const ItemForm: React.FC<ItemFormProps> = ({
 };
 
 interface getDefaultFormValuesArgs {
+	preorderId: string;
 	products: ProductGet[];
 	productIds?: string[];
-	preorders: PreorderGet[];
-	preorderId?: string;
 }
 
-const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: getDefaultFormValuesArgs) => {
+const getDefaultFormValues = ({ products, productIds, preorderId }: getDefaultFormValuesArgs) => {
 	const defaultValues: PublicationCreatePreorderFormData = {
+		preorderId,
 		link: null,
 		categoryId: null,
-		preorderId: null,
-		shippingCostIncluded: null,
+		shippingCostIncluded: "FULL",
 		items: [],
 		isActive: true,
 	};
@@ -516,8 +520,9 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 		let categoryId;
 		const productsToAdd: ProductGet[] = [];
 
-		for (const product of products) {
-			if (productIds.includes(product.id)) {
+		for (const productId of productIds) {
+			const product = products.find((product) => product.id === productId);
+			if (product) {
 				const productCategoryId = product.category.id;
 				if (categoryId) {
 					if (categoryId !== productCategoryId) {
@@ -528,6 +533,9 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 				}
 				productsToAdd.push(product);
 			}
+		}
+		if (productsToAdd.at(0)?.title) {
+			defaultValues.link = generateLink(productsToAdd[0].title);
 		}
 		defaultValues.categoryId = categoryId || null;
 		defaultValues.items = productsToAdd.map((product) => ({
@@ -542,7 +550,9 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 			creditDeposit: null,
 			creditPayments: [],
 		}));
-	} else {
+	}
+
+	if (defaultValues.items.length === 0) {
 		defaultValues.items.push({
 			product: null,
 			rating: "0",
@@ -557,41 +567,28 @@ const getDefaultFormValues = ({ products, productIds, preorders, preorderId }: g
 		});
 	}
 
-	if (preorderId) {
-		const selectedPreorder = preorders.find((preorder) => preorder.id === preorderId);
-		if (selectedPreorder) {
-			defaultValues.preorderId = selectedPreorder.id;
-		}
-	}
-
 	return defaultValues;
 };
 
 type PublicationCreatePreorderFormProps = {
+	preorderId: string;
 	productList?: { items: ProductGet[] } | undefined;
 	productListIsLoading: boolean;
 	categoryList?: { items: CategoryGet[] } | undefined;
 	categoryListIsLoading: boolean;
-	preorderList?: { items: PreorderGet[] } | undefined;
-	preorderListIsLoading: boolean;
 	onSubmit: (data: PublicationCreate) => void;
-	onDirty: () => void;
 	productIds?: string[];
-	preorderId?: string;
 	maxRating?: number;
 };
 
 export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFormProps> = ({
+	preorderId,
 	productList,
 	productListIsLoading,
 	categoryList,
 	categoryListIsLoading,
-	preorderList,
-	preorderListIsLoading,
 	onSubmit,
-	onDirty,
 	productIds,
-	preorderId,
 	maxRating,
 }) => {
 	const formattedOnSubmit = useCallback(
@@ -621,16 +618,15 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 	const {
 		control,
 		handleSubmit,
-		formState: { isDirty, errors },
+		formState: { errors },
 		setValue,
 		watch,
 	} = useForm<PublicationCreatePreorderFormData>({
 		resolver: zodResolver(PublicationCreatePreorderResolver),
 		defaultValues: getDefaultFormValues({
+			preorderId,
 			products: productList?.items || [],
 			productIds,
-			preorders: preorderList?.items || [],
-			preorderId,
 		}),
 	});
 
@@ -641,12 +637,6 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 		remove: removeVariation,
 	} = useFieldArray({ control, name: "items" });
 
-	useEffect(() => {
-		if (isDirty) {
-			onDirty();
-		}
-	}, [isDirty, onDirty]);
-
 	const publishActive = watch("isActive");
 
 	const currentCategoryId = watch("categoryId");
@@ -655,11 +645,9 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 		return productList?.items.filter((product) => product.category.id === currentCategoryId);
 	}, [currentCategoryId, productList]);
 
-	const currentItems = watch("items");
-	const selectedProducts = useMemo(
-		() => currentItems.map((itemVariation) => itemVariation.product).filter((item) => item !== null),
-		[currentItems]
-	);
+	const selectedProducts = watch("items")
+		.map((itemVariation) => itemVariation.product)
+		.filter((item) => item !== null);
 
 	useEffect(() => {
 		for (let i = 0; i < variations.length; i++) {
@@ -676,25 +664,40 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 		}
 	};
 
+	const handleGenerateLink = () => {
+		const product = watch("items").at(0)?.product;
+		if (product) {
+			const link = generateLink(product.title);
+			setValue("link", link);
+		}
+	};
+
 	return (
 		<form className="gap-2 w-100 d-f fd-c" onSubmit={handleSubmit(formattedOnSubmit)} noValidate>
 			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 				<div className="gap-2 d-f fd-r">
-					<Controller
-						name="link"
-						control={control}
-						render={({ field, fieldState: { error } }) => (
-							<TextField
-								{...field}
-								label="Ссылка"
-								required
-								variant="outlined"
-								fullWidth
-								error={!!error}
-								helperText={error?.message}
-							/>
-						)}
-					/>
+					<div className="gap-1 w-100 d-f fd-r">
+						<Tooltip title="Сгенерировать ссылку на основании названия продукта">
+							<IconButton onClick={handleGenerateLink}>
+								<Shortcut />
+							</IconButton>
+						</Tooltip>
+						<Controller
+							name="link"
+							control={control}
+							render={({ field, fieldState: { error } }) => (
+								<TextField
+									{...field}
+									label="Ссылка"
+									required
+									variant="outlined"
+									fullWidth
+									error={!!error}
+									helperText={error?.message}
+								/>
+							)}
+						/>
+					</div>
 
 					<Controller
 						name="categoryId"
@@ -726,35 +729,6 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 					/>
 
 					<Controller
-						name="preorderId"
-						control={control}
-						render={({ field, fieldState: { error } }) => (
-							<FormControl fullWidth required>
-								<InputLabel id="preorder-label">Предзаказ</InputLabel>
-								<Select
-									labelId="preorder-label"
-									label="Предзаказ"
-									variant="outlined"
-									fullWidth
-									{...field}
-									error={!!error}
-								>
-									{!preorderList || preorderListIsLoading ? (
-										<CircularProgress />
-									) : (
-										preorderList?.items.map((preorder) => (
-											<MenuItem key={preorder.id} value={preorder.id}>
-												{preorder.title}
-											</MenuItem>
-										))
-									)}
-								</Select>
-								<FormHelperText error={!!error}>{error?.message}</FormHelperText>
-							</FormControl>
-						)}
-					/>
-
-					<Controller
 						name={`shippingCostIncluded`}
 						control={control}
 						render={({ field, fieldState: { error } }) => (
@@ -763,6 +737,8 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 									Стоимость доставки включена в цену
 								</InputLabel>
 								<Select
+									// TODO: enable on full preorder
+									disabled
 									labelId={`delivery-cost-included-label`}
 									label="Стоимость доставки включена в цену"
 									variant="outlined"
@@ -770,14 +746,14 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 									{...field}
 									error={!!error}
 								>
-									<MenuItem key={"NOT"} value={"NOT"}>
-										Нет
+									<MenuItem key={"FULL"} value={"FULL"}>
+										Полная
 									</MenuItem>
 									<MenuItem key={"FOREIGN"} value={"FOREIGN"}>
 										До зарубежного склада
 									</MenuItem>
-									<MenuItem key={"FULL"} value={"FULL"}>
-										Полная
+									<MenuItem key={"NOT"} value={"NOT"}>
+										Нет
 									</MenuItem>
 								</Select>
 								<FormHelperText error={!!error}>{error?.message}</FormHelperText>

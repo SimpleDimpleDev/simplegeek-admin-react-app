@@ -30,7 +30,7 @@ export const filterGroupApi = adminApi.injectEndpoints({
 				params: { categoryId },
 			}),
 			transformResponse: (response) => validateData(FilterGroupListGetSchema, response),
-			providesTags: (result) => (result?.items || []).map((item) => ({ type: "FilterGroup", id: item.id })),
+			providesTags: ["FilterGroup"],
 		}),
 
 		updateFilterGroup: build.mutation<void, z.infer<typeof FilterGroupUpdateSchema>>({
@@ -39,7 +39,7 @@ export const filterGroupApi = adminApi.injectEndpoints({
 				method: "PUT",
 				body: filterGroup,
 			}),
-			invalidatesTags: (_result, _error, body) => [{ type: "FilterGroup", id: body.id }],
+			invalidatesTags: ["FilterGroup"],
 		}),
 
 		deleteFilterGroups: build.mutation<z.infer<typeof CreateResponseSchema>, string[]>({

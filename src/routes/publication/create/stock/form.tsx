@@ -15,11 +15,12 @@ import {
 	Stack,
 	Switch,
 	TextField,
+	Tooltip,
 	Typography,
 } from "@mui/material";
 import { Control, Controller, FieldErrors, UseFormWatch, useFieldArray, useForm } from "react-hook-form";
-import { Delete, DragIndicator } from "@mui/icons-material";
-import { DiscountResolver, SlugResolver } from "../utils";
+import { Delete, DragIndicator, Shortcut } from "@mui/icons-material";
+import { DiscountResolver, SlugResolver } from "../../utils";
 import {
 	DragDropContext,
 	Draggable,
@@ -33,6 +34,7 @@ import { CategoryGet } from "@appTypes/Category";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationCreate } from "@appTypes/Publication";
 import { PublicationCreateSchema } from "@schemas/Publication";
+import { generateLink } from "@utils/lexical";
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
 import { z } from "zod";
@@ -56,8 +58,9 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 		let categoryId;
 		const productsToAdd: ProductGet[] = [];
 
-		for (const product of products) {
-			if (productIds.includes(product.id)) {
+		for (const productId of productIds) {
+			const product = products.find((product) => product.id === productId);
+			if (product) {
 				const productCategoryId = product.category.id;
 				if (categoryId) {
 					if (categoryId !== productCategoryId) {
@@ -69,6 +72,9 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 				productsToAdd.push(product);
 			}
 		}
+		if (productsToAdd.at(0)?.title) {
+			defaultValues.link = generateLink(productsToAdd[0].title);
+		}
 		defaultValues.categoryId = categoryId || null;
 		defaultValues.items = productsToAdd.map((product) => ({
 			product,
@@ -78,7 +84,8 @@ const getDefaultFormValues = ({ products, productIds }: getDefaultFormValuesArgs
 			quantity: "",
 			quantityRestriction: null,
 		}));
-	} else {
+	}
+	if (defaultValues.items.length === 0) {
 		defaultValues.items.push({
 			product: null,
 			rating: "0",
@@ -111,11 +118,11 @@ const CatalogItemPublishStockResolver = z.object({
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
 	quantity: z.coerce
 		.number({ message: "Укажите количество" })
-		.positive({ message: "Количество должно быть положительным числом" }),
+		.nonnegative({ message: "Количество не может быть отрицательным числом" }),
 	discount: DiscountResolver.nullable(),
 	quantityRestriction: z.coerce
 		.number()
-		.positive({ message: "Количество должно быть положительным числом" })
+		.positive({ message: "Ограничение должно быть положительным числом" })
 		.nullable(),
 });
 
@@ -411,11 +418,9 @@ type PublicationCreateStockFormProps = {
 	categoryList?: { items: CategoryGet[] } | undefined;
 	categoryListIsLoading: boolean;
 	onSubmit: (data: PublicationCreate) => void;
-	onDirty: () => void;
 	productIds?: string[];
 	maxRating?: number;
 };
-
 
 export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProps> = ({
 	productList,
@@ -423,7 +428,6 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 	categoryList,
 	categoryListIsLoading,
 	onSubmit,
-	onDirty,
 	productIds,
 	maxRating,
 }) => {
@@ -446,7 +450,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 	const {
 		control,
 		handleSubmit,
-		formState: { isDirty, errors },
+		formState: { errors },
 		setValue,
 		watch,
 	} = useForm<PublicationCreateStockFormData>({
@@ -461,16 +465,9 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 		remove: removeVariation,
 	} = useFieldArray({ control, name: "items" });
 
-	useEffect(() => {
-		if (isDirty) {
-			onDirty();
-		}
-	}, [isDirty, onDirty]);
-
 	const publishActive = watch("isActive");
 
 	const currentCategoryId = watch("categoryId");
-
 	const availableProducts = useMemo(() => {
 		if (!currentCategoryId) return [];
 		return productList?.items.filter((product) => product.category.id === currentCategoryId);
@@ -483,7 +480,6 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 	useEffect(() => {
 		for (let i = 0; i < variations.length; i++) {
 			const item = watch(`items.${i}`);
-
 			if (item.product && item.product.category.id !== currentCategoryId) {
 				setValue(`items.${i}.product`, null);
 			}
@@ -496,26 +492,40 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 		}
 	};
 
+	const handleGenerateLink = () => {
+		const product = watch("items").at(0)?.product;
+		if (product) {
+			const link = generateLink(product.title);
+			setValue("link", link);
+		}
+	};
+
 	return (
 		<form className="gap-2 w-100 d-f fd-c" onSubmit={handleSubmit(formattedOnSubmit)} noValidate>
 			<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 				<div className="gap-2 d-f fd-r">
-					<Controller
-						name="link"
-						control={control}
-						render={({ field, fieldState: { error } }) => (
-							<TextField
-								{...field}
-								label="Ссылка"
-								fullWidth
-								required
-								variant="outlined"
-								error={!!error}
-								helperText={error?.message}
-							/>
-						)}
-					/>
-
+					<div className="gap-1 w-100 d-f fd-r">
+						<Tooltip title="Сгенерировать ссылку на основании названия продукта">
+							<IconButton onClick={handleGenerateLink}>
+								<Shortcut />
+							</IconButton>
+						</Tooltip>
+						<Controller
+							name="link"
+							control={control}
+							render={({ field, fieldState: { error } }) => (
+								<TextField
+									{...field}
+									label="Ссылка"
+									required
+									variant="outlined"
+									fullWidth
+									error={!!error}
+									helperText={error?.message}
+								/>
+							)}
+						/>
+					</div>
 					<Controller
 						name="categoryId"
 						control={control}

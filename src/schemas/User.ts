@@ -10,12 +10,14 @@ export const UserIdentitySchema = z
 	.describe("UserIdentity");
 
 export const UserRoleSchema = z.enum(["Admin", "Customer"]);
+export const UserStateSchema = z.enum(["active", "inactive"]);
 
 export const UserGetSchema = AdminGetBaseSchema.extend({
 	email: z.string(),
 	verified: z.boolean(),
 	vkId: z.string().nullable(),
 	role: UserRoleSchema,
+	state: UserStateSchema,
 }).describe("UserGet");
 
 export const UserListGetSchema = z

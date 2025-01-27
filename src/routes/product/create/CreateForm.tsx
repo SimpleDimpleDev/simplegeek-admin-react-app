@@ -20,7 +20,7 @@ import {
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Delete, DragIndicator, Edit } from "@mui/icons-material";
 import { DragDropContext, Draggable, DropResult, Droppable } from "react-beautiful-dnd";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 import CanvasPreview from "@components/CanvasPreview";
 import { CategoryGet } from "@appTypes/Category";
@@ -32,13 +32,14 @@ import { ImageEditPropsSchema } from "@schemas/Admin";
 import { ImageEditor } from "@components/ImageEditor";
 import type { ProductCreate } from "@appTypes/Product";
 import { ProductCreateSchema } from "@schemas/Product";
+import { ProductTemplateGet } from "@appTypes/ProductTemplate";
 import { getImageUrl } from "@utils/image";
 import { handleIntChange } from "@utils/forms";
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// TODO: preorder feature
+// TODO: Optional physical properties feature
 // Checkbox,
 // FormControlLabel,
 
@@ -118,6 +119,8 @@ const ProductCreateResolver = z.object({
 
 interface ProductCreateFormProps {
 	onSubmit: (data: ProductCreate) => void;
+	templateList?: { items: ProductTemplateGet[] } | undefined;
+	templateListIsLoading?: boolean;
 	categoryList?: { items: CategoryGet[] } | undefined;
 	categoryListIsLoading?: boolean;
 	fetchFilterGroupList: (data: { categoryId: string }) => void;
@@ -128,6 +131,8 @@ interface ProductCreateFormProps {
 
 export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 	onSubmit,
+	templateList,
+	templateListIsLoading,
 	categoryList,
 	categoryListIsLoading,
 	fetchFilterGroupList,
@@ -182,9 +187,13 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 	const selectedFilterGroups = watch("filterGroups");
 	const selectedPhysicalProperties = watch("physicalProperties");
 
+	const [selectedTemplate, setSelectedTemplate] = useState<ProductTemplateGet | null>(null);
+
 	const [imageFilesUploadedFlow, setImageFilesUploadedFlow] = useState<File[]>([]);
 	const [imageEditor, setImageEditor] = useState<ImageEditorState | null>(null);
 	const [imageResolutionTooLowSnackbarOpen, setImageResolutionTooLowSnackbarOpen] = useState(false);
+
+	const usingTemplate = useRef(false);
 
 	useEffect(() => {
 		const updateLoadedFilterGroups = async () => {
@@ -193,7 +202,11 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 			}
 		};
 		const resetFilterGroups = () => {
-			setValue("filterGroups", []);
+			if (usingTemplate.current) {
+				usingTemplate.current = false;
+			} else {
+				setValue("filterGroups", []);
+			}
 			updateLoadedFilterGroups();
 		};
 
@@ -265,8 +278,43 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 		}
 	};
 
+	const handleUseTemplate = useCallback(() => {
+		if (selectedTemplate === null) return;
+		usingTemplate.current = true;
+		if (selectedTemplate.data.categoryId) setValue("categoryId", selectedTemplate.data.categoryId);
+		if (selectedTemplate.data.title) setValue("title", selectedTemplate.data.title);
+		if (selectedTemplate.data.description) setValue("description", selectedTemplate.data.description);
+		if (selectedTemplate.data.physicalProperties)
+			setValue("physicalProperties", {
+				width: selectedTemplate.data.physicalProperties.width.toString(),
+				height: selectedTemplate.data.physicalProperties.height.toString(),
+				length: selectedTemplate.data.physicalProperties.length.toString(),
+				weight: selectedTemplate.data.physicalProperties.weight.toString(),
+			});
+		if (selectedTemplate.data.filterGroups.length) setValue("filterGroups", selectedTemplate.data.filterGroups);
+		setSelectedTemplate(null);
+	}, [selectedTemplate, setValue]);
+
 	return (
 		<>
+			<div className="gap-2 bg-primary pr-1 ai-c br-2 d-f fd-r ps-a" style={{ right: "24px", minWidth: 400 }}>
+				<Autocomplete
+					fullWidth
+					options={templateList?.items || []}
+					loading={templateListIsLoading}
+					loadingText="Загрузка..."
+					getOptionLabel={(option) => option.title}
+					renderInput={(params) => <TextField {...params} variant="outlined" fullWidth label="Шаблон" />}
+					value={selectedTemplate}
+					onChange={(_event, newValue) => {
+						setSelectedTemplate(newValue);
+					}}
+				/>
+				<Button variant="contained" disabled={selectedTemplate === null} onClick={handleUseTemplate}>
+					Применить
+				</Button>
+			</div>
+
 			<Modal
 				sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
 				open={!!imageEditor}
@@ -381,7 +429,7 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 				<div className="gap-1 bg-primary p-3 br-3 d-f fd-c">
 					<Typography variant="h5">Физические свойства</Typography>
 					<div className="gap-2 d-f fd-c">
-						{/* TODO: Preorder feature */}
+						{/* // TODO: Optional physical properties feature */}
 						{/* <Controller
 							name="physicalProperties"
 							control={control}
@@ -417,6 +465,28 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 						) : (
 							<div className="gap-2 d-f fd-r">
 								<Controller
+									name="physicalProperties.length"
+									control={control}
+									render={({ field: { onChange, value }, fieldState: { error } }) => (
+										<TextField
+											type="string"
+											label="Длина, сантиметров"
+											variant="outlined"
+											fullWidth
+											value={value}
+											onChange={handleIntChange(onChange)}
+											error={!!error}
+											helperText={error?.message}
+											slotProps={{
+												input: {
+													endAdornment: <Typography variant="body1">см</Typography>,
+												},
+											}}
+										/>
+									)}
+								/>
+
+								<Controller
 									name="physicalProperties.width"
 									control={control}
 									render={({ field: { onChange, value }, fieldState: { error } }) => (
@@ -445,28 +515,6 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 										<TextField
 											type="string"
 											label="Высота, сантиметров"
-											variant="outlined"
-											fullWidth
-											value={value}
-											onChange={handleIntChange(onChange)}
-											error={!!error}
-											helperText={error?.message}
-											slotProps={{
-												input: {
-													endAdornment: <Typography variant="body1">см</Typography>,
-												},
-											}}
-										/>
-									)}
-								/>
-
-								<Controller
-									name="physicalProperties.length"
-									control={control}
-									render={({ field: { onChange, value }, fieldState: { error } }) => (
-										<TextField
-											type="string"
-											label="Длина, сантиметров"
 											variant="outlined"
 											fullWidth
 											value={value}
@@ -556,7 +604,11 @@ export const ProductCreateForm: React.FC<ProductCreateFormProps> = ({
 						<Typography variant="body2" sx={{ color: "typography.secondary" }}>
 							Для смены перетащите файл на нужное место
 						</Typography>
-						{errors.images && <Typography sx={{ color: "typography.error" }} variant="body2">{errors.images.message}</Typography>}
+						{errors.images && (
+							<Typography sx={{ color: "typography.error" }} variant="body2">
+								{errors.images.message}
+							</Typography>
+						)}
 					</div>
 
 					<DragDropContext onDragEnd={handleDragImage}>

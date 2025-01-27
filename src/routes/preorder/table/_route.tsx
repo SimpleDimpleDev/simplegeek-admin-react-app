@@ -4,10 +4,10 @@ import { useCallback, useMemo, useState } from "react";
 import { useCreatePreorderMutation, useGetPreorderListQuery } from "@api/admin/preorder";
 
 import { Add } from "@mui/icons-material";
-import AdminTable from "@components/ManagementTable";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "@components/ManagementModal";
+import ManagementTable from "@components/ManagementTable";
 import { PreorderCreateForm } from "./CreateForm";
 import { PreorderGet } from "@appTypes/Preorder";
 import { preorderStatusBadges } from "@components/Badges";
@@ -39,6 +39,7 @@ const columns: GridColDef<PreorderGet>[] = [
 export default function PreorderTableRoute() {
 	const navigate = useNavigate();
 	const { data: preorderList, isLoading: preorderListIsLoading } = useGetPreorderListQuery();
+
 	const [
 		createPreorder,
 		{
@@ -102,7 +103,7 @@ export default function PreorderTableRoute() {
 							<Typography variant="h5">Что-то пошло не так</Typography>
 						</div>
 					) : (
-						<AdminTable
+						<ManagementTable
 							columns={columns}
 							data={preorderList.items}
 							onRowSelect={setSelectedItemIds}

@@ -1,14 +1,19 @@
-import { Button, Typography } from "@mui/material";
-import { GridColDef, GridFilterItem, GridRowSelectionModel } from "@mui/x-data-grid";
+import { Button, Snackbar, Tooltip, Typography } from "@mui/material";
+import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { deliveryServiceTitles, orderStatusTitles } from "src/constants";
-import { useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useCallback, useMemo, useState } from "react";
+import { useGetOrderListQuery, useMakeSelfPickupReadyMutation } from "@api/admin/order";
+import { useNavigate, useParams } from "react-router-dom";
 
-import AdminTable from "@components/ManagementTable";
+import ActionDialog from "@components/ActionDialog";
+import { Business } from "@mui/icons-material";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import ManagementTable from "@components/ManagementTable";
 import { OrderGet } from "@appTypes/Order";
+import { OrderListFilterSchema } from "@schemas/Order";
 import { orderStatusBadges } from "@components/Badges";
-import { useGetOrderListQuery } from "@api/admin/order";
+import { useMutationFeedback } from "@hooks/useMutationFeedback";
+import { useSnackbar } from "@hooks/useSnackbar";
 
 const selfPickupColumns: GridColDef<OrderGet>[] = [
 	{
@@ -63,8 +68,8 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 		headerName: "Трек номер",
 		display: "flex",
 		valueGetter: (_, row) => {
-			return row.delivery?.tracking?.code || "-"
-		}
+			return row.delivery?.tracking?.code || "-";
+		},
 	},
 	{
 		field: "orderType",
@@ -112,10 +117,25 @@ const selfPickupColumns: GridColDef<OrderGet>[] = [
 
 export default function OrderTableRoute() {
 	const navigate = useNavigate();
-	const [params] = useSearchParams();
-	const inspectedUserEmail = params.get("userEmail");
 
-	const { data: orderList, isLoading: orderListIsLoading } = useGetOrderListQuery();
+	const { filterString } = useParams();
+
+	const orderListFilter = useMemo(() => {
+		let filter;
+		if (filterString !== undefined) {
+			const filterParseResult = OrderListFilterSchema.safeParse(filterString);
+			if (filterParseResult.success) {
+				filter = filterParseResult.data;
+			}
+		}
+		return filter;
+	}, [filterString]);
+
+	const {
+		data: orderList,
+		isLoading: orderListIsLoading,
+		isFetching: orderListIsFetching,
+	} = useGetOrderListQuery({ filter: orderListFilter });
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
@@ -125,40 +145,57 @@ export default function OrderTableRoute() {
 		return orderList?.items.find((order) => order.id === selectedItemId) || null;
 	}, [selectedItemIds, orderList]);
 
-	const initialFilters: GridFilterItem[] = useMemo(() => {
-		const filters: GridFilterItem[] = [];
-		if (inspectedUserEmail) {
-			filters.push({
-				field: "user",
-				value: inspectedUserEmail,
-				operator: "equals",
-			});
+	const [makeSelfPickupReadyConfirmDialogOpen, setMakeSelfPickupReadyConfirmDialogOpen] = useState(false);
+
+	const closeMakeSelfPickupReadyConfirmDialog = useCallback(() => setMakeSelfPickupReadyConfirmDialogOpen(false), []);
+
+	const makeSelfPickupReadyEnabled: boolean = useMemo(() => {
+		if (selectedItemIds.length == 0) return false;
+		for (const itemId of selectedItemIds) {
+			const order = orderList?.items.find((order) => order.id === itemId);
+			if (!order?.delivery) return false;
+			if (order.status !== "ACCEPTED") return false;
+			if (order.delivery.service !== "SELF_PICKUP") return false;
 		}
-		return filters;
-	}, [inspectedUserEmail]);
+		return true;
+	}, [selectedItemIds, orderList]);
+
+	const [
+		makeSelfPickupReady,
+		{
+			isSuccess: makeSelfPickupReadyIsSuccess,
+			isError: makeSelfPickupReadyIsError,
+			error: makeSelfPickupReadyError,
+		},
+	] = useMakeSelfPickupReadyMutation();
+
+	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
+
+	useMutationFeedback({
+		title: "Сделать готовыми для самовывоза",
+		isSuccess: makeSelfPickupReadyIsSuccess,
+		isError: makeSelfPickupReadyIsError,
+		error: makeSelfPickupReadyError,
+		feedbackFn: showSnackbarMessage,
+		successAction: closeMakeSelfPickupReadyConfirmDialog,
+	});
+
+	const handleMakeSelfPickupReady = () => {
+		if (!makeSelfPickupReadyEnabled) return;
+		makeSelfPickupReady({ ids: selectedItemIds.map(String) });
+	};
 
 	return (
 		<div className="px-3 pt-1 pb-4 h-100v d-f fd-c">
-			{/* <Snackbar
-				open={successSnackBarOpened}
-				autoHideDuration={4000}
-				onClose={() => setSuccessSnackBarOpened(false)}
-				message="Изменения сохранены"
-			/> */}
-			{/* <ActionDialog
-				title="Удалить выбранные категории?"
-				helperText="После удаления отменить действие будет невозможно"
-				opened={deletionDialogOpened}
-				onClose={() => setDeletionDialogOpened(false)}
-				confirmButton={{
-					text: "Удалить",
-					onClick: () => console.log("Submit deletion", selectedItemIds),
-				}}
-				declineButton={{
-					text: "Отмена",
-				}}
-			/> */}
-
+			<Snackbar open={snackbarOpened} onClose={closeSnackbar} message={snackbarMessage} />
+			<ActionDialog
+				opened={makeSelfPickupReadyConfirmDialogOpen}
+				onClose={() => setMakeSelfPickupReadyConfirmDialogOpen(false)}
+				title="Сделать готовыми для самовывоза?"
+				helperText="Вы уверены, что хотите сделать выбранные заказы готовыми для самовывоза?"
+				confirmButton={{ text: "Да", onClick: handleMakeSelfPickupReady }}
+				declineButton={{ text: "Нет", onClick: closeMakeSelfPickupReadyConfirmDialog }}
+			/>
 			<div className="p-2 d-f fd-r jc-sb">
 				<div>
 					<Typography variant="h5">Заказы</Typography>
@@ -167,18 +204,37 @@ export default function OrderTableRoute() {
 					</Typography>
 				</div>
 			</div>
-			<LoadingSpinner isLoading={orderListIsLoading}>
+			<LoadingSpinner isLoading={orderListIsLoading || orderListIsFetching}>
 				{!orderList ? (
 					<div className="w-100 h-100v ai-c d-f jc-c">
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<AdminTable
+					<ManagementTable
 						columns={selfPickupColumns}
 						data={orderList.items}
 						onRowSelect={setSelectedItemIds}
 						selectedRows={selectedItemIds}
-						initialFilters={initialFilters}
+						sorting={
+							orderListFilter === "ACTION_REQUIRED"
+								? [{ field: "createdAt", sort: "asc" }]
+								: [{ field: "createdAt", sort: "desc" }]
+						}
+						headerButtons={
+							<>
+								{orderListFilter === "ACTION_REQUIRED" && (
+									<Tooltip title="Сделать готовыми для самовывоза.">
+										<Button
+											variant="contained"
+											disabled={!makeSelfPickupReadyEnabled}
+											onClick={() => setMakeSelfPickupReadyConfirmDialogOpen(true)}
+										>
+											<Business />
+										</Button>
+									</Tooltip>
+								)}
+							</>
+						}
 						leftHeaderButtons={
 							<>
 								<Button

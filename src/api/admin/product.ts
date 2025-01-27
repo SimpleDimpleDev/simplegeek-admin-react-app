@@ -2,6 +2,7 @@ import {
 	ProductAddImageSchema,
 	ProductCreateSchema,
 	ProductGetSchema,
+	ProductListFilterSchema,
 	ProductListGetSchema,
 	ProductUpdateSchema,
 } from "@schemas/Product";
@@ -47,7 +48,6 @@ export const productApi = adminApi.injectEndpoints({
 			transformResponse: (response) => validateData(CreateResponseSchema, response),
 			invalidatesTags: ["Product"],
 		}),
-
 		getProduct: build.query<z.infer<typeof ProductGetSchema>, { productId: string }>({
 			query: ({ productId }) => ({
 				url: "/admin/product",
@@ -55,18 +55,19 @@ export const productApi = adminApi.injectEndpoints({
 				method: "GET",
 			}),
 			transformResponse: (response) => validateData(ProductGetSchema, response),
-			providesTags: (_result, _error, { productId }) => [{ type: "Product", id: productId }],
 		}),
-
-		getProductList: build.query<z.infer<typeof ProductListGetSchema>, void>({
-			query: () => ({
+		getProductList: build.query<
+			z.infer<typeof ProductListGetSchema>,
+			{ filter: z.infer<typeof ProductListFilterSchema> }
+		>({
+			query: ({ filter }) => ({
 				url: "/admin/product-list",
 				method: "GET",
+				params: { filter },
 			}),
 			transformResponse: (response) => validateData(ProductListGetSchema, response),
-			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Product", id: item.id })),
+			providesTags: (_result, _error, data) => [{ type: "Product", id: data.filter || "ALL" }],
 		}),
-
 		updateProduct: build.mutation<void, z.infer<typeof ProductUpdateSchema>>({
 			query: (data) => {
 				return {
@@ -75,9 +76,8 @@ export const productApi = adminApi.injectEndpoints({
 					body: data,
 				};
 			},
-			invalidatesTags: (_result, _error, data) => [{ type: "Product", id: data.id }, { type: "Publication" }],
+			invalidatesTags: ["Product", "Publication"],
 		}),
-
 		addImageProduct: build.mutation<void, z.infer<typeof ProductAddImageSchema>>({
 			query: (data) => {
 				const formData = productAddImageFormDataMapper(data);
@@ -87,16 +87,14 @@ export const productApi = adminApi.injectEndpoints({
 					body: formData,
 				};
 			},
-			invalidatesTags: (_result, _error, data) => [{ type: "Product", id: data.productId }],
 		}),
-
 		deleteProduct: build.mutation<void, { productId: string }>({
 			query: ({ productId }) => ({
 				url: "/admin/product",
 				method: "DELETE",
 				params: { id: productId },
 			}),
-			invalidatesTags: (_result, _error, { productId }) => [{ type: "Product", id: productId }],
+			invalidatesTags: ["Product"],
 		}),
 	}),
 });

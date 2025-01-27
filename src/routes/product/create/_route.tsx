@@ -4,6 +4,7 @@ import { ProductCreateForm } from "./CreateForm";
 import { useCallback } from "react";
 import { useCreateProductMutation } from "@api/admin/product";
 import { useGetCategoryListQuery } from "@api/admin/category";
+import { useGetProductTemplateListQuery } from "@api/admin/productTemplate";
 import { useLazyGetFilterGroupListQuery } from "@api/admin/filterGroup";
 import { useMutationFeedback } from "@hooks/useMutationFeedback";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +17,7 @@ export default function ProductCreateRoute() {
 		createProduct,
 		{ isLoading: createIsLoading, isSuccess: createIsSuccess, isError: createIsError, error: createError },
 	] = useCreateProductMutation();
+	const { data: templateList, isLoading: templateListIsLoading } = useGetProductTemplateListQuery();
 	const { data: categoryList, isLoading: categoryListIsLoading } = useGetCategoryListQuery();
 	const [
 		fetchFilterGroupList,
@@ -25,7 +27,7 @@ export default function ProductCreateRoute() {
 	const { snackbarOpened, snackbarMessage, showSnackbarMessage, closeSnackbar } = useSnackbar();
 
 	const successNavigate = useCallback(() => {
-		setTimeout(() => navigate("/product/table"), 1500);
+		setTimeout(() => navigate("/product/table/UNPUBLISHED"), 1500);
 	}, [navigate]);
 
 	useMutationFeedback({
@@ -53,6 +55,8 @@ export default function ProductCreateRoute() {
 
 			<ProductCreateForm
 				onSubmit={createProduct}
+				templateList={templateList}
+				templateListIsLoading={templateListIsLoading}
 				categoryList={categoryList}
 				categoryListIsLoading={categoryListIsLoading}
 				fetchFilterGroupList={fetchFilterGroupList}

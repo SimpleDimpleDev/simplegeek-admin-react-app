@@ -51,11 +51,11 @@ const VariationAddPreorderResolver = z.object({
 		.number({ message: "Укажите рейтинг" })
 		.nonnegative({ message: "Рейтинг не может быть отрицательным числом" }),
 	price: z.coerce.number({ message: "Укажите цену" }).positive({ message: "Цена должна быть положительным числом" }),
-	quantity: z.coerce.number().positive({ message: "Количество должно быть положительным числом" }).nullable(),
+	quantity: z.coerce.number().nonnegative({ message: "Количество не может быть отрицательным числом" }).nullable(),
 	discount: DiscountResolver.nullable(),
 	quantityRestriction: z.coerce
 		.number()
-		.positive({ message: "Количество должно быть положительным числом" })
+		.positive({ message: "Ограничение должно быть положительным числом" })
 		.nullable(),
 	isCredit: z.boolean(),
 	creditDeposit: z.coerce
@@ -87,7 +87,7 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 	selectedProducts,
 	maxRating,
 }) => {
-	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery();
+	const { data: productList, isLoading: productListIsLoading } = useGetProductListQuery({filter: undefined});
 
 	const availableProducts = useMemo(() => {
 		if (!categoryId) return [];
@@ -279,6 +279,8 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 								<FormControlLabel
 									control={
 										<Checkbox
+											// TODO: enable on full preorder
+											disabled
 											checked={quantityIsUnlimited}
 											onChange={(_, value) => {
 												if (value) {
@@ -367,6 +369,8 @@ const VariationAddPreorderForm: React.FC<VariationAddPreorderFormProps> = ({
 							label="Товар в рассрочку"
 							control={
 								<Checkbox
+									// TODO: enable on full preorder
+									disabled
 									checked={isCredit}
 									onChange={(_, checked) => {
 										if (checked) {

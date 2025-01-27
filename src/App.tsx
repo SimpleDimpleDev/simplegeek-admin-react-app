@@ -9,6 +9,8 @@ import { fetchUser } from "@state/user/thunks";
 import { useEffect } from "react";
 
 function App() {
+	const isDev = import.meta.env.MODE === "development";
+
 	const dispatch = useDispatch<AppDispatch>();
 	const user = useSelector((state: RootState) => state.user);
 
@@ -21,7 +23,7 @@ function App() {
 	}
 
 	console.log("user", user);
-	if (!user.identity || !user.identity.isAdmin) {
+	if ((!user.identity || !user.identity.isAdmin) && !isDev) {
 		window.location.href = "https://simplegeek.ru";
 	}
 

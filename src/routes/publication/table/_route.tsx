@@ -3,9 +3,9 @@ import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
 
 import { Add } from "@mui/icons-material";
-import AdminTable from "@components/ManagementTable";
 import { CreditInfo } from "@appTypes/Payment";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import ManagementTable from "@components/ManagementTable";
 import { PreorderGet } from "@appTypes/Preorder";
 import { ProductGet } from "@appTypes/Product";
 import { PublicationGet } from "@appTypes/Publication";
@@ -17,6 +17,7 @@ interface TableRowData {
 	link: string;
 	publicationId: string;
 	variationIndex: number | null;
+	isActive: boolean;
 	product: ProductGet;
 	price: number;
 	discount: {
@@ -32,6 +33,7 @@ interface TableRowData {
 }
 
 const columns: GridColDef<TableRowData>[] = [
+
 	{
 		field: "product",
 		headerName: "Товар",
@@ -40,7 +42,14 @@ const columns: GridColDef<TableRowData>[] = [
 		renderCell: (params) => (
 			<div className="gap-1 ai-c d-f fd-r">
 				<div style={{ height: 40, width: 40, borderRadius: 6, overflow: "hidden", flexShrink: 0 }}>
-					<img className="contain" src={getImageUrl(params.row.product.images[0].url, "small")} />
+					<img
+						className="contain"
+						src={
+							params.row.product.images.at(0)
+								? getImageUrl(params.row.product.images[0].url, "small")
+								: ""
+						}
+					/>
 				</div>
 				<Typography
 					variant="body2"
@@ -62,6 +71,12 @@ const columns: GridColDef<TableRowData>[] = [
 	{
 		field: "link",
 		headerName: "Ссылка",
+		display: "flex",
+	},
+	{
+		field: "isActive",
+		type: "boolean",
+		headerName: "Активен",
 		display: "flex",
 	},
 	{
@@ -100,7 +115,22 @@ const columns: GridColDef<TableRowData>[] = [
 		headerName: "Остаток",
 		display: "flex",
 		type: "number",
-		valueGetter: (_, row) => (row.quantity ? `${row.quantity - row.orderedQuantity} шт.` : "Неограниченно"),
+		valueGetter: (_, row) => {
+			if (row.quantity === null) return "∞";
+			return row.quantity - row.orderedQuantity;
+		},
+		renderCell: (params) => {
+			const quantity = params.row.quantity;
+			if (quantity === null) return "∞";
+			const restQuantity = quantity - params.row.orderedQuantity;
+			if (restQuantity === 0)
+				return (
+					<Typography variant="body2" color="error">
+						Нет в наличии
+					</Typography>
+				);
+			return `${restQuantity} шт.`;
+		},
 	},
 	{ field: "createdAt", headerName: "Создан", display: "flex", type: "dateTime" },
 	{ field: "updatedAt", headerName: "Обновлен", display: "flex", type: "dateTime" },
@@ -113,6 +143,7 @@ const formatPublications = (publications: PublicationGet[]): TableRowData[] => {
 				link: publication.link,
 				publicationId: publication.id,
 				variationIndex: item.variationIndex,
+				isActive: item.isActive,
 				product: item.product,
 				price: item.price,
 				discount: item.discount,
@@ -161,7 +192,7 @@ export default function PublicationTableRoute() {
 						Количество публикаций: {formattedPublications?.length}
 					</Typography>
 				</div>
-				<Button variant="contained" onClick={() => navigate("/publication/create")}>
+				<Button variant="contained" onClick={() => navigate("/publication/create/stock")}>
 					<Add />
 					Добавить публикацию
 				</Button>
@@ -172,7 +203,7 @@ export default function PublicationTableRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<AdminTable
+					<ManagementTable
 						columns={columns}
 						data={formattedPublications}
 						onRowSelect={setSelectedItemIds}

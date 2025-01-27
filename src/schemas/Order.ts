@@ -17,6 +17,12 @@ export const OrderStatusSchema = z.enum([
 	"FINISHED",
 ]);
 
+export const OrderListFilterSchema = z.enum([
+	"ACTION_REQUIRED",
+	"READY_FOR_SELF_PICKUP",
+	"CANCELLED",
+]).optional();
+
 export const OrderCreateSchema = z.object({
 	creditIds: IdSchema.array(),
 	delivery: DeliverySchema.nullable(),
@@ -67,6 +73,7 @@ export const OrderListGetSchema = z.object({
 export const OrderEditablePropsGetSchema = z.object({
 	delivery: z.boolean(),
 	statuses: OrderStatusSchema.array(),
+	isRefundable: z.boolean(),
 });
 
 export const OrderUpdateStatusSchema = z.object({

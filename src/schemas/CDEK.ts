@@ -40,7 +40,9 @@ export const CDEKDoorAddressSchema = z.object({
 	city: z.string(),
 });
 
-export const CDEKAddressSchema = z.union([CDEKOfficeAddressSchema, CDEKDoorAddressSchema]);
+// export const CDEKAddressSchema = z.union([CDEKOfficeAddressSchema, CDEKDoorAddressSchema]);
+export const CDEKAddressSchema = CDEKOfficeAddressSchema
+
 
 export const CDEKDeliveryDataFullSchema = z.object({
 	deliveryType: CDEKDeliveryTypeSchema,

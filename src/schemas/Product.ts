@@ -6,6 +6,9 @@ import { CategoryGetSchema } from "./Category";
 import { PhysicalPropertiesSchema } from "./PhysicalProperties";
 import { z } from "zod";
 
+export const ProductListFilterSchema = z.enum(["PUBLISHED", "UNPUBLISHED"]).optional();
+
+
 export const ProductCreateSchema = z
 	.object({
 		categoryId: z.string(),
@@ -18,7 +21,6 @@ export const ProductCreateSchema = z
 	.describe("ProductCreate");
 
 export const ProductGetSchema = AdminGetBaseSchema.extend({
-	isPublished: z.boolean().default(true),
 	category: CategoryGetSchema,
 	title: z.string(),
 	description: z.string().nullable(),

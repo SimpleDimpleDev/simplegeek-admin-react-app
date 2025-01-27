@@ -19,20 +19,21 @@ const preorderApi = adminApi.injectEndpoints({
 			invalidatesTags: ["Preorder"],
 		}),
 		getPreorder: build.query<z.infer<typeof PreorderGetSchema>, { preorderId: string }>({
-			query: () => ({
+			query: ({ preorderId }) => ({
 				url: "/admin/preorder",
 				method: "GET",
-				params: { id: "preorderId" },
+				params: { id: preorderId },
 			}),
 			providesTags: (_result, _error, { preorderId }) => [{ type: "Preorder", id: preorderId }],
 			transformResponse: (response) => PreorderGetSchema.parse(response),
 		}),
-		getPreorderList: build.query<z.infer<typeof PreorderListGetSchema>, void>({
-			query: () => ({
+		getPreorderList: build.query<z.infer<typeof PreorderListGetSchema>, void | { allowPublish: boolean }>({
+			query: (args) => ({
 				url: "/admin/preorder-list",
 				method: "GET",
+				params: args || {},
 			}),
-			providesTags: (result) => (result?.items || []).map((item) => ({ type: "Preorder", id: item.id })),
+			providesTags: ["Preorder"],
 			transformResponse: (response) => PreorderListGetSchema.parse(response),
 		}),
 		updatePreorder: build.mutation<void, z.infer<typeof PreorderUpdateSchema>>({
@@ -43,13 +44,13 @@ const preorderApi = adminApi.injectEndpoints({
 			}),
 			invalidatesTags: (_result, _error, body) => [{ type: "Preorder", id: body.id }],
 		}),
-		promotePreorder: build.mutation<void, { preorderId: string }>({
+		advancePreorder: build.mutation<void, { preorderId: string }>({
 			query: (data) => ({
-				url: "/admin/preorder/promote",
+				url: "/admin/preorder/advance",
 				method: "PATCH",
-				params: { id: data.preorderId },
+				body: { id: data.preorderId },
 			}),
-			invalidatesTags: (_result, _error, body) => [{ type: "Preorder", id: body.preorderId }],
+			invalidatesTags: (_result, _error, body) => [{ type: "Preorder", id: body.preorderId }, "Publication"],
 		}),
 	}),
 });
@@ -58,6 +59,7 @@ export const {
 	useCreatePreorderMutation,
 	useGetPreorderQuery,
 	useGetPreorderListQuery,
+	useLazyGetPreorderListQuery,
 	useUpdatePreorderMutation,
-	usePromotePreorderMutation,
+	useAdvancePreorderMutation,
 } = preorderApi;
