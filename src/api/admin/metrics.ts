@@ -6,10 +6,10 @@ import { z } from "zod";
 const metricsApi = adminApi.injectEndpoints({
 	endpoints: (build) => ({
 		getMetricsCharts: build.query<z.infer<typeof MetricsChartsGetSchema>, z.infer<typeof MetricsFilterSchema>>({
-			query: (body) => ({
+			query: (params) => ({
 				url: "/admin/metrics/charts",
 				method: "GET",
-				body: body,
+				params,
 			}),
 			transformResponse: (response) => MetricsChartsGetSchema.parse(response),
 		}),
