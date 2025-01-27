@@ -29,7 +29,7 @@ export default function IndexRoute() {
 	} = useGetMetricsChartsQuery(
 		{
 			year: date.year(),
-			month: date.month(),
+			month: date.month() + 1,
 		},
 		{ refetchOnMountOrArgChange: true }
 	);
