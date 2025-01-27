@@ -225,7 +225,7 @@ export default function UserInspectRoute() {
 							<div className="section">
 								<Typography variant="subtitle0">Информация</Typography>
 								<Typography variant="body1">Email: {user.email}</Typography>
-								<div className="gap-1 d-f fd-r">
+								<div className="gap-1 ai-c d-f fd-r">
 									<Typography variant="body1">VK ID: {user.vkId ?? "Не подключён"}</Typography>
 									{user.vkId && (
 										<Tooltip title="Открыть в VK">
