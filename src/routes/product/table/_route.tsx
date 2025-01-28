@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { ExcelUploadModal } from "@routes/publication/table/ExcelUpload";
+import Fader from "@components/Fader";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementTable from "@components/ManagementTable";
 import { ProductGet } from "@appTypes/Product";
@@ -69,9 +70,14 @@ export default function ProductTableRoute() {
 		data: productList,
 		isLoading: productListIsLoading,
 		isFetching: productListIsFetching,
-	} = useGetProductListQuery({
-		filter: productListFilter,
-	});
+	} = useGetProductListQuery(
+		{
+			filter: productListFilter,
+		},
+		{
+			refetchOnMountOrArgChange: true,
+		}
+	);
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
@@ -82,7 +88,7 @@ export default function ProductTableRoute() {
 	}, [selectedItemIds, productList]);
 
 	const [publicationTarget, setPublicationTarget] = useState<PublicationTarget>({ type: "STOCK", label: "розницу" });
-	const { data: preorderList } = useGetPreorderListQuery({allowPublish: true});
+	const { data: preorderList } = useGetPreorderListQuery({ allowPublish: true });
 
 	const publicationTargets: PublicationTarget[] = useMemo(() => {
 		const targets = [{ label: "розницу", type: "STOCK" } as PublicationTarget];
@@ -146,71 +152,73 @@ export default function ProductTableRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<ManagementTable
-						columns={columns}
-						data={productList?.items}
-						onRowSelect={setSelectedItemIds}
-						selectedRows={selectedItemIds}
-						headerButtons={
-							<>
-								<div className="gap-05 w-100 ai-c d-f fd-r jc-fe">
+					<Fader deps={[productList]}>
+						<ManagementTable
+							columns={columns}
+							data={productList.items}
+							onRowSelect={setSelectedItemIds}
+							selectedRows={selectedItemIds}
+							headerButtons={
+								<>
+									<div className="gap-05 w-100 ai-c d-f fd-r jc-fe">
+										<Button
+											sx={{ width: "max-content", flexShrink: 0 }}
+											fullWidth
+											variant="contained"
+											disabled={!selectedItemIds.length}
+											onClick={() => {
+												const productIdsParam = selectedItemIds
+													.map((id) => `productId[]=${id}`)
+													.join("&");
+												navigate(
+													`/publication/create/${
+														publicationTarget.type === "STOCK"
+															? "stock/"
+															: `preorder/${publicationTarget.preorderId}/`
+													}?${productIdsParam}`
+												);
+											}}
+										>
+											{selectedItemIds.length > 1
+												? "Опубликовать вариативный товар"
+												: "Опубликовать товар"}
+										</Button>
+										<Typography variant="subtitle0">в</Typography>
+										<Autocomplete
+											sx={{
+												width: "24%",
+											}}
+											options={publicationTargets}
+											renderInput={(params) => <TextField {...params} label="цель публикации" />}
+											getOptionLabel={(option) => option.label}
+											value={publicationTarget}
+											onChange={(_, value) => {
+												setPublicationTarget(value as PublicationTarget);
+											}}
+										/>
+									</div>
+								</>
+							}
+							leftHeaderButtons={
+								<>
 									<Button
-										sx={{ width: "max-content", flexShrink: 0 }}
-										fullWidth
 										variant="contained"
-										disabled={!selectedItemIds.length}
-										onClick={() => {
-											const productIdsParam = selectedItemIds
-												.map((id) => `productId[]=${id}`)
-												.join("&");
-											navigate(
-												`/publication/create/${
-													publicationTarget.type === "STOCK"
-														? "stock/"
-														: `preorder/${publicationTarget.preorderId}/`
-												}?${productIdsParam}`
-											);
-										}}
+										disabled={!selectedProduct}
+										onClick={() => navigate(`/product/inspect/${selectedProduct?.id}`)}
 									>
-										{selectedItemIds.length > 1
-											? "Опубликовать вариативный товар"
-											: "Опубликовать товар"}
+										Подробнее
 									</Button>
-									<Typography variant="subtitle0">в</Typography>
-									<Autocomplete
-										sx={{
-											width: "24%"
-										}}
-										options={publicationTargets}
-										renderInput={(params) => <TextField {...params} label="цель публикации" />}
-										getOptionLabel={(option) => option.label}
-										value={publicationTarget}
-										onChange={(_, value) => {
-											setPublicationTarget(value as PublicationTarget);
-										}}
-									/>
-								</div>
-							</>
-						}
-						leftHeaderButtons={
-							<>
-								<Button
-									variant="contained"
-									disabled={!selectedProduct}
-									onClick={() => navigate(`/product/inspect/${selectedProduct?.id}`)}
-								>
-									Подробнее
-								</Button>
-								<Button
-									variant="contained"
-									disabled={!selectedProduct}
-									onClick={() => navigate(`/product/edit/${selectedProduct?.id}`)}
-								>
-									Редактировать
-								</Button>
-							</>
-						}
-					/>
+									<Button
+										variant="contained"
+										disabled={!selectedProduct}
+										onClick={() => navigate(`/product/edit/${selectedProduct?.id}`)}
+									>
+										Редактировать
+									</Button>
+								</>
+							}
+						/>
+					</Fader>
 				)}
 			</LoadingSpinner>
 		</div>
