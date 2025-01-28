@@ -1,4 +1,4 @@
-import { Snackbar, Typography } from "@mui/material";
+import { CircularProgress, Snackbar, Typography } from "@mui/material";
 import { useCreatePublicationMutation, useGetMaxRatingQuery } from "@api/admin/publication";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
@@ -17,7 +17,7 @@ export default function PublicationCreatePreorderRoute() {
 	const params = useParams();
 	const preorderId = params.id;
 	if (!preorderId) throw new Response("No preorder id provided", { status: 404 });
-    const { data: preorder, isLoading: preorderIsLoading } = useGetPreorderQuery({ preorderId });
+	const { data: preorder, isLoading: preorderIsLoading } = useGetPreorderQuery({ preorderId });
 
 	const [searchParams] = useSearchParams();
 	const productIds = useMemo(() => searchParams.getAll("productId[]"), [searchParams]);
@@ -58,16 +58,22 @@ export default function PublicationCreatePreorderRoute() {
 						<div className="p-2">
 							<Typography variant="h5">Публикация товара в предзаказ {preorder.title}</Typography>
 						</div>
-						<PublicationCreatePreorderForm
-							preorderId={preorder.id}
-							productIds={productIds}
-							productList={productList}
-							productListIsLoading={productListIsLoading}
-							categoryList={categoryList}
-							categoryListIsLoading={categoryListIsLoading}
-							onSubmit={createPublication}
-							maxRating={maxRating?.rating}
-						/>
+						{categoryListIsLoading || productListIsLoading ? (
+							<div className="w-100 h-100 ai-c d-f jc-c">
+								<CircularProgress />
+							</div>
+						) : (
+							<PublicationCreatePreorderForm
+								preorderId={preorder.id}
+								productIds={productIds}
+								productList={productList}
+								productListIsLoading={productListIsLoading}
+								categoryList={categoryList}
+								categoryListIsLoading={categoryListIsLoading}
+								onSubmit={createPublication}
+								maxRating={maxRating?.rating}
+							/>
+						)}
 					</div>
 				)}
 			</LoadingSpinner>

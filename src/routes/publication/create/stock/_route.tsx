@@ -1,7 +1,4 @@
-import {
-	Snackbar,
-	Typography,
-} from "@mui/material";
+import { CircularProgress, Snackbar, Typography } from "@mui/material";
 import { useCreatePublicationMutation, useGetMaxRatingQuery } from "@api/admin/publication";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -48,16 +45,21 @@ export default function PublicationCreateStockRoute() {
 				<div className="p-2">
 					<Typography variant="h5">Публикация товара в розницу</Typography>
 				</div>
-
-				<PublicationCreateStockForm
-					productList={productList}
-					productListIsLoading={productListIsLoading}
-					categoryList={categoryList}
-					categoryListIsLoading={categoryListIsLoading}
-					productIds={productIds}
-					onSubmit={createPublication}
-					maxRating={maxRating?.rating}
-				/>
+				{categoryListIsLoading || productListIsLoading ? (
+					<div className="w-100 h-100 ai-c d-f jc-c">
+						<CircularProgress />
+					</div>
+				) : (
+					<PublicationCreateStockForm
+						productList={productList}
+						productListIsLoading={productListIsLoading}
+						categoryList={categoryList}
+						categoryListIsLoading={categoryListIsLoading}
+						productIds={productIds}
+						onSubmit={createPublication}
+						maxRating={maxRating?.rating}
+					/>
+				)}
 			</div>
 		</>
 	);
