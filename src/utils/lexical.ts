@@ -17,5 +17,6 @@ export const generateLink = (text: string) => {
 	return snakeText
 		.split(" ")
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-		.join("");
+		.join("")
+		.replace(/[^a-zA-Z0-9-_]/g, "");
 };
