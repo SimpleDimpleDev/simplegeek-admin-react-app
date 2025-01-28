@@ -30,7 +30,7 @@ const Fader: React.FC<FaderProps> = ({ deps = [], timeout = 200, children }) => 
 	}, [...deps, timeout]);
 
 	return (
-		<div style={{ width: "100%", height: "100%", position: "relative" }}>
+		<div style={{ width: "100%", height: "92%", position: "relative", display: "flex", flexDirection: "column" }}>
 			{isFading && (
 				<div
 					className="bg-secondary"
