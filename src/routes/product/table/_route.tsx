@@ -70,14 +70,9 @@ export default function ProductTableRoute() {
 		data: productList,
 		isLoading: productListIsLoading,
 		isFetching: productListIsFetching,
-	} = useGetProductListQuery(
-		{
-			filter: productListFilter,
-		},
-		{
-			refetchOnMountOrArgChange: true,
-		}
-	);
+	} = useGetProductListQuery({
+		filter: productListFilter,
+	});
 
 	const [selectedItemIds, setSelectedItemIds] = useState<GridRowSelectionModel>([]);
 
