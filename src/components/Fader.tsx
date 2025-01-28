@@ -35,6 +35,7 @@ const Fader: React.FC<FaderProps> = ({ deps = [], timeout = 500, children }) => 
 				<div
 					className="bg-secondary"
 					style={{
+						zIndex: 100,
 						position: "absolute",
 						top: 0,
 						left: 0,
@@ -45,7 +46,7 @@ const Fader: React.FC<FaderProps> = ({ deps = [], timeout = 500, children }) => 
 					}}
 				/>
 			)}
-			{renderChildren && children}
+			{renderChildren && <div style={{ width: "100%", height: "100%", zIndex: 80 }}>{children}</div>}
 		</div>
 	);
 };
