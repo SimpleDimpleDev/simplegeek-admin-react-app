@@ -46,7 +46,7 @@ const Fader: React.FC<FaderProps> = ({ deps = [], timeout = 200, children }) => 
 					}}
 				/>
 			)}
-			{renderChildren && <div style={{ width: "100%", height: "100%", zIndex: 80 }}>{children}</div>}
+			{renderChildren && children}
 		</div>
 	);
 };
