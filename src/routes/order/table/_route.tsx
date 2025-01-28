@@ -7,6 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import ActionDialog from "@components/ActionDialog";
 import { Business } from "@mui/icons-material";
+import Fader from "@components/Fader";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementTable from "@components/ManagementTable";
 import { OrderGet } from "@appTypes/Order";
@@ -210,54 +211,56 @@ export default function OrderTableRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<ManagementTable
-						columns={selfPickupColumns}
-						data={orderList.items}
-						onRowSelect={setSelectedItemIds}
-						selectedRows={selectedItemIds}
-						sorting={
-							orderListFilter === "ACTION_REQUIRED"
-								? [{ field: "createdAt", sort: "asc" }]
-								: [{ field: "createdAt", sort: "desc" }]
-						}
-						headerButtons={
-							<>
-								{orderListFilter === "ACTION_REQUIRED" && (
-									<Tooltip title="Сделать готовыми для самовывоза.">
-										<Button
-											variant="contained"
-											disabled={!makeSelfPickupReadyEnabled}
-											onClick={() => setMakeSelfPickupReadyConfirmDialogOpen(true)}
-										>
-											<Business />
-										</Button>
-									</Tooltip>
-								)}
-							</>
-						}
-						leftHeaderButtons={
-							<>
-								<Button
-									variant="contained"
-									disabled={!selectedOrder}
-									onClick={() => {
-										navigate(`/order/inspect/${selectedOrder?.id}`);
-									}}
-								>
-									Подробнее
-								</Button>
-								<Button
-									variant="contained"
-									disabled={!selectedOrder}
-									onClick={() => {
-										navigate(`/user/inspect/${selectedOrder?.user.id}`);
-									}}
-								>
-									Перейти к пользователю
-								</Button>
-							</>
-						}
-					/>
+					<Fader deps={[orderList]}>
+						<ManagementTable
+							columns={selfPickupColumns}
+							data={orderList.items}
+							onRowSelect={setSelectedItemIds}
+							selectedRows={selectedItemIds}
+							sorting={
+								orderListFilter === "ACTION_REQUIRED"
+									? [{ field: "createdAt", sort: "asc" }]
+									: [{ field: "createdAt", sort: "desc" }]
+							}
+							headerButtons={
+								<>
+									{orderListFilter === "ACTION_REQUIRED" && (
+										<Tooltip title="Сделать готовыми для самовывоза.">
+											<Button
+												variant="contained"
+												disabled={!makeSelfPickupReadyEnabled}
+												onClick={() => setMakeSelfPickupReadyConfirmDialogOpen(true)}
+											>
+												<Business />
+											</Button>
+										</Tooltip>
+									)}
+								</>
+							}
+							leftHeaderButtons={
+								<>
+									<Button
+										variant="contained"
+										disabled={!selectedOrder}
+										onClick={() => {
+											navigate(`/order/inspect/${selectedOrder?.id}`);
+										}}
+									>
+										Подробнее
+									</Button>
+									<Button
+										variant="contained"
+										disabled={!selectedOrder}
+										onClick={() => {
+											navigate(`/user/inspect/${selectedOrder?.user.id}`);
+										}}
+									>
+										Перейти к пользователю
+									</Button>
+								</>
+							}
+						/>
+					</Fader>
 				)}
 			</LoadingSpinner>
 		</div>

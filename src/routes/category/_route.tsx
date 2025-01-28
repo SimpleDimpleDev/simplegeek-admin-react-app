@@ -16,6 +16,7 @@ import { CategoryChangeImageForm } from "./ChangeImageForm";
 import { CategoryCreateForm } from "./CreateForm";
 import { CategoryGet } from "@appTypes/Category";
 import { CategoryUpdateForm } from "./UpdateForm";
+import Fader from "@components/Fader";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../../components/ManagementModal";
@@ -180,30 +181,32 @@ export default function CategoryRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<ManagementTable
-						columns={columns}
-						data={categoryList.items}
-						onRowSelect={setSelectedItemIds}
-						selectedRows={selectedItemIds}
-						headerButtons={
-							<>
-								<Button
-									variant="contained"
-									disabled={!selectedItemIds.length}
-									onClick={() => setDeletionDialogOpened(true)}
-								>
-									Удалить
-								</Button>
-								<Button
-									variant="contained"
-									disabled={!selectedItemIds.length || selectedItemIds.length > 1}
-									onClick={() => setUpdateModalOpened(true)}
-								>
-									Редактировать
-								</Button>
-							</>
-						}
-					/>
+					<Fader>
+						<ManagementTable
+							columns={columns}
+							data={categoryList.items}
+							onRowSelect={setSelectedItemIds}
+							selectedRows={selectedItemIds}
+							headerButtons={
+								<>
+									<Button
+										variant="contained"
+										disabled={!selectedItemIds.length}
+										onClick={() => setDeletionDialogOpened(true)}
+									>
+										Удалить
+									</Button>
+									<Button
+										variant="contained"
+										disabled={!selectedItemIds.length || selectedItemIds.length > 1}
+										onClick={() => setUpdateModalOpened(true)}
+									>
+										Редактировать
+									</Button>
+								</>
+							}
+						/>
+					</Fader>
 				)}
 			</LoadingSpinner>
 		</div>

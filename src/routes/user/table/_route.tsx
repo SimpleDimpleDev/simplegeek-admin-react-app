@@ -2,6 +2,7 @@ import { Button, Typography } from "@mui/material";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useMemo, useState } from "react";
 
+import Fader from "@components/Fader";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementTable from "@components/ManagementTable";
 import { UserGet } from "@appTypes/User";
@@ -58,23 +59,25 @@ export default function UserTableRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<ManagementTable
-						columns={columns}
-						data={userList.items}
-						onRowSelect={setSelectedItemIds}
-						selectedRows={selectedItemIds}
-						leftHeaderButtons={
-							<>
-								<Button
-									variant="contained"
-									disabled={!selectedUser}
-									onClick={() => navigate(`/user/inspect/${selectedUser?.id}`)}
-								>
-									Подробнее
-								</Button>
-							</>
-						}
-					/>
+					<Fader>
+						<ManagementTable
+							columns={columns}
+							data={userList.items}
+							onRowSelect={setSelectedItemIds}
+							selectedRows={selectedItemIds}
+							leftHeaderButtons={
+								<>
+									<Button
+										variant="contained"
+										disabled={!selectedUser}
+										onClick={() => navigate(`/user/inspect/${selectedUser?.id}`)}
+									>
+										Подробнее
+									</Button>
+								</>
+							}
+						/>
+					</Fader>
 				)}
 			</LoadingSpinner>
 		</div>

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 
 import { Add } from "@mui/icons-material";
 import { CreditInfo } from "@appTypes/Payment";
+import Fader from "@components/Fader";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementTable from "@components/ManagementTable";
 import { PreorderGet } from "@appTypes/Preorder";
@@ -33,7 +34,6 @@ interface TableRowData {
 }
 
 const columns: GridColDef<TableRowData>[] = [
-
 	{
 		field: "product",
 		headerName: "Товар",
@@ -203,40 +203,42 @@ export default function PublicationTableRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<ManagementTable
-						columns={columns}
-						data={formattedPublications}
-						onRowSelect={setSelectedItemIds}
-						selectedRows={selectedItemIds}
-						getRowId={(item) => {
-							const variationString = item.variationIndex !== null ? `?v=${item.variationIndex}` : "";
-							return `${item.publicationId}${variationString}`;
-						}}
-						// headerButtons={
-						// 	<>
-						// 		<Button
-						// 			variant="contained"
-						// 			disabled={!selectedItemIds.length}
-						// 			onClick={() => console.log("disabled", selectedItemIds)}
-						// 		>
-						// 			{selectedItemIds.length > 1 ? "Скрыть публикации" : "Скрыть публикацию"}
-						// 		</Button>
-						// 	</>
-						// }
-						leftHeaderButtons={
-							<>
-								<Button
-									variant="contained"
-									disabled={!selectedPublication}
-									onClick={() => {
-										navigate(`/publication/inspect/${selectedItemIds.at(0)}`);
-									}}
-								>
-									Подробнее
-								</Button>
-							</>
-						}
-					/>
+					<Fader>
+						<ManagementTable
+							columns={columns}
+							data={formattedPublications}
+							onRowSelect={setSelectedItemIds}
+							selectedRows={selectedItemIds}
+							getRowId={(item) => {
+								const variationString = item.variationIndex !== null ? `?v=${item.variationIndex}` : "";
+								return `${item.publicationId}${variationString}`;
+							}}
+							// headerButtons={
+							// 	<>
+							// 		<Button
+							// 			variant="contained"
+							// 			disabled={!selectedItemIds.length}
+							// 			onClick={() => console.log("disabled", selectedItemIds)}
+							// 		>
+							// 			{selectedItemIds.length > 1 ? "Скрыть публикации" : "Скрыть публикацию"}
+							// 		</Button>
+							// 	</>
+							// }
+							leftHeaderButtons={
+								<>
+									<Button
+										variant="contained"
+										disabled={!selectedPublication}
+										onClick={() => {
+											navigate(`/publication/inspect/${selectedItemIds.at(0)}`);
+										}}
+									>
+										Подробнее
+									</Button>
+								</>
+							}
+						/>
+					</Fader>
 				)}
 			</LoadingSpinner>
 		</div>

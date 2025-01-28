@@ -6,7 +6,7 @@ interface FaderProps {
 	children: React.ReactNode;
 }
 
-const Fader: React.FC<FaderProps> = ({ deps = [], timeout = 500, children }) => {
+const Fader: React.FC<FaderProps> = ({ deps = [], timeout = 200, children }) => {
 	const [renderChildren, setRenderChildren] = useState(false);
 	const [isFading, setIsFading] = useState(true);
 
@@ -16,7 +16,7 @@ const Fader: React.FC<FaderProps> = ({ deps = [], timeout = 500, children }) => 
 
 		const renderChildrenTimeout = setTimeout(() => {
 			setRenderChildren(true);
-		}, 100);
+		}, 10);
 
 		const fadeOutTimeout = setTimeout(() => {
 			setIsFading(false);
