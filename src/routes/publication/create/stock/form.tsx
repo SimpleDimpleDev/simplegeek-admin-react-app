@@ -628,7 +628,7 @@ export const PublicationCreateStockForm: React.FC<PublicationCreateStockFormProp
 								}
 							}}
 							control={<Checkbox />}
-							label="Создать без публикации"
+							label="Создать публикацию неактивной"
 						/>
 					)}
 				/>

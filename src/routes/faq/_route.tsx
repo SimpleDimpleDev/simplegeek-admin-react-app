@@ -2,11 +2,17 @@ import { Button, Snackbar, Typography } from "@mui/material";
 import { FAQItemCreateForm, FAQItemUpdateForm } from "./forms";
 import { GridColDef, GridRowSelectionModel } from "@mui/x-data-grid";
 import { useCallback, useMemo, useState } from "react";
-import { useCreateFAQItemMutation, useDeleteFAQItemsMutation, useGetFAQItemListQuery, useUpdateFAQItemMutation } from "@api/admin/faqItem";
+import {
+	useCreateFAQItemMutation,
+	useDeleteFAQItemsMutation,
+	useGetFAQItemListQuery,
+	useUpdateFAQItemMutation,
+} from "@api/admin/faqItem";
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
 import { FAQItemGet } from "@appTypes/FAQ";
+import Fader from "@components/Fader";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "../../components/ManagementModal";
@@ -129,30 +135,32 @@ export default function FaqRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<ManagementTable
-						columns={columns}
-						data={FAQItemList.items}
-						onRowSelect={setSelectedItemIds}
-						selectedRows={selectedItemIds}
-						headerButtons={
-							<>
-								<Button
-									variant="contained"
-									disabled={!selectedItemIds.length}
-									onClick={() => setDeletionDialogOpened(true)}
-								>
-									Удалить
-								</Button>
-								<Button
-									variant="contained"
-									disabled={!selectedItemIds.length || selectedItemIds.length > 1}
-									onClick={() => setUpdateModalOpened(true)}
-								>
-									Редактировать
-								</Button>
-							</>
-						}
-					/>
+					<Fader>
+						<ManagementTable
+							columns={columns}
+							data={FAQItemList.items}
+							onRowSelect={setSelectedItemIds}
+							selectedRows={selectedItemIds}
+							headerButtons={
+								<>
+									<Button
+										variant="contained"
+										disabled={!selectedItemIds.length}
+										onClick={() => setDeletionDialogOpened(true)}
+									>
+										Удалить
+									</Button>
+									<Button
+										variant="contained"
+										disabled={!selectedItemIds.length || selectedItemIds.length > 1}
+										onClick={() => setUpdateModalOpened(true)}
+									>
+										Редактировать
+									</Button>
+								</>
+							}
+						/>
+					</Fader>
 				)}
 			</LoadingSpinner>
 		</div>

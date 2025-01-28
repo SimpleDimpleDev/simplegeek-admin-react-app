@@ -10,6 +10,7 @@ import {
 
 import ActionDialog from "@components/ActionDialog";
 import { Add } from "@mui/icons-material";
+import Fader from "@components/Fader";
 import { FilterGroupCreateForm } from "./CreateForm";
 import { FilterGroupGet } from "@appTypes/Filters";
 import { FilterGroupUpdateForm } from "./UpdateForm";
@@ -213,30 +214,32 @@ export default function FilterRoute() {
 						<Typography variant="h5">Что-то пошло не так</Typography>
 					</div>
 				) : (
-					<ManagementTable
-						columns={columns}
-						data={filterGroupList.items}
-						onRowSelect={setSelectedItemIds}
-						selectedRows={selectedItemIds}
-						headerButtons={
-							<>
-								<Button
-									variant="contained"
-									disabled={!selectedItemIds.length}
-									onClick={handleStartDelete}
-								>
-									Удалить
-								</Button>
-								<Button
-									variant="contained"
-									disabled={!selectedItemIds.length || selectedItemIds.length > 1}
-									onClick={handleStartUpdate}
-								>
-									Редактировать
-								</Button>
-							</>
-						}
-					/>
+					<Fader>
+						<ManagementTable
+							columns={columns}
+							data={filterGroupList.items}
+							onRowSelect={setSelectedItemIds}
+							selectedRows={selectedItemIds}
+							headerButtons={
+								<>
+									<Button
+										variant="contained"
+										disabled={!selectedItemIds.length}
+										onClick={handleStartDelete}
+									>
+										Удалить
+									</Button>
+									<Button
+										variant="contained"
+										disabled={!selectedItemIds.length || selectedItemIds.length > 1}
+										onClick={handleStartUpdate}
+									>
+										Редактировать
+									</Button>
+								</>
+							}
+						/>
+					</Fader>
 				)}
 			</LoadingSpinner>
 		</div>

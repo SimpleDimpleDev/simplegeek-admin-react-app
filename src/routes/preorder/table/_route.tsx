@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useCreatePreorderMutation, useGetPreorderListQuery } from "@api/admin/preorder";
 
 import { Add } from "@mui/icons-material";
+import Fader from "@components/Fader";
 import { LoadingOverlay } from "@components/LoadingOverlay";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import ManagementModal from "@components/ManagementModal";
@@ -103,25 +104,27 @@ export default function PreorderTableRoute() {
 							<Typography variant="h5">Что-то пошло не так</Typography>
 						</div>
 					) : (
-						<ManagementTable
-							columns={columns}
-							data={preorderList.items}
-							onRowSelect={setSelectedItemIds}
-							selectedRows={selectedItemIds}
-							leftHeaderButtons={
-								<>
-									<Button
-										variant="contained"
-										disabled={!selectedPreorder}
-										onClick={() => {
-											navigate(`/preorder/inspect/${selectedPreorder?.id}`);
-										}}
-									>
-										Подробнее
-									</Button>
-								</>
-							}
-						/>
+						<Fader>
+							<ManagementTable
+								columns={columns}
+								data={preorderList.items}
+								onRowSelect={setSelectedItemIds}
+								selectedRows={selectedItemIds}
+								leftHeaderButtons={
+									<>
+										<Button
+											variant="contained"
+											disabled={!selectedPreorder}
+											onClick={() => {
+												navigate(`/preorder/inspect/${selectedPreorder?.id}`);
+											}}
+										>
+											Подробнее
+										</Button>
+									</>
+								}
+							/>
+						</Fader>
 					)}
 				</LoadingSpinner>
 			</div>

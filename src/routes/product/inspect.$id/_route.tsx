@@ -1,5 +1,5 @@
 import { Button, Divider, Snackbar, Typography } from "@mui/material";
-import { useCallback, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 import { useDeleteProductMutation, useGetProductQuery } from "@api/admin/product";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -172,9 +172,16 @@ export default function ProductInspectRoute() {
 							</div>
 							<div className="gap-3 bg-primary p-3 pt-2 w-100 br-3 d-f fd-c">
 								<Typography variant="h5">Описание</Typography>
-								<Typography variant="body1" sx={{ color: "typography.secondary" }}>
-									{product.description}
-								</Typography>
+								{product.description && product.description.length > 0 && (
+									<Typography variant="body1" sx={{ color: "typography.secondary" }}>
+										{product.description.split("\n").map((text, index) => (
+											<Fragment key={index}>
+												{text}
+												<br />
+											</Fragment>
+										))}
+									</Typography>
+								)}
 							</div>
 						</>
 					)}

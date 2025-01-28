@@ -839,7 +839,7 @@ export const PublicationCreatePreorderForm: React.FC<PublicationCreatePreorderFo
 								}
 							}}
 							control={<Checkbox />}
-							label="Создать без публикации"
+							label="Создать публикацию неактивной"
 						/>
 					)}
 				/>

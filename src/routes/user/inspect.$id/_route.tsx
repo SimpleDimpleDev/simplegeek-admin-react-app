@@ -265,23 +265,30 @@ export default function UserInspectRoute() {
 														{deliveryServiceTitles.get(userSavedDelivery.service)}
 													</Typography>
 												</div>
-												<div className="gap-05 w-100 d-f fd-c">
+												{userSavedDelivery.point && (
+													<div className="gap-05 w-100 d-f fd-c">
+														<Typography
+															variant="body1"
+															sx={{ color: "typography.secondary" }}
+														>
+															Пункт выдачи
+														</Typography>
+														<Typography variant="body1">
+															{userSavedDelivery.point.code}
+														</Typography>
+													</div>
+												)}
+											</div>
+											{userSavedDelivery.point && (
+												<div className="gap-05 d-f fd-c">
 													<Typography variant="body1" sx={{ color: "typography.secondary" }}>
-														Пункт выдачи
+														Адрес
 													</Typography>
 													<Typography variant="body1">
-														{userSavedDelivery.point?.code}
+														{userSavedDelivery.point.address}
 													</Typography>
 												</div>
-											</div>
-											<div className="gap-05 d-f fd-c">
-												<Typography variant="body1" sx={{ color: "typography.secondary" }}>
-													Адрес
-												</Typography>
-												<Typography variant="body1">
-													{userSavedDelivery.point?.address}
-												</Typography>
-											</div>
+											)}
 										</div>
 										<div className="gap-2 d-f fd-c">
 											<Typography variant="h5">Получатель</Typography>
